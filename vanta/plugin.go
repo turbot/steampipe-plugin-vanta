@@ -23,7 +23,9 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		// 	ShouldIgnoreError: errors.NotFoundError,
 		// },
 		DefaultTransform: transform.FromCamel().Transform(transform.NullIfZeroValue),
-		TableMap:         map[string]*plugin.Table{},
+		TableMap: map[string]*plugin.Table{
+			"vanta_user": tableVantaUser(ctx),
+		},
 	}
 	return p
 }
