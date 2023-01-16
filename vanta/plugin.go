@@ -3,8 +3,6 @@ package vanta
 import (
 	"context"
 
-	//"github.com/turbot/steampipe-plugin-fly/errors"
-
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
@@ -24,7 +22,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		// },
 		DefaultTransform: transform.FromCamel().Transform(transform.NullIfZeroValue),
 		TableMap: map[string]*plugin.Table{
-			"vanta_user": tableVantaUser(ctx),
+			"vanta_policy": tableVantaPolicy(ctx),
+			"vanta_user":   tableVantaUser(ctx),
 		},
 	}
 	return p

@@ -9,10 +9,10 @@ import (
 
 // Data about a user within Vanta
 type User struct {
-	CreatedAt   string
-	DisplayName string
-	Email       string
-	Uid         string
+	CreatedAt   string `json:"createdAt"`
+	DisplayName string `json:"displayName"`
+	Email       string `json:"email"`
+	Uid         string `json:"uid"`
 }
 
 // Relay-style edge for User

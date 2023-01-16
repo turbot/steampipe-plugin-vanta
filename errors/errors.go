@@ -43,12 +43,5 @@ func BuildErrorMessage(err error) error {
 		return err
 	}
 	var errString string
-	// if int(errCode) == 502 || int(errCode) == 503 || int(errCode) == 504 {
-	// 	// retryable error codes - [502, 503, 504]
-	// 	errString = fmt.Sprintf("The server returned a %s error (%v). Please wait a few minutes and try again.", http.StatusText(errCode), errCode)
-	// } else {
-	// 	// non-retryable errors
-	// 	errString = fmt.Sprintf("The server returned a %s error (%v). Please contact Turbot support.", http.StatusText(errCode), errCode)
-	// }
 	return errors.New(errString)
 }
