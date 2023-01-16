@@ -23,7 +23,7 @@ func tableVantaPolicy(ctx context.Context) *plugin.Table {
 			{Name: "description", Type: proto.ColumnType_STRING, Description: "A human-readable description of the policy."},
 			{Name: "policy_type", Type: proto.ColumnType_STRING, Description: "The type of the policy."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "The URL of the policy."},
-			{Name: "approved_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the policy was approved.."},
+			{Name: "approved_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the policy was approved."},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the policy was created."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the policy was last modified."},
 			{Name: "pre_signed_url", Type: proto.ColumnType_STRING, Description: "The pre-signed URL of the policy."},
