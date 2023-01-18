@@ -9,10 +9,11 @@ import (
 
 // Data about a user within Vanta
 type User struct {
-	CreatedAt   string `json:"createdAt"`
-	DisplayName string `json:"displayName"`
-	Email       string `json:"email"`
-	Uid         string `json:"uid"`
+	CreatedAt        string `json:"createdAt"`
+	DisplayName      string `json:"displayName"`
+	Email            string `json:"email"`
+	OrganizationName string `json:"-"`
+	Uid              string `json:"uid"`
 }
 
 // Relay-style edge for User
@@ -28,6 +29,7 @@ type UserList struct {
 }
 
 type UserQueryOrganization struct {
+	Name     string   `json:"name"`
 	UserList UserList `json:"userList"`
 }
 
@@ -51,6 +53,7 @@ const (
 	queryUserList = `
 query ListUsers($first: Int, $after: String) {
   organization {
+		name
     userList(first: $first, after: $after) {
       pageInfo {
         hasNextPage

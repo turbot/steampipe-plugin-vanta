@@ -9,21 +9,23 @@ import (
 
 // Data about a policy within Vanta
 type Policy struct {
-	ApprovedAt    string `json:"approvedAt"`
-	Approver     User   `json:"approver"`
-	CreatedAt    string `json:"createdAt"`
-	Description  string `json:"description"`
-	DisplayName  string `json:"displayName"`
-	PolicyType   string `json:"policyType"`
-	PreSignedUrl string `json:"preSignedURL"`
-	Title        string `json:"title"`
-	Uid          string `json:"uid"`
-	UpdatedAt    string `json:"updatedAt"`
-	Uploader     User   `json:"uploader"`
-	Url          string `json:"url"`
+	ApprovedAt       string `json:"approvedAt"`
+	Approver         User   `json:"approver"`
+	CreatedAt        string `json:"createdAt"`
+	Description      string `json:"description"`
+	DisplayName      string `json:"displayName"`
+	OrganizationName string `json:"-"`
+	PolicyType       string `json:"policyType"`
+	PreSignedUrl     string `json:"preSignedURL"`
+	Title            string `json:"title"`
+	Uid              string `json:"uid"`
+	UpdatedAt        string `json:"updatedAt"`
+	Uploader         User   `json:"uploader"`
+	Url              string `json:"url"`
 }
 
 type PolicyQueryOrganization struct {
+	Name     string   `json:"name"`
 	Policies []Policy `json:"policies"`
 }
 
@@ -36,6 +38,7 @@ const (
 	queryPolicyList = `
 query ListPolicies {
   organization {
+		name
     policies {
       displayName
       title

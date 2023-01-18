@@ -22,6 +22,7 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 			{Name: "uid", Type: proto.ColumnType_STRING, Description: "A unique identifier of the user."},
 			{Name: "email", Type: proto.ColumnType_STRING, Description: "The email of the user."},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time when the user was created."},
+			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
 	}
 }
@@ -58,7 +59,7 @@ func listVantaUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 		for _, e := range query.Organization.UserList.Edges {
 			user := e.User
-
+			user.OrganizationName = query.Organization.Name
 			d.StreamListItem(ctx, user)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit

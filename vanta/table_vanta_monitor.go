@@ -33,6 +33,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 			{Name: "fail_message", Type: proto.ColumnType_STRING, Description: "Describes the reason of a failed test."},
 			{Name: "failure_description", Type: proto.ColumnType_STRING, Description: "Description under which the conditions the test would fail."},
 			{Name: "disabled_status", Type: proto.ColumnType_JSON, Description: "Metadata about whether this test is disabled and by whom."},
+			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
 	}
 }
@@ -66,8 +67,9 @@ func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		return nil, err
 	}
 
-	for _, policy := range query.Organization.Results {
-		d.StreamListItem(ctx, policy)
+	for _, result := range query.Organization.Results {
+		result.OrganizationName = query.Organization.Name
+		d.StreamListItem(ctx, result)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
 		if d.RowsRemaining(ctx) == 0 {

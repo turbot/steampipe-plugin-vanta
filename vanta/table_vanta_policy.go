@@ -30,6 +30,7 @@ func tableVantaPolicy(ctx context.Context) *plugin.Table {
 			{Name: "approver", Type: proto.ColumnType_JSON, Description: "The Vanta user who approved the policy."},
 			{Name: "uploader", Type: proto.ColumnType_JSON, Description: "The Vanta user that uploaded the document to Vanta."},
 			{Name: "title", Type: proto.ColumnType_STRING, Description: "The title of the policy."},
+			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
 	}
 }
@@ -52,6 +53,7 @@ func listVantaPolicies(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	}
 
 	for _, policy := range query.Organization.Policies {
+		policy.OrganizationName = query.Organization.Name
 		d.StreamListItem(ctx, policy)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit

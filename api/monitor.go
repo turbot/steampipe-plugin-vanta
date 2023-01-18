@@ -24,6 +24,7 @@ type Monitor struct {
 	FailureDescription string             `json:"failureDescription"`
 	LatestFlip         string             `json:"latestFlip"`
 	Name               string             `json:"name"`
+	OrganizationName   string             `json:"-"`
 	Outcome            string             `json:"outcome"`
 	Remediation        string             `json:"remediation"`
 	TestId             string             `json:"testId"`
@@ -31,6 +32,7 @@ type Monitor struct {
 }
 
 type MonitorQueryOrganization struct {
+	Name    string    `json:"name"`
 	Results []Monitor `json:"currentTestResults"`
 }
 
@@ -52,6 +54,7 @@ const (
 	queryTestResultList = `
 query getTestResults($filter: TestResultsFilter) {
   organization {
+		name
     currentTestResults(filter: $filter) {
       name
       category
