@@ -6,11 +6,15 @@ import (
 )
 
 type vantaConfig struct {
-	ApiToken *string `cty:"api_token"`
+	ApiToken  *string `cty:"api_token"`
+	SessionId *string `cty:"session_id"`
 }
 
 var ConfigSchema = map[string]*schema.Attribute{
 	"api_token": {
+		Type: schema.TypeString,
+	},
+	"session_id": {
 		Type: schema.TypeString,
 	},
 }
