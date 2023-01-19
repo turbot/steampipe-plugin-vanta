@@ -5,6 +5,7 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 	"github.com/turbot/steampipe-plugin-vanta/api"
 )
 
@@ -34,6 +35,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 			{Name: "failure_description", Type: proto.ColumnType_STRING, Description: "Description under which the conditions the test would fail."},
 			{Name: "disabled_status", Type: proto.ColumnType_JSON, Description: "Metadata about whether this test is disabled and by whom."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
+			{Name: "failing_resource_entities", Type: proto.ColumnType_JSON, Description: "The name of the organization.", Transform: transform.From(formatFailingResourceEntities)},
 		},
 	}
 }
@@ -78,4 +80,17 @@ func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func formatFailingResourceEntities(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.(api.Monitor)
+
+	var results []api.Resource
+	for _, edge := range data.FailingResourceEntities.Edges {
+		results = append(results, edge.Node.Resource)
+	}
+
+	return results, nil
 }

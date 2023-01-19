@@ -17,18 +17,37 @@ type TestDisabledStatus struct {
 }
 
 type Monitor struct {
-	Category           string             `json:"category"`
-	Description        string             `json:"description"`
-	DisabledStatus     TestDisabledStatus `json:"disabledStatus"`
-	FailMessage        string             `json:"failMessage"`
-	FailureDescription string             `json:"failureDescription"`
-	LatestFlip         string             `json:"latestFlip"`
-	Name               string             `json:"name"`
-	OrganizationName   string             `json:"-"`
-	Outcome            string             `json:"outcome"`
-	Remediation        string             `json:"remediation"`
-	TestId             string             `json:"testId"`
-	Timestamp          string             `json:"timestamp"`
+	Category                string                      `json:"category"`
+	Description             string                      `json:"description"`
+	DisabledStatus          TestDisabledStatus          `json:"disabledStatus"`
+	FailMessage             string                      `json:"failMessage"`
+	FailureDescription      string                      `json:"failureDescription"`
+	LatestFlip              string                      `json:"latestFlip"`
+	Name                    string                      `json:"name"`
+	OrganizationName        string                      `json:"-"`
+	Outcome                 string                      `json:"outcome"`
+	Remediation             string                      `json:"remediation"`
+	TestId                  string                      `json:"testId"`
+	Timestamp               string                      `json:"timestamp"`
+	FailingResourceEntities FailingResourceEntitiesEdge `json:"failingResourceEntities"`
+}
+
+type Resource struct {
+	DisplayName string `json:"displayName"`
+	Uid         string `json:"uid"`
+	Type        string `json:"__typename"`
+}
+
+type FailingResourceEntityResource struct {
+	Resource Resource `json:"resource"`
+}
+
+type FailingResourceEntityNode struct {
+	Node FailingResourceEntityResource `json:"node"`
+}
+
+type FailingResourceEntitiesEdge struct {
+	Edges []FailingResourceEntityNode `json:"edges"`
 }
 
 type MonitorQueryOrganization struct {
@@ -49,12 +68,23 @@ type ListMonitorsRequestConfiguration struct {
 	TestIds []string
 }
 
+type ListFailingResourceEntitiesRequestConfiguration struct {
+	// The maximum number of results to return in a single call. To retrieve the
+	// remaining results, make another call with the returned EndCursor value.
+	//
+	// Maximum limit is 100.
+	Limit int
+
+	// When paginating forwards, the cursor to continue.
+	EndCursor string
+}
+
 // Define the query
 const (
 	queryTestResultList = `
-query getTestResults($filter: TestResultsFilter) {
+query getTestResults($filter: TestResultsFilter, $first: Int!) {
   organization {
-		name
+    name
     currentTestResults(filter: $filter) {
       name
       category
@@ -72,6 +102,39 @@ query getTestResults($filter: TestResultsFilter) {
         disabledReason
         expiration
         updatedAt
+      }
+      failingResourceEntities(first: $first) {
+        edges {
+          node {
+            resource {
+              ... on User {
+                displayName
+                uid
+                __typename
+              }
+              ... on Vendor {
+                displayName
+                uid
+                __typename
+              }
+              ... on VantaAgentMonitoredComputer {
+                displayName
+                uid
+                __typename
+              }
+              ... on Evidence {
+                uid
+                displayName
+                __typename
+              }
+              ... on Policy {
+                displayName
+                uid
+                __typename
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -98,6 +161,10 @@ func ListMonitors(
 		filters["testIds"] = options.TestIds
 	}
 	req.Var("filter", filters)
+
+	// Set the limit for the failingResourceEntities
+	// Set the max limit - 100
+	req.Var("first", 100)
 
 	// set header fields
 	req.Header.Set("Cache-Control", "no-cache")
