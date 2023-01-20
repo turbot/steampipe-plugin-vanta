@@ -10,43 +10,40 @@ import (
 
 type WorkstationOwner struct {
 	DisplayName string
-	Email       string
+	Id          string
 }
 
 type WorkstationData struct {
 	AgentVersion               string   `json:"agentVersion"`
-	OsVersion                  string   `json:"osVersion"`
-	LastPing                   string   `json:"lastPing"`
-	SerialNumber               string   `json:"serialNumber"`
+	HasScreenLock              bool     `json:"hasScreenlock"`
 	HostIdentifier             string   `json:"hostIdentifier"`
 	Hostname                   string   `json:"hostname"`
-	IsEncrypted                bool     `json:"isEncrypted"`
-	IsPasswordManagerInstalled bool     `json:"isPasswordManagerInstalled"`
-	NumBrowserExtensions       int      `json:"numBrowserExtensions"`
-	HasScreenLock              bool     `json:"hasScreenlock"`
 	InstalledAvPrograms        []string `json:"installedAvPrograms"`
 	InstalledPasswordManagers  []string `json:"installedPasswordManagers"`
+	IsEncrypted                bool     `json:"isEncrypted"`
+	IsPasswordManagerInstalled bool     `json:"isPasswordManagerInstalled"`
+	LastPing                   string   `json:"lastPing"`
+	NumBrowserExtensions       int      `json:"numBrowserExtensions"`
+	OsVersion                  string   `json:"osVersion"`
+	SerialNumber               string   `json:"serialNumber"`
 }
 
 type Workstation struct {
-	Id    string          `json:"id"`
-	Data  WorkstationData `json:"data"`
-	Owner WorkstationOwner
-}
-
-type UserQueryWorkstation struct {
-	DisplayName  string        `json:"displayName"`
-	Email        string        `json:"email"`
-	Workstations []Workstation `json:"workstations"`
+	Data             WorkstationData  `json:"data"`
+	Id               string           `json:"id"`
+	OrganizationName string           `json:"-"`
+	Owner            WorkstationOwner `json:"-"`
 }
 
 type DomainEndPointQueryUser struct {
 	DisplayName  string        `json:"displayName"`
-	Email        string        `json:"email"`
+	Id           string        `json:"id"`
 	Workstations []Workstation `json:"workstations"`
 }
 
 type DomainEndPointQueryOrganization struct {
+	Id    string                    `json:"id"`
+	Name  string                    `json:"name"`
 	Users []DomainEndPointQueryUser `json:"users"`
 }
 
@@ -60,6 +57,7 @@ const (
 query fetchDomainEndpoints {
 	organization {
 		id
+		name
 		requiresLocationServices
 		uiComponentStates {
 			agentBannerIsCollapsed
@@ -67,20 +65,6 @@ query fetchDomainEndpoints {
 		users(includeRemovedUsers: true, includeNonHumanUsers: true) {
 			id
 			displayName
-			email
-			familyName
-			givenName
-			imageUrl
-			isActive
-			isNotHuman
-			role {
-				id
-				name
-			}
-			agentTask {
-				taskSatisfied
-				completionDate
-			}
 			...UserComputerFields
 		}
 	}
