@@ -16,12 +16,30 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 		Description: "Vanta User",
 		List: &plugin.ListConfig{
 			Hydrate: listVantaUsers,
+			KeyColumns: plugin.KeyColumnSlice{
+				{Name: "employment_status", Require: plugin.Optional},
+				{Name: "task_status", Require: plugin.Optional},
+			},
 		},
 		Columns: []*plugin.Column{
 			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the user."},
-			{Name: "uid", Type: proto.ColumnType_STRING, Description: "A unique identifier of the user."},
+			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the user."},
 			{Name: "email", Type: proto.ColumnType_STRING, Description: "The email of the user."},
-			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time when the user was created."},
+			{Name: "permission_level", Type: proto.ColumnType_STRING, Description: "The permission level of the user."},
+			{Name: "employment_status", Type: proto.ColumnType_STRING, Description: "The current employment status of the user."},
+			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the user was created."},
+			{Name: "task_status", Type: proto.ColumnType_STRING, Description: "The security task status of the user."},
+			{Name: "start_date", Type: proto.ColumnType_TIMESTAMP, Description: "The on-boarding time of the user."},
+			{Name: "end_date", Type: proto.ColumnType_TIMESTAMP, Description: "The off-boarding time of the user."},
+			{Name: "family_name", Type: proto.ColumnType_STRING, Description: "The family name of the user."},
+			{Name: "given_name", Type: proto.ColumnType_STRING, Description: "The given name of the user."},
+			{Name: "is_active", Type: proto.ColumnType_BOOL, Description: "If true, the user is active."},
+			{Name: "is_not_human", Type: proto.ColumnType_BOOL, Description: "If true, the resource is not a human."},
+			{Name: "is_from_scan", Type: proto.ColumnType_BOOL, Description: ""},
+			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: ""},
+			{Name: "hr_user", Type: proto.ColumnType_JSON, Description: "Specifies the embedded HR information of the user."},
+			{Name: "role", Type: proto.ColumnType_JSON, Description: "Specifies the role information the user is member of."},
+			{Name: "task_status_info", Type: proto.ColumnType_JSON, Description: "Specifies the security task information of the user."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
 	}
@@ -31,7 +49,7 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 
 func listVantaUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create client
-	conn, err := getClient(ctx, d)
+	conn, err := getVantaAppClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_user.listVantaUsers", "connection_error", err)
 		return nil, err
@@ -49,6 +67,17 @@ func listVantaUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		pageLimit = int(*limit)
 	}
 	options.Limit = pageLimit
+
+	// Additional filters
+	filters := &api.UserFilters{}
+	if d.EqualsQualString("employment_status") != "" {
+		filters.EmploymentStatusFilter = d.EqualsQualString("employment_status")
+	}
+
+	if d.EqualsQualString("task_status") != "" {
+		filters.TaskStatusFilters = []string{d.EqualsQualString("task_status")}
+	}
+	options.Filters = filters
 
 	for {
 		query, err := api.ListUsers(context.Background(), conn, options)

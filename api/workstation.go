@@ -63,7 +63,6 @@ query fetchDomainEndpoints {
 		requiresLocationServices
 		uiComponentStates {
 			agentBannerIsCollapsed
-			__typename
 		}
 		users(includeRemovedUsers: true, includeNonHumanUsers: true) {
 			id
@@ -77,17 +76,13 @@ query fetchDomainEndpoints {
 			role {
 				id
 				name
-				__typename
 			}
 			agentTask {
 				taskSatisfied
 				completionDate
-				__typename
 			}
 			...UserComputerFields
-			__typename
 		}
-		__typename
 	}
 }
 
@@ -98,10 +93,8 @@ fragment UserComputerFields on User {
 		unsupportedReasons {
 			unsupportedOsVersion
 			unsupportedOsType
-			__typename
 		}
 		data {
-			__typename
 			id
 			agentVersion
 			osVersion
@@ -116,7 +109,6 @@ fragment UserComputerFields on User {
 				isPasswordManagerInstalled
 				numBrowserExtensions
 				hasScreenlock
-				__typename
 			}
 			... on windowsWorkstationData {
 				installedAvPrograms
@@ -125,19 +117,15 @@ fragment UserComputerFields on User {
 				isPasswordManagerInstalled
 				numBrowserExtensions
 				hasScreenlock
-				__typename
 			}
 			... on linuxWorkstationData {
 				installedAvPrograms
 				isEncrypted
-				__typename
 			}
 		}
-		__typename
 	}
 	managedComputers {
 		id
-		__typename
 		uniqueId
 		udid
 		updatedAt
@@ -147,30 +135,24 @@ fragment UserComputerFields on User {
 		operatingSystem {
 			name
 			version
-			__typename
 		}
 		hardware {
 			serialNumber
-			__typename
 		}
 		passwordManagers {
 			name
-			__typename
 		}
 		antivirusNames
 		vantaAttributes {
 			key
 			value
 			managedExternally
-			__typename
 		}
 		... on SpecificMicrosoftEndpointManagerManagedComputerResource {
 			avPolicies {
 				id
 				name
-				__typename
 			}
-			__typename
 		}
 		... on ReceivedMacosUserComputerResource {
 			installedApp {
@@ -178,11 +160,8 @@ fragment UserComputerFields on User {
 				app {
 					id
 					name
-					__typename
 				}
-				__typename
 			}
-			__typename
 		}
 		... on ReceivedWindowsUserComputerResource {
 			installedApp {
@@ -190,14 +169,10 @@ fragment UserComputerFields on User {
 				app {
 					id
 					name
-					__typename
 				}
-				__typename
 			}
-			__typename
 		}
 	}
-	__typename
 }	
 `
 )
