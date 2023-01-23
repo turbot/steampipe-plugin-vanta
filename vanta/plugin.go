@@ -28,6 +28,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"vanta_monitor":          tableVantaMonitor(ctx),
 			"vanta_policy":           tableVantaPolicy(ctx),
 			"vanta_user":             tableVantaUser(ctx),
+			"vanta_vendor":           tableVantaVendor(ctx),
 		},
 	}
 	return p
