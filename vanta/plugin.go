@@ -25,6 +25,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"vanta_computer":         tableVantaComputer(ctx),
 			"vanta_evidence_request": tableVantaEvidenceRequest(ctx),
 			"vanta_group":            tableVantaGroup(ctx),
+			"vanta_integration":      tableVantaIntegration(ctx),
 			"vanta_monitor":          tableVantaMonitor(ctx),
 			"vanta_policy":           tableVantaPolicy(ctx),
 			"vanta_user":             tableVantaUser(ctx),
