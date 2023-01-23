@@ -24,11 +24,13 @@ Run a query:
 ```sql
 select
   display_name,
-  policy_type,
-  url,
-  created_at
+  id,
+  email,
+  is_active
 from
-  vanta_policy;
+  vanta_user
+where
+  is_active;
 ```
 
 ## Developing

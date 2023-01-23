@@ -16,25 +16,27 @@ og_image: "/images/plugins/turbot/vanta-social-graphic.png"
 
 [Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
 
-List all apps deployed in your organization:
+List all active users in your organization:
 
 ```sql
 select
   display_name,
-  policy_type,
-  url,
-  created_at
+  id,
+  email,
+  is_active
 from
-  vanta_policy;
+  vanta_user
+where
+  is_active;
 ```
 
 ```
-+----------------+----------------+----------------------------------+---------------------------+
-| display_name   | policy_type    | url                              | created_at                |
-+----------------+----------------+----------------------------------+---------------------------+
-| Dummy Policy 1 | dummy-policy-1 | https://app.vanta.com/dummy_url1 | 2022-01-13T21:38:39+05:30 |
-| Dummy Policy 2 | dummy-policy-2 | https://app.vanta.com/dummy_url2 | 2022-01-13T21:39:50+05:30 |
-+----------------+----------------+----------------------------------+---------------------------+
++--------------+--------------------------+----------------+-----------+
+| display_name | id                       | email          | is_active |
++--------------+--------------------------+----------------+-----------+
+| Simba        | 5fb30b86a228f6b6f7024535 | simba@test.com | true      |
+| Timon        | 5fb30b86a228f6b6f70245e7 | timon@test.com | true      |
++--------------+--------------------------+----------------+-----------+
 ```
 
 ## Documentation
