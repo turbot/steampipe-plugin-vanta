@@ -71,37 +71,37 @@ type ListEvidenceRequestsRequestConfiguration struct {
 const (
 	queryEvidenceRequestList = `
 query ListEvidenceRequests($first: Int!, $after: String, $evidenceRequestIds: [String!]) {
-	organization {
-		name
-		evidenceRequests(first: $first, after: $after, evidenceRequestIds: $evidenceRequestIds) {
-			pageInfo {
-				hasNextPage
-				endCursor
-			}
-			totalCount
-			edges {
-				node {
-					title
-					category
-					description
-					appUploadEnabled
-					evidenceRequestId
-					restricted
-					uid
-					dismissedStatus {
-						reason
-						isDismissed
-						createdAt
-					}
-					renewalMetadata {
-						cadence
-						cadenceLastUpdatedAt
-						nextDate
-					}
-				}
-			}
-		}
-	}
+  organization {
+    name
+    evidenceRequests(first: $first, after: $after, evidenceRequestIds: $evidenceRequestIds) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+      edges {
+        node {
+          title
+          category
+          description
+          appUploadEnabled
+          evidenceRequestId
+          restricted
+          uid
+          dismissedStatus {
+            reason
+            isDismissed
+            createdAt
+          }
+          renewalMetadata {
+            cadence
+            cadenceLastUpdatedAt
+            nextDate
+          }
+        }
+      }
+    }
+  }
 }
 `
 )

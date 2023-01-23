@@ -100,69 +100,69 @@ type ListUsersRequestConfiguration struct {
 const (
 	queryUserList = `
 query fetchUsersForPeoplePage($first: Int!, $after: String, $sortParams: sortParams!, $filters: UserFilters!, $utcOffset: Int! = 0) {
-	organization {
-		id
-		name
-		people(first: $first, after: $after, sortParams: $sortParams, filters: $filters, utcOffset: $utcOffset) {
-			totalCount
-			pageInfo {
-				endCursor
-				hasNextPage
-			}
-			edges {
-				node {
-					id
-					...peoplePageFields
-				}
-			}
-		}
-	}
+  organization {
+    id
+    name
+    people(first: $first, after: $after, sortParams: $sortParams, filters: $filters, utcOffset: $utcOffset) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          ...peoplePageFields
+        }
+      }
+    }
+  }
 }
 
 fragment peoplePageFields on User {
-	id
-	displayName
-	email
-	permissionLevel
-	isActive
-	familyName
-	givenName
-	createdAt
-	isFromScan
-	isNotHuman
-	needsEmployeeDigestReminder
-	startDate
-	endDate
-	hrUser {
-		apolloId
-		endDate
-		jobTitle
-		service
-		startDate
-		uniqueId
-		isActive
-	}
-	...peoplePageRoleFields
-	...PeoplePageUserStatuses
+  id
+  displayName
+  email
+  permissionLevel
+  isActive
+  familyName
+  givenName
+  createdAt
+  isFromScan
+  isNotHuman
+  needsEmployeeDigestReminder
+  startDate
+  endDate
+  hrUser {
+    apolloId
+    endDate
+    jobTitle
+    service
+    startDate
+    uniqueId
+    isActive
+  }
+  ...peoplePageRoleFields
+  ...PeoplePageUserStatuses
 }
 
 fragment peoplePageRoleFields on User {
-	id
-	role {
-		id
-		name
-	}
+  id
+  role {
+    id
+    name
+  }
 }
 
 fragment PeoplePageUserStatuses on User {
-	id
-	employmentStatus
-	taskStatus
-	taskStatusInfo {
-		status
-		dueDate
-		completionDate
-	}
+  id
+  employmentStatus
+  taskStatus
+  taskStatusInfo {
+    status
+    dueDate
+    completionDate
+  }
 }	
 `
 )

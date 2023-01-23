@@ -55,108 +55,108 @@ type ListWorkstationsResponse struct {
 const (
 	queryTest = `
 query fetchDomainEndpoints {
-	organization {
-		id
-		name
-		requiresLocationServices
-		uiComponentStates {
-			agentBannerIsCollapsed
-		}
-		users(includeRemovedUsers: true, includeNonHumanUsers: true) {
-			id
-			displayName
-			...UserComputerFields
-		}
-	}
+  organization {
+    id
+    name
+    requiresLocationServices
+    uiComponentStates {
+      agentBannerIsCollapsed
+    }
+    users(includeRemovedUsers: true, includeNonHumanUsers: true) {
+      id
+      displayName
+      ...UserComputerFields
+    }
+  }
 }
 
 fragment UserComputerFields on User {
-	id
-	workstations(includeUnsupported: true) {
-		id
-		unsupportedReasons {
-			unsupportedOsVersion
-			unsupportedOsType
-		}
-		data {
-			id
-			agentVersion
-			osVersion
-			lastPing
-			serialNumber
-			hostIdentifier
-			hostname
-			... on macosWorkstationData {
-				installedAvPrograms
-				installedPasswordManagers
-				isEncrypted
-				isPasswordManagerInstalled
-				numBrowserExtensions
-				hasScreenlock
-			}
-			... on windowsWorkstationData {
-				installedAvPrograms
-				installedPasswordManagers
-				isEncrypted
-				isPasswordManagerInstalled
-				numBrowserExtensions
-				hasScreenlock
-			}
-			... on linuxWorkstationData {
-				installedAvPrograms
-				isEncrypted
-			}
-		}
-	}
-	managedComputers {
-		id
-		uniqueId
-		udid
-		updatedAt
-		hasScreenlock
-		name
-		isEncrypted
-		operatingSystem {
-			name
-			version
-		}
-		hardware {
-			serialNumber
-		}
-		passwordManagers {
-			name
-		}
-		antivirusNames
-		vantaAttributes {
-			key
-			value
-			managedExternally
-		}
-		... on SpecificMicrosoftEndpointManagerManagedComputerResource {
-			avPolicies {
-				id
-				name
-			}
-		}
-		... on ReceivedMacosUserComputerResource {
-			installedApp {
-				id
-				app {
-					id
-					name
-				}
-			}
-		}
-		... on ReceivedWindowsUserComputerResource {
-			installedApp {
-				id
-				app {
-					id
-					name
-				}
-			}
-		}
-	}
+  id
+  workstations(includeUnsupported: true) {
+    id
+    unsupportedReasons {
+      unsupportedOsVersion
+      unsupportedOsType
+    }
+    data {
+      id
+      agentVersion
+      osVersion
+      lastPing
+      serialNumber
+      hostIdentifier
+      hostname
+      ... on macosWorkstationData {
+        installedAvPrograms
+        installedPasswordManagers
+        isEncrypted
+        isPasswordManagerInstalled
+        numBrowserExtensions
+        hasScreenlock
+      }
+      ... on windowsWorkstationData {
+        installedAvPrograms
+        installedPasswordManagers
+        isEncrypted
+        isPasswordManagerInstalled
+        numBrowserExtensions
+        hasScreenlock
+      }
+      ... on linuxWorkstationData {
+      installedAvPrograms
+        isEncrypted
+      }
+    }
+  }
+  managedComputers {
+    id
+    uniqueId
+    udid
+    updatedAt
+    hasScreenlock
+    name
+    isEncrypted
+    operatingSystem {
+      name
+      version
+    }
+    hardware {
+      serialNumber
+    }
+    passwordManagers {
+      name
+    }
+    antivirusNames
+    vantaAttributes {
+      key
+      value
+      managedExternally
+    }
+    ... on SpecificMicrosoftEndpointManagerManagedComputerResource {
+      avPolicies {
+        id
+        name
+      }
+    }
+    ... on ReceivedMacosUserComputerResource {
+      installedApp {
+        id
+        app {
+          id
+          name
+        }
+      }
+    }
+    ... on ReceivedWindowsUserComputerResource {
+      installedApp {
+        id
+        app {
+          id
+          name
+        }
+      }
+    }
+  }
 }	
 `
 )

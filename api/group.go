@@ -50,39 +50,39 @@ type ListGroupsResponse struct {
 const (
 	queryGroupList = `
 query ListGroups {
-	organization {
-		roles {
-			id
-			checklist {
-				id
-				...ChecklistRequirementsForGroupsPage
-			}
-			name
-			embeddedIdpGroup {
-				id
-				updatedAt
-				service
-			}
-		}
-	}
+  organization {
+    roles {
+      id
+      checklist {
+        id
+        ...ChecklistRequirementsForGroupsPage
+      }
+      name
+      embeddedIdpGroup {
+        id
+        updatedAt
+        service
+      }
+    }
+  }
 }
 
 fragment ChecklistRequirementsForGroupsPage on IChecklist {
-	name
-	securityRequirements {
-		...SecurityRequirementsMap
-	}
+  name
+  securityRequirements {
+    ...SecurityRequirementsMap
+  }
 }
 
 fragment SecurityRequirementsMap on securityRequirements {
-	mustAcceptPolicies
-	mustBeBackgroundChecked
-	mustCompleteCcpaSecurityTraining
-	mustCompleteGdprSecurityTraining
-	mustCompleteHipaaSecurityTraining
-	mustCompletePciSecurityTraining
-	mustCompleteSecurityTraining
-	mustInstallLaptopMonitoring
+  mustAcceptPolicies
+  mustBeBackgroundChecked
+  mustCompleteCcpaSecurityTraining
+  mustCompleteGdprSecurityTraining
+  mustCompleteHipaaSecurityTraining
+  mustCompletePciSecurityTraining
+  mustCompleteSecurityTraining
+  mustInstallLaptopMonitoring
 }
 `
 )
