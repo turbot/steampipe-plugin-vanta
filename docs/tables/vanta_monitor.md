@@ -4,6 +4,10 @@ Vanta helps businesses get and stay compliant by continuously monitoring people,
 
 The table `vanta_monitor` provides information about all the monitors and their status.
 
+**NOTE:**
+
+- To query the table; **you must set** `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

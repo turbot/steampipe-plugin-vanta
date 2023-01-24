@@ -2,6 +2,10 @@
 
 A group is a collection of team members that helps in organizing them together based on criteria they have in common, such as employment status or department.
 
+**NOTE:**
+
+- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

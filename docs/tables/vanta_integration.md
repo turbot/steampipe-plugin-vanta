@@ -2,7 +2,10 @@
 
 An integration is a connection which can be integrated with Vanta to activate automated evidence collection and monitoring.
 
-**Note:** There are various integrations available that can be integrated. The table `vanta_integration` only returns the integrations that are connected.
+**NOTE:**
+
+- There are various integrations available that can be integrated. The table `vanta_integration` only returns the integrations that are connected.
+- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
 
 ## Examples
 

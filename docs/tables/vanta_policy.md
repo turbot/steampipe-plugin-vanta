@@ -2,6 +2,10 @@
 
 Policy contains a set of rules related to information security for your organization. Policies touch on all business areas, so the creation process requires cross-team collaboration.
 
+**NOTE:**
+
+- To query the table; **you must set** `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

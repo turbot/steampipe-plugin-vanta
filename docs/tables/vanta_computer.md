@@ -2,6 +2,10 @@
 
 The `vanta_computer` table can be used to query information about all computers within your organization to ensure that security-relevant settings are configured promptly.
 
+**NOTE:**
+
+- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

@@ -2,6 +2,10 @@
 
 The `vanta_user` table can be used to query information about all users in the organization.
 
+**NOTE:**
+
+- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info
