@@ -79,9 +79,9 @@ func listVantaVendors(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		}
 
 		for _, e := range query.Organization.Vendors.Edges {
-			user := e.Vendor
-			user.OrganizationName = query.Organization.Name
-			d.StreamListItem(ctx, user)
+			vendor := e.Vendor
+			vendor.OrganizationName = query.Organization.Name
+			d.StreamListItem(ctx, vendor)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
 			if d.RowsRemaining(ctx) == 0 {

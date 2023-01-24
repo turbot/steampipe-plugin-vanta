@@ -16,7 +16,7 @@ select
   id,
   checklist
 from
-  vanta_computer;
+  vanta_group;
 ```
 
 ### User details associated with each group

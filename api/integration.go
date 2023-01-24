@@ -165,7 +165,13 @@ query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
 `
 )
 
-// ListIntegrations returns a paginated list of vendors
+// ListIntegrations returns a paginated list of vendors.
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param options the API parameters
 func ListIntegrations(
 	ctx context.Context,
 	client *Client,
@@ -175,6 +181,7 @@ func ListIntegrations(
 	// Make a request
 	req := graphql.NewRequest(queryIntegrationList)
 
+	// Default to true
 	onlyConnected := true
 	if options.OnlyConnected != nil {
 		onlyConnected = *options.OnlyConnected

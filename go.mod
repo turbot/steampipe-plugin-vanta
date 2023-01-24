@@ -2,10 +2,10 @@ module github.com/turbot/steampipe-plugin-vanta
 
 go 1.19
 
-// github.com/Khan/genqlient v0.5.0
-require github.com/turbot/steampipe-plugin-sdk/v5 v5.1.0
-
-require github.com/machinebox/graphql v0.2.2
+require (
+	github.com/machinebox/graphql v0.2.2
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.1.0
+)
 
 require (
 	cloud.google.com/go v0.65.0 // indirect

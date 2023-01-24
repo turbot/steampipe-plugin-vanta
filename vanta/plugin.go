@@ -17,9 +17,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			NewInstance: ConfigInstance,
 			Schema:      ConfigSchema,
 		},
-		// DefaultGetConfig: &plugin.GetConfig{
-		// 	ShouldIgnoreError: errors.NotFoundError,
-		// },
 		DefaultTransform: transform.FromCamel().Transform(transform.NullIfZeroValue),
 		TableMap: map[string]*plugin.Table{
 			"vanta_computer":         tableVantaComputer(ctx),

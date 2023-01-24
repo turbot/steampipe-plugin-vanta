@@ -69,6 +69,10 @@ query ListPolicies {
 )
 
 // ListPolicies returns a list of the most recent policies of each type
+//
+// @param ctx context for configuration
+//
+// @param client the API client
 func ListPolicies(
 	ctx context.Context,
 	client *Client,

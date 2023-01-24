@@ -136,7 +136,15 @@ fragment VenderTableData on Vendor {
 `
 )
 
+
+
 // ListVendors returns a paginated list of vendors
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param options the API parameters
 func ListVendors(
 	ctx context.Context,
 	client *Client,

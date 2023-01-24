@@ -36,10 +36,12 @@ type Group struct {
 	EmbeddedIdpGroup EmbeddedIdpGroupMap `json:"embeddedIdpGroup"`
 	Id               string              `json:"id"`
 	Name             string              `json:"name"`
+	OrganizationName string              `json:"_"`
 }
 
 type GroupQueryOrganization struct {
 	Groups []Group `json:"roles"`
+	Name   string  `json:"name"`
 }
 
 type ListGroupsResponse struct {
@@ -51,6 +53,7 @@ const (
 	queryGroupList = `
 query ListGroups {
   organization {
+		name
     roles {
       id
       checklist {
@@ -88,6 +91,10 @@ fragment SecurityRequirementsMap on securityRequirements {
 )
 
 // ListGroups returns a list all Vanta groups
+//
+// @param ctx context for configuration
+//
+// @param client the API client
 func ListGroups(
 	ctx context.Context,
 	client *Client,
@@ -109,7 +116,6 @@ func ListGroups(
 		err = errorsHandler.BuildErrorMessage(err)
 		return nil, err
 	}
-	// panic(data)
 
 	return &data, err
 }

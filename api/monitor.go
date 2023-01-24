@@ -143,6 +143,12 @@ query getTestResults($filter: TestResultsFilter, $first: Int!) {
 )
 
 // ListMonitors returns a list of most recent test runs and metadata about them.
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param options the API parameters
 func ListMonitors(
 	ctx context.Context,
 	client *Client,

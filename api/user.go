@@ -73,6 +73,7 @@ type ListUsersResponse struct {
 	Organization UserQueryOrganization `json:"organization"`
 }
 
+// Filter object to filter the API response.
 type UserFilters struct {
 	// Filter using user employment status.
 	// Supported values: CURRENTLY_EMPLOYED, PREVIOUSLY_EMPLOYED, NOT_PEOPLE, INACTIVE_EMPLOYEE, UPCOMING_EMPLOYEE
@@ -93,6 +94,7 @@ type ListUsersRequestConfiguration struct {
 	// When paginating forwards, the cursor to continue.
 	EndCursor string
 
+	// The filter object used to filter the API response.
 	Filters *UserFilters
 }
 
@@ -168,6 +170,12 @@ fragment PeoplePageUserStatuses on User {
 )
 
 // ListUsers returns a paginated list of currently active users
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param options the API parameters
 func ListUsers(
 	ctx context.Context,
 	client *Client,

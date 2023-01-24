@@ -20,8 +20,9 @@ func tableVantaGroup(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the group."},
 			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the group."},
-			{Name: "embedded_idp_group", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "checklist", Type: proto.ColumnType_JSON, Description: ""},
+			{Name: "checklist", Type: proto.ColumnType_JSON, Description: "Describes the security requirements for the group."},
+			{Name: "embedded_idp_group", Type: proto.ColumnType_JSON, Description: "A list of embedded IDP group."},
+			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
 	}
 }
@@ -44,7 +45,7 @@ func listVantaGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 
 	for _, group := range query.Organization.Groups {
-		// policy.OrganizationName = query.Organization.Name
+		group.OrganizationName = query.Organization.Name
 		d.StreamListItem(ctx, group)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit

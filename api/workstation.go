@@ -162,6 +162,10 @@ fragment UserComputerFields on User {
 )
 
 // ListWorkstations returns the list all computers within your organization with their security-relevant settings information
+//
+// @param ctx context for configuration
+//
+// @param client the API client
 func ListWorkstations(
 	ctx context.Context,
 	client *Client,

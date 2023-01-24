@@ -107,6 +107,12 @@ query ListEvidenceRequests($first: Int!, $after: String, $evidenceRequestIds: [S
 )
 
 // ListEvidenceRequests returns a paginated list of evidence requests
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param options the API parameters
 func ListEvidenceRequests(
 	ctx context.Context,
 	client *Client,
