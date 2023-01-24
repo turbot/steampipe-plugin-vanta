@@ -84,15 +84,15 @@ connection "vanta" {
 
 ### Getting the Session ID for cookie-based authentication
 
-The Vanta APIs generally uses an user's personal API token to authenticate the requests. But some the tables in this plugin uses a different endpoint to which requires a unique session ID to access the query endpoint.
+The Vanta APIs generally use a user's personal [API token](https://developer.vanta.com/docs/quick-start#1-make-an-api-token) to authenticate the requests. But some of the tables in this plugin use a different endpoint, which requires a unique session ID to access the query endpoint.
 
 To locate your Session ID:
 
 - Log into the Vanta console.
 - Open your browser [developer tools](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_are_browser_developer_tools).
 - Open the `Network` view to see and analyze the network requests that make up each individual page load within a single user's session.
-- Open up any `graphql` request from the list and check the `Cookies` section to get the list of request cookies.
-- Get the session ID value from list named as `connect.sid`.
+- Open any `graphql` request from the list and check the `Cookies` section to get the list of request cookies.
+- Get the session ID value from the list named as `connect.sid`.
 
 ## Get involved
 
