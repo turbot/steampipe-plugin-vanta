@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/machinebox/graphql v0.2.2
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.1.0
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.1.1
 )
 
 require (
