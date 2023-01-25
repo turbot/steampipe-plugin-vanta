@@ -55,6 +55,7 @@ type MonitorQueryOrganization struct {
 	Results []Monitor `json:"currentTestResults"`
 }
 
+// ListMonitorsResponse is returned by ListMonitors on success
 type ListMonitorsResponse struct {
 	Organization MonitorQueryOrganization `json:"organization"`
 }
@@ -142,7 +143,7 @@ query getTestResults($filter: TestResultsFilter, $first: Int!) {
 `
 )
 
-// ListMonitors returns a list of most recent test runs and metadata about them.
+// ListMonitors returns a list of most recent test runs and metadata about them
 //
 // @param ctx context for configuration
 //

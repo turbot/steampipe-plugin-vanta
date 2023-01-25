@@ -8,6 +8,7 @@ import (
 	errorsHandler "github.com/turbot/steampipe-plugin-vanta/errors"
 )
 
+// Group security requirements
 type SecurityRequirementsMap struct {
 	MustAcceptPolicies                bool `json:"mustAcceptPolicies"`
 	MustBeBackgroundChecked           bool `json:"mustBeBackgroundChecked"`
@@ -19,6 +20,7 @@ type SecurityRequirementsMap struct {
 	MustInstallLaptopMonitoring       bool `json:"mustInstallLaptopMonitoring"`
 }
 
+// Group checklist
 type GroupChecklist struct {
 	Id           string                  `json:"id"`
 	Name         string                  `json:"name"`
@@ -44,6 +46,7 @@ type GroupQueryOrganization struct {
 	Name   string  `json:"name"`
 }
 
+// ListGroupsResponse is returned by ListGroups on success
 type ListGroupsResponse struct {
 	Organization GroupQueryOrganization `json:"organization"`
 }

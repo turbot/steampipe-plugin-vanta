@@ -30,7 +30,7 @@ func tableVantaVendor(ctx context.Context) *plugin.Table {
 			{Name: "latest_security_review_completed_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the security assessment was last reviewed."},
 			{Name: "services_provided", Type: proto.ColumnType_STRING, Description: "Specifies the use-case of the vendor."},
 			{Name: "shares_credit_card_data", Type: proto.ColumnType_BOOL, Description: "If true, Vanta shares credit card information with the vendor."},
-			{Name: "vendor_risk_locked", Type: proto.ColumnType_BOOL, Description: ""},
+			{Name: "vendor_risk_locked", Type: proto.ColumnType_BOOL, Description: "If true, the vendor risk level is locked."},
 			{Name: "assessment_documents", Type: proto.ColumnType_JSON, Description: "Specifies the list of uploaded security assessment documents."},
 			{Name: "owner", Type: proto.ColumnType_JSON, Description: "The owner of the vendor."},
 			{Name: "risk_attributes", Type: proto.ColumnType_JSON, Description: "A list of the risk-attributes of the vendor."},

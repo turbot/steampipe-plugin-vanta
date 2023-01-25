@@ -62,6 +62,7 @@ type IntegrationQueryOrganization struct {
 	Integrations Integrations `json:"integrations"`
 }
 
+// ListIntegrationsResponse is returned by ListIntegrations on success
 type ListIntegrationsResponse struct {
 	Organization IntegrationQueryOrganization `json:"organization"`
 }
@@ -165,7 +166,7 @@ query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
 `
 )
 
-// ListIntegrations returns a paginated list of vendors.
+// ListIntegrations returns a paginated list of vendors
 //
 // @param ctx context for configuration
 //

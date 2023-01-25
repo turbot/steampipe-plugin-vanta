@@ -69,6 +69,7 @@ type UserQueryOrganization struct {
 	UserList UserList `json:"people"`
 }
 
+// ListUsersResponse is returned by ListUsers on success
 type ListUsersResponse struct {
 	Organization UserQueryOrganization `json:"organization"`
 }

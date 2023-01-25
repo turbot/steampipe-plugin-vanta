@@ -47,6 +47,7 @@ type DomainEndPointQueryOrganization struct {
 	Users []DomainEndPointQueryUser `json:"users"`
 }
 
+// ListWorkstationsResponse is returned by ListWorkstations on success
 type ListWorkstationsResponse struct {
 	Organization DomainEndPointQueryOrganization `json:"organization"`
 }

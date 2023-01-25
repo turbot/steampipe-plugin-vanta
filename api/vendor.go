@@ -53,6 +53,7 @@ type VendorQueryOrganization struct {
 	Vendors Vendors `json:"vendors"`
 }
 
+// ListVendorsResponse is returned by ListVendors on success
 type ListVendorsResponse struct {
 	Organization VendorQueryOrganization `json:"organization"`
 }
@@ -135,8 +136,6 @@ fragment VenderTableData on Vendor {
 }
 `
 )
-
-
 
 // ListVendors returns a paginated list of vendors
 //

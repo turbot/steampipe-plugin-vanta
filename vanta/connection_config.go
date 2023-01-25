@@ -19,6 +19,7 @@ var ConfigSchema = map[string]*schema.Attribute{
 	},
 }
 
+// ConfigInstance returns an instance of a connection config struct
 func ConfigInstance() interface{} {
 	return &vantaConfig{}
 }

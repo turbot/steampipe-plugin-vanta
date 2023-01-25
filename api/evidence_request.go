@@ -52,6 +52,7 @@ type EvidenceRequestQueryOrganization struct {
 	EvidenceRequests EvidenceRequestConnection `json:"evidenceRequests"`
 }
 
+// ListEvidenceRequestsResponse is returned by ListEvidenceRequests on success
 type ListEvidenceRequestsResponse struct {
 	Organization EvidenceRequestQueryOrganization `json:"organization"`
 }
@@ -147,6 +148,12 @@ func ListEvidenceRequests(
 }
 
 // GetEvidenceRequest returns a specific evidence requests
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param id unique identifier of the evidence request
 func GetEvidenceRequest(
 	ctx context.Context,
 	client *Client,

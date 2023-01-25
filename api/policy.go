@@ -29,6 +29,7 @@ type PolicyQueryOrganization struct {
 	Policies []Policy `json:"policies"`
 }
 
+// ListPoliciesResponse is returned by ListPolicies on success
 type ListPoliciesResponse struct {
 	Organization PolicyQueryOrganization `json:"organization"`
 }
