@@ -36,7 +36,7 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 			{Name: "is_active", Type: proto.ColumnType_BOOL, Description: "If true, the user is active."},
 			{Name: "is_not_human", Type: proto.ColumnType_BOOL, Description: "If true, the resource is not a human."},
 			{Name: "is_from_scan", Type: proto.ColumnType_BOOL, Description: "If true, the user was discovered by the security scan."},
-			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: "If true, user will get a reminder when any new update is available."},
+			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: "If true, user will get an email digest of their incomplete security tasks."},
 			{Name: "hr_user", Type: proto.ColumnType_JSON, Description: "Specifies the embedded HR information of the user."},
 			{Name: "role", Type: proto.ColumnType_JSON, Description: "Specifies the role information the user is member of."},
 			{Name: "task_status_info", Type: proto.ColumnType_JSON, Description: "Specifies the security task information of the user."},
