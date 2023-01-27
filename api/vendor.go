@@ -14,7 +14,7 @@ type VendorAssessmentDocument struct {
 
 // Vendor owner object
 type VendorOwner struct {
-	DisplayName string `json:"display_name"`
+	DisplayName string `json:"displayName"`
 	Id          string `json:"id"`
 }
 

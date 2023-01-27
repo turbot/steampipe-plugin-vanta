@@ -77,6 +77,22 @@ where
   task_status = 'SECURITY_TASKS_OVERDUE';
 ```
 
+### List current users by duration of employment
+
+```sql
+select
+  display_name,
+  employment_status,
+  start_date::date,
+  round(extract(day from (current_timestamp - start_date)) / 365, 1) as years
+from
+  vanta_user
+where
+  employment_status = 'CURRENTLY_EMPLOYED'
+order by
+  years DESC;
+```
+
 ### Get the count of users by group
 
 ```sql

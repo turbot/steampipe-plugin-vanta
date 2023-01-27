@@ -55,6 +55,7 @@ select
   display_name,
   url,
   approved_at,
+  approver ->> 'displayName' as approver,
   'expires in ' || extract(day from ((approved_at + interval '1 year') - current_timestamp)) || ' day(s)' as status
 from
   vanta_policy

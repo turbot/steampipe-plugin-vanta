@@ -61,3 +61,17 @@ from
 where
   assessment_documents is null;
 ```
+
+### Get the owner information for each vendor
+
+```sql
+select
+  v.name as vendor_name,
+  v.severity as vendor_severity,
+  u.display_name as owner_name,
+  u.email as owner_email,
+  u.permission_level
+from
+  vanta_vendor as v
+  join vanta_user as u on v.owner ->> 'id' = u.id;
+```
