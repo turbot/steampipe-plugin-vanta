@@ -82,6 +82,25 @@ where
   last_ping < (current_timestamp - interval '90 days');
 ```
 
+### List unmonitored computers
+
+```sql
+select
+  owner_name,
+  serial_number,
+  agent_version,
+  os_version,
+  hostname,
+  case
+    when (unsupported_reasons -> 'unsupportedOsVersion')::boolean then 'OS version not supported'
+    when (unsupported_reasons -> 'unsupportedOsType')::boolean then 'OS not supported'
+  end as status
+from
+  vanta_computer
+where
+  unsupported_reasons is not null;
+```
+
 ### List computers owned by inactive users
 
 ```sql

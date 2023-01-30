@@ -32,6 +32,7 @@ func tableVantaComputer(ctx context.Context) *plugin.Table {
 			{Name: "num_browser_extensions", Type: proto.ColumnType_INT, Description: "The number of browser extensions installed in the workstation.", Transform: transform.FromField("Data.NumBrowserExtensions")},
 			{Name: "installed_av_programs", Type: proto.ColumnType_JSON, Description: "A list of anti-virus programs installed in the workstation.", Transform: transform.FromField("Data.InstalledAvPrograms")},
 			{Name: "installed_password_managers", Type: proto.ColumnType_JSON, Description: "A list of password managers installed in the workstation.", Transform: transform.FromField("Data.InstalledPasswordManagers")},
+			{Name: "unsupported_reasons", Type: proto.ColumnType_JSON, Description: "Specifies the reason for unmonitored computers."},
 			{Name: "owner_id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the owner of the workstation.", Transform: transform.FromField("Owner.Id")},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
@@ -63,6 +64,7 @@ func listVantaComputers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 				DisplayName: user.DisplayName,
 				Id:          user.Id,
 			}
+			result.UnsupportedReasons = workstation.UnsupportedReasons
 			d.StreamListItem(ctx, result)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit

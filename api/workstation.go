@@ -8,11 +8,6 @@ import (
 	errorsHandler "github.com/turbot/steampipe-plugin-vanta/errors"
 )
 
-type WorkstationOwner struct {
-	DisplayName string
-	Id          string
-}
-
 type WorkstationData struct {
 	AgentVersion               string   `json:"agentVersion"`
 	HasScreenLock              bool     `json:"hasScreenlock"`
@@ -28,11 +23,22 @@ type WorkstationData struct {
 	SerialNumber               string   `json:"serialNumber"`
 }
 
+type WorkstationOwner struct {
+	DisplayName string
+	Id          string
+}
+
+type WorkstationUnsupportedReasons struct {
+	UnsupportedOsVersion bool `json:"unsupportedOsVersion"`
+	UnsupportedOsType    bool `json:"unsupportedOsType"`
+}
+
 type Workstation struct {
-	Data             WorkstationData  `json:"data"`
-	Id               string           `json:"id"`
-	OrganizationName string           `json:"-"`
-	Owner            WorkstationOwner `json:"-"`
+	Data               WorkstationData               `json:"data"`
+	Id                 string                        `json:"id"`
+	OrganizationName   string                        `json:"-"`
+	Owner              WorkstationOwner              `json:"-"`
+	UnsupportedReasons WorkstationUnsupportedReasons `json:"unsupportedReasons"`
 }
 
 type DomainEndPointQueryUser struct {
