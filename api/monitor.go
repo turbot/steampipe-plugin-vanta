@@ -108,31 +108,9 @@ query getTestResults($filter: TestResultsFilter, $first: Int!) {
         edges {
           node {
             resource {
-              ... on User {
-                displayName
-                uid
-                __typename
-              }
-              ... on Vendor {
-                displayName
-                uid
-                __typename
-              }
-              ... on VantaAgentMonitoredComputer {
-                displayName
-                uid
-                __typename
-              }
-              ... on Evidence {
-                uid
-                displayName
-                __typename
-              }
-              ... on Policy {
-                displayName
-                uid
-                __typename
-              }
+              uid
+              displayName
+              __typename
             }
           }
         }

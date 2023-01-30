@@ -21,7 +21,7 @@ from
   vanta_evidence;
 ```
 
-### List requests with restricted document access
+### List evidences with restricted document access
 
 ```sql
 select
@@ -35,7 +35,7 @@ where
   restricted;
 ```
 
-### List non-relevant requests
+### List non-relevant evidences
 
 ```sql
 select
@@ -49,7 +49,22 @@ where
   dismissed_status -> 'isDismissed' = 'true';
 ```
 
-### Get the count of request by document category
+### List evidences up for renewal within 30 days
+
+```sql
+select
+  title,
+  category,
+  renewal_metadata ->> 'nextDate' as update_by
+from
+  vanta_evidence
+where
+  current_timestamp < (renewal_metadata ->> 'nextDate')::timestamp
+  and extract (day from ((renewal_metadata ->> 'nextDate')::timestamp - current_timestamp)) < 30
+  and dismissed_status is null;
+```
+
+### Get the count of evidence by category
 
 ```sql
 select

@@ -4,7 +4,7 @@ Policy contains a set of rules related to information security for your organiza
 
 **NOTE:**
 
-- To query the table; **you must set** `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
 
 ## Examples
 
@@ -12,10 +12,11 @@ Policy contains a set of rules related to information security for your organiza
 
 ```sql
 select
-  display_name,
+  title,
   policy_type,
-  url,
-  created_at
+  status,
+  created_at,
+  standards
 from
   vanta_policy;
 ```
@@ -24,9 +25,9 @@ from
 
 ```sql
 select
-  display_name,
+  title,
   policy_type,
-  url,
+  status,
   created_at
 from
   vanta_policy
@@ -38,9 +39,9 @@ where
 
 ```sql
 select
-  display_name,
+  title,
   policy_type,
-  url,
+  status,
   created_at,
   approver ->> 'displayName' as approver
 from
@@ -53,9 +54,10 @@ where
 
 ```sql
 select
-  display_name,
-  url,
-  approved_at,
+  title,
+  policy_type,
+  status,
+  created_at,
   approver ->> 'displayName' as approver,
   'expires in ' || extract(day from ((approved_at + interval '1 year') - current_timestamp)) || ' day(s)' as status
 from
@@ -70,16 +72,16 @@ where
 ```sql
 with policy_summary as (
   select
-    p.display_name as policy_name,
-    p.url as policy_url,
+    p.title as policy_name,
+    p.status as policy_status,
     p.approved_at,
     p.approver ->> 'displayName' as approver,
     m.failing_resource_entities
   from
     vanta_policy as p
-    join vanta_monitor as m on m.test_id = 'code-of-conduct-agree'
+    join vanta_monitor as m on m.test_id = p.employee_acceptance_test_id
   where
-    display_name = 'Code of Conduct'
+    title = 'Code of Conduct'
   order by policy_type
 )
 select
