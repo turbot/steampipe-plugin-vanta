@@ -41,7 +41,8 @@ select
   display_name,
   policy_type,
   url,
-  created_at
+  created_at,
+  approver ->> 'displayName' as approver
 from
   vanta_policy
 where
@@ -62,4 +63,33 @@ from
 where
   current_timestamp < (approved_at + interval '1 year')
   and extract(day from ((approved_at + interval '1 year') - current_timestamp)) <= '30';
+```
+
+### List users who have not accepted a specific policy
+
+```sql
+with policy_summary as (
+  select
+    p.display_name as policy_name,
+    p.url as policy_url,
+    p.approved_at,
+    p.approver ->> 'displayName' as approver,
+    m.failing_resource_entities
+  from
+    vanta_policy as p
+    join vanta_monitor as m on m.test_id = 'code-of-conduct-agree'
+  where
+    display_name = 'Code of Conduct'
+  order by policy_type
+)
+select
+  p.policy_name,
+  f ->> 'displayName' as user_name,
+  u.email
+from
+  policy_summary as p,
+  jsonb_array_elements(p.failing_resource_entities) as f
+  join vanta_user as u on u.display_name = f ->> 'displayName'
+where
+  f ->> '__typename' = 'User';
 ```

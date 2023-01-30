@@ -19,14 +19,14 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		},
 		DefaultTransform: transform.FromCamel().Transform(transform.NullIfZeroValue),
 		TableMap: map[string]*plugin.Table{
-			"vanta_computer":         tableVantaComputer(ctx),
-			"vanta_evidence_request": tableVantaEvidenceRequest(ctx),
-			"vanta_group":            tableVantaGroup(ctx),
-			"vanta_integration":      tableVantaIntegration(ctx),
-			"vanta_monitor":          tableVantaMonitor(ctx),
-			"vanta_policy":           tableVantaPolicy(ctx),
-			"vanta_user":             tableVantaUser(ctx),
-			"vanta_vendor":           tableVantaVendor(ctx),
+			"vanta_computer":    tableVantaComputer(ctx),
+			"vanta_evidence":    tableVantaEvidence(ctx),
+			"vanta_group":       tableVantaGroup(ctx),
+			"vanta_integration": tableVantaIntegration(ctx),
+			"vanta_monitor":     tableVantaMonitor(ctx),
+			"vanta_policy":      tableVantaPolicy(ctx),
+			"vanta_user":        tableVantaUser(ctx),
+			"vanta_vendor":      tableVantaVendor(ctx),
 		},
 	}
 	return p

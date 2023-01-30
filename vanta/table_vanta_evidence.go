@@ -10,15 +10,15 @@ import (
 
 //// TABLE DEFINITION
 
-func tableVantaEvidenceRequest(ctx context.Context) *plugin.Table {
+func tableVantaEvidence(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "vanta_evidence_request",
-		Description: "Vanta Evidence Request",
+		Name:        "vanta_evidence",
+		Description: "Vanta Evidence",
 		List: &plugin.ListConfig{
-			Hydrate: listVantaEvidenceRequests,
+			Hydrate: listVantaEvidences,
 		},
 		Get: &plugin.GetConfig{
-			Hydrate:    getVantaEvidenceRequest,
+			Hydrate:    getVantaEvidence,
 			KeyColumns: plugin.SingleColumn("evidence_request_id"),
 		},
 		Columns: []*plugin.Column{
@@ -38,15 +38,15 @@ func tableVantaEvidenceRequest(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listVantaEvidenceRequests(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVantaEvidences(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create client
 	conn, err := getClient(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_evidence_request.listVantaEvidenceRequests", "connection_error", err)
+		plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "connection_error", err)
 		return nil, err
 	}
 
-	options := &api.ListEvidenceRequestsRequestConfiguration{}
+	options := &api.ListEvidencesConfiguration{}
 
 	// Default set to 100.
 	// This is the maximum number of items can be requested
@@ -60,14 +60,14 @@ func listVantaEvidenceRequests(ctx context.Context, d *plugin.QueryData, _ *plug
 	options.Limit = pageLimit
 
 	for {
-		query, err := api.ListEvidenceRequests(context.Background(), conn, options)
+		query, err := api.ListEvidences(context.Background(), conn, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_evidence_request.listVantaEvidenceRequests", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "query_error", err)
 			return nil, err
 		}
 
-		for _, e := range query.Organization.EvidenceRequests.Edges {
-			user := e.EvidenceRequest
+		for _, e := range query.Organization.Evidences.Edges {
+			user := e.Evidence
 			user.OrganizationName = query.Organization.Name
 			d.StreamListItem(ctx, user)
 
@@ -78,12 +78,12 @@ func listVantaEvidenceRequests(ctx context.Context, d *plugin.QueryData, _ *plug
 		}
 
 		// Return if all resources are processed
-		if !query.Organization.EvidenceRequests.PageInfo.HasNextPage {
+		if !query.Organization.Evidences.PageInfo.HasNextPage {
 			break
 		}
 
 		// Else set the next page cursor
-		options.EndCursor = query.Organization.EvidenceRequests.PageInfo.EndCursor
+		options.EndCursor = query.Organization.Evidences.PageInfo.EndCursor
 	}
 
 	return nil, nil
@@ -91,7 +91,7 @@ func listVantaEvidenceRequests(ctx context.Context, d *plugin.QueryData, _ *plug
 
 //// HYDRATE FUNCTIONS
 
-func getVantaEvidenceRequest(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func getVantaEvidence(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	id := d.EqualsQualString("evidence_request_id")
 
 	// Return nil, if empty
@@ -102,20 +102,20 @@ func getVantaEvidenceRequest(ctx context.Context, d *plugin.QueryData, _ *plugin
 	// Create client
 	conn, err := getClient(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_evidence_request.getVantaEvidenceRequest", "connection_error", err)
+		plugin.Logger(ctx).Error("vanta_evidence.getVantaEvidence", "connection_error", err)
 		return nil, err
 	}
 
-	query, err := api.GetEvidenceRequest(context.Background(), conn, id)
+	query, err := api.GetEvidence(context.Background(), conn, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_evidence_request.getVantaEvidenceRequest", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_evidence.getVantaEvidence", "query_error", err)
 		return nil, err
 	}
 
 	// Since GET uses the same LIST query with additional filter to extract the queried evidence request,
 	// return the first element
-	if len(query.Organization.EvidenceRequests.Edges) > 0 {
-		result := query.Organization.EvidenceRequests.Edges[0].EvidenceRequest
+	if len(query.Organization.Evidences.Edges) > 0 {
+		result := query.Organization.Evidences.Edges[0].Evidence
 		result.OrganizationName = query.Organization.Name
 
 		return result, nil

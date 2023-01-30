@@ -1,4 +1,4 @@
-# Table: vanta_evidence_request
+# Table: vanta_evidence
 
 The evidence request provides a list of documents that need to provide as a part of the audit for the chosen certificate, i.e., SOC2, ISO 27001, or HIPAA. Each request is a piece of evidence that is required to complete the audit.
 
@@ -18,7 +18,7 @@ select
   description,
   restricted
 from
-  vanta_evidence_request;
+  vanta_evidence;
 ```
 
 ### List requests with restricted document access
@@ -30,7 +30,7 @@ select
   category,
   description
 from
-  vanta_evidence_request
+  vanta_evidence
 where
   restricted;
 ```
@@ -44,7 +44,7 @@ select
   category,
   dismissed_status
 from
-  vanta_evidence_request
+  vanta_evidence
 where
   dismissed_status -> 'isDismissed' = 'true';
 ```
@@ -56,7 +56,7 @@ select
   category,
   count(title)
 from
-  vanta_evidence_request
+  vanta_evidence
 group by
   category;
 ```

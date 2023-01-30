@@ -7,57 +7,57 @@ import (
 	errorsHandler "github.com/turbot/steampipe-plugin-vanta/errors"
 )
 
-// Information about the dismissed status of the evidence request
-type EvidenceRequestDismissedStatus struct {
+// Information about the dismissed status of the evidence
+type EvidenceDismissedStatus struct {
 	CreatedAt   string `json:"createdAt"`
 	IsDismissed bool   `json:"isDismissed"`
 	Reason      string `json:"reason"`
 }
 
-// Information on the renewal cadence of the evidence request
-type EvidenceRequestRenewalMetadata struct {
+// Information on the renewal cadence of the evidence
+type EvidenceRenewalMetadata struct {
 	Cadence              string `json:"cadence"`
 	CadenceLastUpdatedAt string `json:"cadenceLastUpdatedAt"`
 	NextDate             string `json:"nextDate"`
 }
 
-// Data about an evidence request
-type EvidenceRequest struct {
-	AppUploadEnabled  bool                           `json:"appUploadEnabled"`
-	Category          string                         `json:"category"`
-	Description       string                         `json:"description"`
-	DismissedStatus   EvidenceRequestDismissedStatus `json:"dismissedStatus"`
-	EvidenceRequestId string                         `json:"evidenceRequestId"`
-	OrganizationName  string                         `json:"-"`
-	RenewalMetadata   EvidenceRequestRenewalMetadata `json:"renewalMetadata"`
-	Restricted        bool                           `json:"restricted"`
-	Title             string                         `json:"title"`
-	Uid               string                         `json:"uid"`
+// Data about an evidence
+type Evidence struct {
+	AppUploadEnabled  bool                    `json:"appUploadEnabled"`
+	Category          string                  `json:"category"`
+	Description       string                  `json:"description"`
+	DismissedStatus   EvidenceDismissedStatus `json:"dismissedStatus"`
+	EvidenceRequestId string                  `json:"evidenceRequestId"`
+	OrganizationName  string                  `json:"-"`
+	RenewalMetadata   EvidenceRenewalMetadata `json:"renewalMetadata"`
+	Restricted        bool                    `json:"restricted"`
+	Title             string                  `json:"title"`
+	Uid               string                  `json:"uid"`
 }
 
-// Relay-style edge for evidence request
-type EvidenceRequestEdge struct {
-	EvidenceRequest EvidenceRequest `json:"node"`
+// Relay-style edge for evidence
+type EvidenceEdge struct {
+	Evidence Evidence `json:"node"`
 }
 
-// Paginated list of evidence requests
-type EvidenceRequestConnection struct {
-	Edges      []EvidenceRequestEdge `json:"edges"`
-	PageInfo   PageInfo              `json:"pageInfo"`
-	TotalCount int                   `json:"totalCount"`
+// Paginated list of evidences
+type EvidenceConnection struct {
+	Edges      []EvidenceEdge `json:"edges"`
+	PageInfo   PageInfo       `json:"pageInfo"`
+	TotalCount int            `json:"totalCount"`
 }
 
-type EvidenceRequestQueryOrganization struct {
-	Name             string                    `json:"name"`
-	EvidenceRequests EvidenceRequestConnection `json:"evidenceRequests"`
+type EvidenceQueryOrganization struct {
+	Name      string             `json:"name"`
+	Evidences EvidenceConnection `json:"evidenceRequests"`
 }
 
-// ListEvidenceRequestsResponse is returned by ListEvidenceRequests on success
-type ListEvidenceRequestsResponse struct {
-	Organization EvidenceRequestQueryOrganization `json:"organization"`
+// ListEvidencesResponse is returned by ListEvidences on success
+type ListEvidencesResponse struct {
+	Organization EvidenceQueryOrganization `json:"organization"`
 }
 
-type ListEvidenceRequestsRequestConfiguration struct {
+type ListEvidencesConfiguration struct {
 	// The maximum number of results to return in a single call. To retrieve the
 	// remaining results, make another call with the returned EndCursor value.
 	//
@@ -70,8 +70,8 @@ type ListEvidenceRequestsRequestConfiguration struct {
 
 // Define the query
 const (
-	queryEvidenceRequestList = `
-query ListEvidenceRequests($first: Int!, $after: String, $evidenceRequestIds: [String!]) {
+	queryEvidenceList = `
+query ListEvidences($first: Int!, $after: String, $evidenceRequestIds: [String!]) {
   organization {
     name
     evidenceRequests(first: $first, after: $after, evidenceRequestIds: $evidenceRequestIds) {
@@ -107,21 +107,21 @@ query ListEvidenceRequests($first: Int!, $after: String, $evidenceRequestIds: [S
 `
 )
 
-// ListEvidenceRequests returns a paginated list of evidence requests
+// ListEvidences returns a paginated list of evidences
 //
 // @param ctx context for configuration
 //
 // @param client the API client
 //
 // @param options the API parameters
-func ListEvidenceRequests(
+func ListEvidences(
 	ctx context.Context,
 	client *Client,
-	options *ListEvidenceRequestsRequestConfiguration,
-) (*ListEvidenceRequestsResponse, error) {
+	options *ListEvidencesConfiguration,
+) (*ListEvidencesResponse, error) {
 
 	// Make a request
-	req := graphql.NewRequest(queryEvidenceRequestList)
+	req := graphql.NewRequest(queryEvidenceList)
 
 	// Check for options and set it
 	if options.Limit > 0 {
@@ -137,7 +137,7 @@ func ListEvidenceRequests(
 	req.Header.Set("Authorization", "token "+*client.Token)
 
 	var err error
-	var data ListEvidenceRequestsResponse
+	var data ListEvidencesResponse
 
 	if err := client.Graphql.Run(ctx, req, &data); err != nil {
 		err = errorsHandler.BuildErrorMessage(err)
@@ -147,21 +147,21 @@ func ListEvidenceRequests(
 	return &data, err
 }
 
-// GetEvidenceRequest returns a specific evidence requests
+// GetEvidence returns a specific evidence
 //
 // @param ctx context for configuration
 //
 // @param client the API client
 //
-// @param id unique identifier of the evidence request
-func GetEvidenceRequest(
+// @param id unique identifier of the evidence
+func GetEvidence(
 	ctx context.Context,
 	client *Client,
 	id string,
-) (*ListEvidenceRequestsResponse, error) {
+) (*ListEvidencesResponse, error) {
 
 	// Make a request
-	req := graphql.NewRequest(queryEvidenceRequestList)
+	req := graphql.NewRequest(queryEvidenceList)
 
 	// Set the variables
 
@@ -177,7 +177,7 @@ func GetEvidenceRequest(
 	req.Header.Set("Authorization", "token "+*client.Token)
 
 	var err error
-	var data ListEvidenceRequestsResponse
+	var data ListEvidencesResponse
 
 	if err := client.Graphql.Run(ctx, req, &data); err != nil {
 		err = errorsHandler.BuildErrorMessage(err)
