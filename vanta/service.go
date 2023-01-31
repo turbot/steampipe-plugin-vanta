@@ -3,7 +3,6 @@ package vanta
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-vanta/api"
@@ -20,20 +19,8 @@ func getClient(ctx context.Context, d *plugin.QueryData) (*api.Client, error) {
 	// Get the config
 	vantaConfig := GetConfig(d.Connection)
 
-	/*
-		precedence of credentials:
-		- Credentials set in config
-		- VANTA_API_TOKEN env var
-	*/
-	var token string
-	token = os.Getenv("VANTA_API_TOKEN")
-
-	if vantaConfig.ApiToken != nil {
-		token = *vantaConfig.ApiToken
-	}
-
 	// Return if no credential specified
-	if token == "" {
+	if vantaConfig.ApiToken == nil {
 		return nil, fmt.Errorf("api_token must be configured")
 	}
 
@@ -71,18 +58,13 @@ func getVantaAppClient(ctx context.Context, d *plugin.QueryData) (*api.Client, e
 	// Get the config
 	vantaConfig := GetConfig(d.Connection)
 
-	var sessionId string
-	if vantaConfig.SessionId != nil {
-		sessionId = *vantaConfig.SessionId
-	}
-
 	// Return if no credential specified
-	if sessionId == "" {
+	if vantaConfig.SessionId == nil {
 		return nil, fmt.Errorf("session_id must be configured")
 	}
 
 	// Start with an empty Vanta config
-	config := api.ClientConfig{SessionId: &sessionId}
+	config := api.ClientConfig{SessionId: vantaConfig.SessionId}
 
 	// Create the client
 	client, err := api.CreateAppClient(ctx, config)
