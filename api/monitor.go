@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/machinebox/graphql"
 	errorsHandler "github.com/turbot/steampipe-plugin-vanta/errors"
@@ -9,27 +10,63 @@ import (
 
 // Metadata about whether this test is disabled and by whom
 type TestDisabledStatus struct {
-	CreatedAt      string `json:"createdAt"`
-	Disabled       bool   `json:"disabled"`
-	DisabledReason string `json:"disabledReason"`
-	Expiration     string `json:"expiration"`
-	UpdatedAt      string `json:"updatedAt"`
+	CreatedAt  string `json:"createdAt"`
+	Disabled   bool   `json:"disabled"`
+	Expiration string `json:"expiration"`
 }
 
+type TestRemediationStatus struct {
+	Status                 string `json:"status"`
+	SoonestRemediateByDate string `json:"soonestRemediateByDate"`
+}
+
+// Information about assignee
+type TestAssignee struct {
+	Id          string `json:"id"`
+	DisplayName string `json:"displayName"`
+}
+
+type TestControlStandardInfo struct {
+	Standard string `json:"standard"`
+}
+
+type TestControlStandardSection struct {
+	StandardInfo TestControlStandardInfo `json:"standardInfo"`
+}
+
+type TestControlInfo struct {
+	Id               string                       `json:"id"`
+	Name             string                       `json:"name"`
+	StandardSections []TestControlStandardSection `json:"standardSections"`
+}
+
+// Information about an individual test run
 type Monitor struct {
-	Category                string                      `json:"category"`
-	Description             string                      `json:"description"`
-	DisabledStatus          TestDisabledStatus          `json:"disabledStatus"`
-	FailMessage             string                      `json:"failMessage"`
-	FailureDescription      string                      `json:"failureDescription"`
-	LatestFlip              string                      `json:"latestFlip"`
-	Name                    string                      `json:"name"`
-	OrganizationName        string                      `json:"-"`
-	Outcome                 string                      `json:"outcome"`
-	Remediation             string                      `json:"remediation"`
-	TestId                  string                      `json:"testId"`
-	Timestamp               string                      `json:"timestamp"`
-	FailingResourceEntities FailingResourceEntitiesEdge `json:"failingResourceEntities"`
+	Assignees               []TestAssignee        `json:"assignees"`
+	Category                string                `json:"category"`
+	ComplianceStatus        string                `json:"complianceStatus"`
+	Controls                []TestControlInfo     `json:"controls"`
+	Description             string                `json:"description"`
+	DisabledStatus          TestDisabledStatus    `json:"disabledStatus"`
+	Id                      string                `json:"id"`
+	LatestFlipTime          string                `json:"latestFlipTime"`
+	Name                    string                `json:"name"`
+	OrganizationName        string                `json:"-"`
+	Outcome                 string                `json:"outcome"`
+	RemediationStatus       TestRemediationStatus `json:"remediationStatus"`
+	Services                []string              `json:"services"`
+	TestId                  string                `json:"testId"`
+	UseRemediationTimelines bool                  `json:"useRemediationTimelines"`
+}
+
+type MonitorQueryOrganization struct {
+	Name    string    `json:"name"`
+	Results []Monitor `json:"testResults"`
+}
+
+// ListMonitorsResponse is returned by ListMonitors on success
+type ListMonitorsResponse struct {
+	Organization MonitorQueryOrganization `json:"organization"`
 }
 
 type Resource struct {
@@ -38,6 +75,7 @@ type Resource struct {
 	Type        string `json:"__typename"`
 }
 
+// Type for an entity that was tested
 type FailingResourceEntityResource struct {
 	Resource Resource `json:"resource"`
 }
@@ -46,30 +84,33 @@ type FailingResourceEntityNode struct {
 	Node FailingResourceEntityResource `json:"node"`
 }
 
+// Relay-style connection for FailingResourceEntity
 type FailingResourceEntitiesEdge struct {
-	Edges []FailingResourceEntityNode `json:"edges"`
+	Edges      []FailingResourceEntityNode `json:"edges"`
+	PageInfo   PageInfo                    `json:"pageInfo"`
+	TotalCount int                         `json:"totalCount"`
 }
 
-type MonitorQueryOrganization struct {
-	Name    string    `json:"name"`
-	Results []Monitor `json:"currentTestResults"`
+type CurrentTestResult struct {
+	FailingResourceEntities FailingResourceEntitiesEdge `json:"failingResourceEntities"`
 }
 
-// ListMonitorsResponse is returned by ListMonitors on success
-type ListMonitorsResponse struct {
-	Organization MonitorQueryOrganization `json:"organization"`
+type FailingResourceEntityQueryOrganization struct {
+	Name               string              `json:"name"`
+	CurrentTestResults []CurrentTestResult `json:"currentTestResults"`
 }
 
-type ListMonitorsRequestConfiguration struct {
-	// Optional outcome to filter by; if null, test results will not be filtered by outcome.
-	// Supported values are: DISABLED, FAIL, IN_PROGRESS, INVALID, NA.
-	Outcome string
+// ListTestFailingResourceEntitiesResponse is returned by ListTestFailingResourceEntities on success
+type ListTestFailingResourceEntitiesResponse struct {
+	Organization FailingResourceEntityQueryOrganization `json:"organization"`
+}
 
-	// Optional list of testIds to filter by; if null or empty, test results will not be filtered by testId
+type ListTestFailingResourceEntitiesRequestConfiguration struct {
+	// Required
+	//
+	// A list of testIds to filter by.
 	TestIds []string
-}
 
-type ListFailingResourceEntitiesRequestConfiguration struct {
 	// The maximum number of results to return in a single call. To retrieve the
 	// remaining results, make another call with the returned EndCursor value.
 	//
@@ -83,40 +124,72 @@ type ListFailingResourceEntitiesRequestConfiguration struct {
 // Define the query
 const (
 	queryTestResultList = `
-query getTestResults($filter: TestResultsFilter, $first: Int!) {
-  organization {
-    name
-    currentTestResults(filter: $filter) {
-      name
-      category
-      outcome
-      latestFlip
-      timestamp
-      failMessage
-      testId
-      remediation
-      failMessage
-      failureDescription
-      disabledStatus {
-        createdAt
-        disabled
-        disabledReason
-        expiration
-        updatedAt
-      }
-      failingResourceEntities(first: $first) {
-        edges {
-          node {
-            resource {
-              uid
-              displayName
-              __typename
-            }
-          }
-        }
-      }
-    }
-  }
+query getTestsForTestsPage {
+	organization {
+		name
+		testResults(includeInRollout: true, filterNA: true) {
+			id
+			...TestsPageTestResult
+		}
+	}
+}
+
+fragment TestsPageTestResult on TestResult {
+	name
+	category
+	outcome
+	latestFlipTime
+	testId
+	id
+	description
+	complianceStatus
+	useRemediationTimelines
+	services
+	controls {
+		id
+		name
+		standardSections {
+			standardInfo {
+				standard
+			}
+		}
+	}
+	assignees {
+		displayName
+		id
+		employmentStatus
+	}
+	disabledStatus {
+		disabled
+		createdAt
+		expiration
+	}
+	remediationStatus {
+		status
+		soonestRemediateByDate
+		itemCount
+	}
+}
+`
+
+	queryListFailingResourceEntities = `
+query getTestResults($filter: TestResultsFilter, $first: Int!, $after: String) {
+	organization {
+		name
+		currentTestResults(filter: $filter) {
+			failingResourceEntities(first: $first, after: $after) {
+				edges {
+					node {
+						resource {
+							uid
+							displayName
+							__typename
+						}
+					}
+				}
+			}
+		}
+	}
 }
 `
 )
@@ -126,37 +199,71 @@ query getTestResults($filter: TestResultsFilter, $first: Int!) {
 // @param ctx context for configuration
 //
 // @param client the API client
-//
-// @param options the API parameters
 func ListMonitors(
 	ctx context.Context,
 	client *Client,
-	options *ListMonitorsRequestConfiguration,
 ) (*ListMonitorsResponse, error) {
 
 	// Make a request
 	req := graphql.NewRequest(queryTestResultList)
 
+	// set header fields
+	req.Header.Set("user-agent", "steampipe")
+	req.Header.Set("Cookie", fmt.Sprintf("connect.sid=%s", *client.SessionId))
+	req.Header.Set("x-csrf-token", "this_csrf_header_is_constant")
+	req.Header.Set("Cache-Control", "no-cache")
+
+	var err error
+	var data ListMonitorsResponse
+
+	if err := client.Graphql.Run(ctx, req, &data); err != nil {
+		err = errorsHandler.BuildErrorMessage(err)
+		return nil, err
+	}
+
+	return &data, err
+}
+
+// ListTestFailingResourceEntities returns a paginated list of the entities that were in a failing state when the test was run
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param options the API parameters
+func ListTestFailingResourceEntities(
+	ctx context.Context,
+	client *Client,
+	options *ListTestFailingResourceEntitiesRequestConfiguration,
+) (*ListTestFailingResourceEntitiesResponse, error) {
+
+	// Make a request
+	req := graphql.NewRequest(queryListFailingResourceEntities)
+
 	// Check for options and set it
 	filters := map[string]interface{}{}
-	if options.Outcome != "" {
-		filters["outcome"] = options.Outcome
-	}
 	if options.TestIds != nil || len(options.TestIds) > 0 {
 		filters["testIds"] = options.TestIds
 	}
 	req.Var("filter", filters)
 
-	// Set the limit for the failingResourceEntities
-	// Set the max limit - 100
-	req.Var("first", 100)
+	// Check for options and set it
+	if options.Limit > 0 {
+		req.Var("first", options.Limit)
+	}
+
+	if options.EndCursor != "" {
+		req.Var("after", options.EndCursor)
+	}
 
 	// set header fields
+	req.Header.Set("user-agent", "steampipe")
+	req.Header.Set("Cookie", fmt.Sprintf("connect.sid=%s", *client.SessionId))
+	req.Header.Set("x-csrf-token", "this_csrf_header_is_constant")
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("Authorization", "token "+*client.Token)
 
 	var err error
-	var data ListMonitorsResponse
+	var data ListTestFailingResourceEntitiesResponse
 
 	if err := client.Graphql.Run(ctx, req, &data); err != nil {
 		err = errorsHandler.BuildErrorMessage(err)

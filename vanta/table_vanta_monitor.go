@@ -17,25 +17,23 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 		Description: "Vanta Monitor",
 		List: &plugin.ListConfig{
 			Hydrate: listVantaMonitors,
-			KeyColumns: plugin.KeyColumnSlice{
-				{Name: "outcome", Require: plugin.Optional},
-				{Name: "test_id", Require: plugin.Optional},
-			},
 		},
 		Columns: []*plugin.Column{
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "A human-readable name of the test."},
+			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the test."},
 			{Name: "category", Type: proto.ColumnType_STRING, Description: "A high-level categorization of the test."},
 			{Name: "outcome", Type: proto.ColumnType_STRING, Description: "Outcome of the test run. Possible values are: 'PASS', 'DISABLED', 'FAIL', 'IN_PROGRESS', 'INVALID' and 'NA'."},
-			{Name: "latest_flip", Type: proto.ColumnType_TIMESTAMP, Description: "The last time the test flipped to a passing or failing state."},
-			{Name: "timestamp", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the test was run."},
 			{Name: "test_id", Type: proto.ColumnType_STRING, Description: "A unique identifier for this test."},
+			{Name: "latest_flip_time", Type: proto.ColumnType_TIMESTAMP, Description: "The last time the test flipped to a passing or failing state."},
+			{Name: "compliance_status", Type: proto.ColumnType_STRING, Description: "The compliance status of the test."},
 			{Name: "description", Type: proto.ColumnType_STRING, Description: "A human-readable description of the test."},
-			{Name: "remediation", Type: proto.ColumnType_STRING, Description: "Instructions for how to fix this test if it's failing."},
-			{Name: "fail_message", Type: proto.ColumnType_STRING, Description: "Describes the reason of a failed test."},
-			{Name: "failure_description", Type: proto.ColumnType_STRING, Description: "Description under which the conditions the test would fail."},
-			{Name: "disabled_status", Type: proto.ColumnType_JSON, Description: "Metadata about whether this test is disabled and by whom."},
+			{Name: "services", Type: proto.ColumnType_JSON, Description: "A list of services."},
+			{Name: "assignees", Type: proto.ColumnType_JSON, Description: "A list of users assigned as owner for this test."},
+			{Name: "disabled_status", Type: proto.ColumnType_JSON, Description: "Metadata about whether this test is disabled."},
+			{Name: "remediation_status", Type: proto.ColumnType_JSON, Description: "Specifies the remediation information."},
+			{Name: "controls", Type: proto.ColumnType_JSON, Description: "A list of controls being checked during the test."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
-			{Name: "failing_resource_entities", Type: proto.ColumnType_JSON, Description: "The name of the organization.", Transform: transform.From(formatFailingResourceEntities)},
+			{Name: "failing_resource_entities", Type: proto.ColumnType_JSON, Description: "The name of the organization.", Hydrate: listVantaMonitorFailingResourceEntities, Transform: transform.FromValue()},
 		},
 	}
 }
@@ -44,26 +42,14 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 
 func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create client
-	conn, err := getClient(ctx, d)
+	conn, err := getVantaAppClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitors", "connection_error", err)
 		return nil, err
 	}
 
-	// API parameters
-	option := &api.ListMonitorsRequestConfiguration{}
-
-	// Check for additional filters
-	if d.EqualsQualString("outcome") != "" {
-		option.Outcome = d.EqualsQualString("outcome")
-	}
-
-	if d.EqualsQualString("test_id") != "" {
-		option.TestIds = []string{d.EqualsQualString("test_id")}
-	}
-
 	// As of Jan 13, 2023, the query doesn't provide the paging information
-	query, err := api.ListMonitors(context.Background(), conn, option)
+	query, err := api.ListMonitors(context.Background(), conn)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitors", "query_error", err)
 		return nil, err
@@ -82,15 +68,44 @@ func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	return nil, nil
 }
 
-//// TRANSFORM FUNCTIONS
+//// HYDRATE FUNCTIONS
 
-func formatFailingResourceEntities(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(api.Monitor)
+func listVantaMonitorFailingResourceEntities(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	data := h.Item.(api.Monitor)
+	testId := data.TestId
 
-	var results []api.Resource
-	for _, edge := range data.FailingResourceEntities.Edges {
-		results = append(results, edge.Node.Resource)
+	// Create client
+	conn, err := getVantaAppClient(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "connection_error", err)
+		return nil, err
 	}
 
-	return results, nil
+	options := &api.ListTestFailingResourceEntitiesRequestConfiguration{
+		Limit:   100, // Default to maximum; e.g. 100
+		TestIds: []string{testId},
+	}
+
+	var failingResourceEntities []api.Resource
+	for {
+		query, err := api.ListTestFailingResourceEntities(context.Background(), conn, options)
+		if err != nil {
+			plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "query_error", err)
+			return nil, err
+		}
+
+		for _, result := range query.Organization.CurrentTestResults {
+			for _, e := range result.FailingResourceEntities.Edges {
+				failingResourceEntities = append(failingResourceEntities, e.Node.Resource)
+			}
+
+			// Return if all resources are processed
+			if !result.FailingResourceEntities.PageInfo.HasNextPage {
+				return failingResourceEntities, nil
+			}
+
+			// Else set the next page cursor
+			options.EndCursor = result.FailingResourceEntities.PageInfo.EndCursor
+		}
+	}
 }

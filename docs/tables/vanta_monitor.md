@@ -6,7 +6,7 @@ The table `vanta_monitor` provides information about all the monitors and their 
 
 **NOTE:**
 
-- To query the table; **you must set** `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
 
 ## Examples
 
@@ -17,8 +17,8 @@ select
   name,
   category,
   outcome,
-  latest_flip,
-  timestamp
+  latest_flip_time,
+  remediation_status ->> 'status' as status
 from
   vanta_monitor;
 ```
@@ -30,8 +30,8 @@ select
   name,
   category,
   outcome,
-  latest_flip,
-  timestamp
+  compliance_status,
+  latest_flip_time
 from
   vanta_monitor
 where
@@ -45,14 +45,69 @@ select
   name,
   category,
   outcome,
-  latest_flip,
-  timestamp,
-  fail_message,
-  remediation
+  compliance_status,
+  latest_flip_time
 from
   vanta_monitor
 where
   test_id = 'test-03neqwol876pxg1iqjqib9';
+```
+
+### Count tests by remediation status
+
+```sql
+select
+  remediation_status ->> 'status' as status,
+  count(name)
+from
+  vanta_monitor
+group by
+  remediation_status ->> 'status';
+```
+
+### List failed test by owner
+
+```sql
+select
+  name,
+  category,
+  a ->> 'displayName' as owner,
+  remediation_status ->> 'status' as status
+from
+  vanta_monitor
+  left join jsonb_array_elements(assignees) as a on true
+where
+  outcome = 'FAIL';
+```
+
+### List failed test by standard
+
+```sql
+select
+  name,
+  category,
+  s -> 'standardInfo' ->> 'standard' as standard,
+  remediation_status ->> 'status' as status
+from
+  vanta_monitor,
+  jsonb_array_elements(controls) as c,
+  jsonb_array_elements(c -> 'standardSections') as s
+where
+  outcome = 'FAIL';
+```
+
+### List failed test by integration
+
+```sql
+select
+  m.name,
+  m.category,
+  m.outcome,
+  i.display_name as integration
+from
+  vanta_integration as i,
+  jsonb_array_elements(i.tests) as t
+  join vanta_monitor as m on m.test_id = t ->> 'testId' and m.outcome = 'FAIL'
 ```
 
 ### Count tests by outcome
