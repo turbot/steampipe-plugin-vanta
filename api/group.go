@@ -56,7 +56,7 @@ const (
 	queryGroupList = `
 query ListGroups {
   organization {
-		name
+    name
     roles {
       id
       checklist {

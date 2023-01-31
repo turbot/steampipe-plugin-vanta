@@ -83,61 +83,61 @@ type ListPoliciesResponse struct {
 const (
 	queryPolicyList = `
 query PoliciesAndPolicyDocStubs {
-	organization {
-		name
-		policies(onlyApproved: false) {
-			id
-			...PoliciesV2PolicyInfo
-		}
-		policyDocStubs(includeDisabled: false) {
-			...PolicyDocStubInfo
-		}
-	}
+  organization {
+    name
+    policies(onlyApproved: false) {
+      id
+      ...PoliciesV2PolicyInfo
+    }
+    policyDocStubs(includeDisabled: false) {
+      ...PolicyDocStubInfo
+    }
+  }
 }
 
 fragment PoliciesV2PolicyInfo on Policy {
-	id
-	title
-	policyType
-	createdAt
-	updatedAt
-	approvedAt
-	approver {
-		id
-		displayName
-	}
-	approverName
-	uploader {
-		id
-		displayName
-	}
-	numUsers
-	numUsersAccepted
-	source
-	uploadedDoc {
-		id
-		slugId
-		url
-	}
+  id
+  title
+  policyType
+  createdAt
+  updatedAt
+  approvedAt
+  approver {
+    id
+    displayName
+  }
+  approverName
+  uploader {
+    id
+    displayName
+  }
+  numUsers
+  numUsersAccepted
+  source
+  uploadedDoc {
+    id
+    slugId
+    url
+  }
 }
 
 fragment PolicyDocStubInfo on policyDocStub {
-	description
-	policyType
-	status
-	employeeAcceptanceTestId
-	acceptanceControls {
-		id
-		name
-		standardSections {
-			standard
-			sections
-		}
-		assignees {
-			id
-			displayName
-		}
-	}
+  description
+  policyType
+  status
+  employeeAcceptanceTestId
+  acceptanceControls {
+    id
+    name
+    standardSections {
+      standard
+      sections
+    }
+    assignees {
+      id
+      displayName
+    }
+  }
 }
 `
 )

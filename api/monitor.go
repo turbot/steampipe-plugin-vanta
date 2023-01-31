@@ -125,50 +125,50 @@ type ListTestFailingResourceEntitiesRequestConfiguration struct {
 const (
 	queryTestResultList = `
 query getTestsForTestsPage {
-	organization {
-		name
-		testResults(includeInRollout: true, filterNA: true) {
-			id
-			...TestsPageTestResult
-		}
-	}
+  organization {
+    name
+    testResults(includeInRollout: true, filterNA: true) {
+      id
+      ...TestsPageTestResult
+    }
+  }
 }
 
 fragment TestsPageTestResult on TestResult {
-	name
-	category
-	outcome
-	latestFlipTime
-	testId
-	id
-	description
-	complianceStatus
-	useRemediationTimelines
-	services
-	controls {
-		id
-		name
-		standardSections {
-			standardInfo {
-				standard
-			}
-		}
-	}
-	assignees {
-		displayName
-		id
-		employmentStatus
-	}
-	disabledStatus {
-		disabled
-		createdAt
-		expiration
-	}
-	remediationStatus {
-		status
-		soonestRemediateByDate
-		itemCount
-	}
+  name
+  category
+  outcome
+  latestFlipTime
+  testId
+  id
+  description
+  complianceStatus
+  useRemediationTimelines
+  services
+  controls {
+    id
+    name
+    standardSections {
+      standardInfo {
+        standard
+      }
+    }
+  }
+  assignees {
+    displayName
+    id
+    employmentStatus
+  }
+  disabledStatus {
+    disabled
+    createdAt
+    expiration
+  }
+  remediationStatus {
+    status
+    soonestRemediateByDate
+    itemCount
+  }
 }
 `
 

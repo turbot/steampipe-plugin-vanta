@@ -87,81 +87,81 @@ type ListIntegrationsRequestConfiguration struct {
 const (
 	queryIntegrationList = `
 query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
-	organization {
-		name
-		integrations(first: $first, after: $after, onlyConnected: $onlyConnected) {
-			totalCount
-			pageInfo {
-				endCursor
-				hasNextPage
-			}
-			edges {
-				node {
-					id
-					displayName
-					description
-					serviceCategories
-					integrationCategories
-					scopableResources
-					tests {
-						testId
-						controls {
-							controlId
-						}
-					}
-					... on FirstPartyIntegration {
-						helpCenterArticleLink
-						serviceCategoryToProductName {
-							serviceCategory
-							productName
-						}
-						permissionsDescription
-						additionalInformation
-						credentials {
-							id
-							service
-							isDisabled
-							lastUpdated
-							... on FirstPartyIntegrationCredential {
-								externalAccountId
-								disableCause
-								metadata
-								willExpire {
-									expirationDate
-									customerFacingSummary
-									helpdeskArticleUrl
-								}
-								disabledFetchKinds {
-									kind
-								}
-								enabledServiceCategories {
-									serviceCategory
-									enabledAt
-									enabledByUserId
-								}
-							}
-						}
-						lifecycleState
-					}
-					... on ThirdPartyIntegration {
-						logoSlugId
-						applicationUrl
-						installationUrl
-						credentials {
-							id
-							service
-							isDisabled
-							lastUpdated
-							... on ThirdPartyIntegrationCredential {
-								sourceId
-								dataLastReceivedAt
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+  organization {
+    name
+    integrations(first: $first, after: $after, onlyConnected: $onlyConnected) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          displayName
+          description
+          serviceCategories
+          integrationCategories
+          scopableResources
+          tests {
+            testId
+            controls {
+              controlId
+            }
+          }
+          ... on FirstPartyIntegration {
+            helpCenterArticleLink
+            serviceCategoryToProductName {
+              serviceCategory
+              productName
+            }
+            permissionsDescription
+            additionalInformation
+            credentials {
+              id
+              service
+              isDisabled
+              lastUpdated
+              ... on FirstPartyIntegrationCredential {
+                externalAccountId
+                disableCause
+                metadata
+                willExpire {
+                  expirationDate
+                  customerFacingSummary
+                  helpdeskArticleUrl
+                }
+                disabledFetchKinds {
+                  kind
+                }
+                enabledServiceCategories {
+                  serviceCategory
+                  enabledAt
+                  enabledByUserId
+                }
+              }
+            }
+            lifecycleState
+          }
+          ... on ThirdPartyIntegration {
+            logoSlugId
+            applicationUrl
+            installationUrl
+            credentials {
+              id
+              service
+              isDisabled
+              lastUpdated
+              ... on ThirdPartyIntegrationCredential {
+                sourceId
+                dataLastReceivedAt
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }	
 `
 )
