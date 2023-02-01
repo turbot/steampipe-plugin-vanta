@@ -2,7 +2,7 @@
 organization: Turbot
 category: ["saas"]
 icon_url: "/images/plugins/turbot/vanta.svg"
-brand_color: "#5230D7"
+brand_color: "#5230d7"
 display_name: "Vanta"
 short_name: "vanta"
 description: "Steampipe plugin to query users, policies, compliances, and more from your Vanta organization."
