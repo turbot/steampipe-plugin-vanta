@@ -60,8 +60,8 @@ The plugin uses two different endpoints that uses different credential mechanism
 | Item        | Description                                                                                                                                                                                                                                                                                                                                               |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Credentials | The plugin uses two different endpoints that use different credential mechanisms:<br/>1. Using a user's personal [API token](https://developer.vanta.com/docs/quick-start#1-make-an-api-token).<br/>2. Using the [cookie-based authentication](#getting-the-session-id-for-cookie-based-authentication) by passing a unique session ID for every request. |
-| Permissions | User requires admin access to generate an API tokens to access the resources.                                                                                                                                                                                                                                                                             |
-| Radius      | Each connection represents a single Vanta Installation.                                                                                                                                                                                                                                                                                                   |
+| Permissions | User requires admin access to generate an API token to access the resources.                                                                                                                                                                                                                                                                             |
+| Radius      | Each connection represents a single Vanta installation.                                                                                                                                                                                                                                                                                                   |
 | Resolution  | Credentials explicitly set in a steampipe config file (`~/.steampipe/config/vanta.spc`).                                                                                                                                                                                                                                                                  |
 
 ### Configuration
@@ -73,7 +73,7 @@ connection "vanta" {
   plugin = "vanta"
 
   # A personal API token to access Vanta API
-  # This is only required while querying `vanta_evidence` table. 
+  # This is only required while querying `vanta_evidence` table.
   # To generate an API token, refer: https://developer.vanta.com/docs/quick-start#1-make-an-api-token
   # api_token = "97GtVsdAPwowRToaWDtgZtILdXI_agszONwajQslZ1o"
 
@@ -88,7 +88,7 @@ connection "vanta" {
 
 The Vanta APIs generally use a user's personal [API token](https://developer.vanta.com/docs/quick-start#1-make-an-api-token) to authenticate the requests. But some of the tables in this plugin use a different endpoint, which requires a unique session ID to access the query endpoint.
 
-To locate your Session ID:
+To retrieve your Session ID:
 
 - Log into the Vanta console.
 - Open your browser [developer tools](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_are_browser_developer_tools).
