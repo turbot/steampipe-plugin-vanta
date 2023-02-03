@@ -50,7 +50,7 @@ where
   (approved_at + interval '1 year') < current_timestamp;
 ```
 
-### List policies expires within 30 days
+### List policies expiring in the next 30 days
 
 ```sql
 select

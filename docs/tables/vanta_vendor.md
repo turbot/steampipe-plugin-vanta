@@ -62,7 +62,7 @@ where
   assessment_documents is null;
 ```
 
-### Get the owner information for each vendor
+### Get the owner information of each vendor
 
 ```sql
 select

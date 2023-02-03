@@ -66,7 +66,7 @@ where
   installed_password_managers is null;
 ```
 
-### List computers not checked in last 90 days
+### List computers not checked over the last 90 days
 
 ```sql
 select

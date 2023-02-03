@@ -65,7 +65,7 @@ group by
   remediation_status ->> 'status';
 ```
 
-### List failed test by owner
+### List failed tests by owner
 
 ```sql
 select
@@ -80,7 +80,7 @@ where
   outcome = 'FAIL';
 ```
 
-### List failed test by standard
+### List failed tests by standard
 
 ```sql
 select
@@ -96,7 +96,7 @@ where
   outcome = 'FAIL';
 ```
 
-### List failed test by integration
+### List failed tests by integration
 
 ```sql
 select

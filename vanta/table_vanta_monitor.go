@@ -20,7 +20,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "A human-readable name of the test."},
-			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the test."},
+			{Name: "id", Type: proto.ColumnType_STRING, Description: "An internal Vanta generated ID of the test."},
 			{Name: "category", Type: proto.ColumnType_STRING, Description: "A high-level categorization of the test."},
 			{Name: "outcome", Type: proto.ColumnType_STRING, Description: "Outcome of the test run. Possible values are: 'PASS', 'DISABLED', 'FAIL', 'IN_PROGRESS', 'INVALID' and 'NA'."},
 			{Name: "test_id", Type: proto.ColumnType_STRING, Description: "A unique identifier for this test."},

@@ -62,7 +62,7 @@ where
   employment_status = 'INACTIVE_EMPLOYEE';
 ```
 
-### List users with security task overdue
+### List users with security tasks overdue
 
 ```sql
 select
@@ -90,7 +90,7 @@ from
 where
   employment_status = 'CURRENTLY_EMPLOYED'
 order by
-  years DESC;
+  years desc;
 ```
 
 ### Get the count of users by group
