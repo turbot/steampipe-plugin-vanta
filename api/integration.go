@@ -18,16 +18,16 @@ type Test struct {
 }
 
 type IntegrationCredential struct {
-	DisableCause             string   `json:"disableCause"`
-	DisabledFetchKinds       []string `json:"disabledFetchKinds"`
-	EnabledServiceCategories []string `json:"enabledServiceCategories"`
-	ExternalAccountId        string   `json:"externalAccountId"`
-	Id                       string   `json:"id"`
-	IsDisabled               bool     `json:"isDisabled"`
-	LastUpdated              string   `json:"lastUpdated"`
-	Metadata                 string   `json:"metadata"`
-	Service                  string   `json:"service"`
-	WillExpire               string   `json:"willExpire"`
+	DisableCause       string      `json:"disableCause"`
+	DisabledFetchKinds interface{} `json:"disabledFetchKinds"`
+	EnabledProducts    interface{} `json:"enabledProducts"`
+	ExternalAccountId  string      `json:"externalAccountId"`
+	Id                 string      `json:"id"`
+	IsDisabled         bool        `json:"isDisabled"`
+	LastUpdated        string      `json:"lastUpdated"`
+	Metadata           string      `json:"metadata"`
+	Service            string      `json:"service"`
+	WillExpire         string      `json:"willExpire"`
 }
 
 type Integration struct {
@@ -134,11 +134,7 @@ query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
                 disabledFetchKinds {
                   kind
                 }
-                enabledServiceCategories {
-                  serviceCategory
-                  enabledAt
-                  enabledByUserId
-                }
+                enabledProducts
               }
             }
             lifecycleState
