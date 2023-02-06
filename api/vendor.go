@@ -18,6 +18,23 @@ type VendorOwner struct {
 	Id          string `json:"id"`
 }
 
+type VendorRiskAttributes struct {
+	Id             string `json:"displayName"`
+	RiskCategoryId string `json:"riskCategoryId"`
+	RiskLevel      string `json:"riskLevel"`
+	RiskName       string `json:"riskName"`
+}
+type VendorRiskProfile struct {
+	RiskCategories []VendorRiskLevelRiskCategories `json:"riskCategories"`
+}
+
+type VendorRiskLevelRiskCategories struct {
+	Active           bool                   `json:"active"`
+	RiskAttributes   []VendorRiskAttributes `json:"riskAttributes"`
+	RiskCategoryId   string                 `json:"riskCategoryId"`
+	RiskCategoryName string                 `json:"riskCategoryName"`
+}
+
 // Data about a vendor within Vanta
 type Vendor struct {
 	AssessmentDocuments             []VendorAssessmentDocument `json:"assessmentDocuments"`
@@ -125,11 +142,18 @@ fragment VenderTableData on Vendor {
     id
   }
   url
-  riskAttributes {
-    id
-    riskLevel
-    riskCategoryId
-    riskName
+  riskProfile {
+    riskCategories {
+      riskCategoryId
+      riskCategoryName
+      active
+      riskAttributes {
+        id
+        riskName
+        riskCategoryId
+        riskLevel
+      }
+    }
   }
   vendorCategory
   vendorRiskLocked

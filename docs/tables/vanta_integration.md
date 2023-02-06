@@ -40,8 +40,8 @@ where
 
 ```sql
 select
-  display_name,
-  id,
+  i.display_name,
+  i.id,
   t ->> 'testId' as test_id,
   m.outcome as test_status
 from

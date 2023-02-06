@@ -107,7 +107,7 @@ select
 from
   vanta_integration as i,
   jsonb_array_elements(i.tests) as t
-  join vanta_monitor as m on m.test_id = t ->> 'testId' and m.outcome = 'FAIL'
+  join vanta_monitor as m on m.test_id = t ->> 'testId' and m.outcome = 'FAIL';
 ```
 
 ### Count tests by outcome
