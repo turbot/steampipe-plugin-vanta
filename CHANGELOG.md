@@ -1,3 +1,10 @@
+## v0.0.2 [2023-02-06]
+
+_Bug fixes_
+
+- Fixed the `vanta_integration` table to correctly return data instead of returning an error. ([#5](https://github.com/turbot/steampipe-plugin-vanta/pull/5))
+- Renamed column `risk_attributes` to `risk_profile` in `vanta_vendor` table to stay in alignment with the GraphQL API attributes. ([#5](https://github.com/turbot/steampipe-plugin-vanta/pull/5))
+
 ## v0.0.1 [2023-02-04]
 
 _What's new?_
