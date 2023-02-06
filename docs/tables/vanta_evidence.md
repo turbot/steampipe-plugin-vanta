@@ -59,7 +59,8 @@ select
 from
   vanta_evidence
 where
-  current_timestamp < (renewal_metadata ->> 'nextDate')::timestamp
+  renewal_metadata ->> 'nextDate' != ''
+  and current_timestamp < (renewal_metadata ->> 'nextDate')::timestamp
   and extract (day from ((renewal_metadata ->> 'nextDate')::timestamp - current_timestamp)) < 30
   and dismissed_status is null;
 ```
