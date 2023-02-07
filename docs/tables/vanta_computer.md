@@ -143,14 +143,14 @@ where
   );
 ```
 
-### List computers with Zoom installed with a version earlier than 5.12
+### List computers with older version of Zoom (< 5.12)
 
 ```sql
 select
   owner_name,
   serial_number,
   last_ping,
-  app
+  app as application
 from
   vanta_computer,
   jsonb_array_elements_text(endpoint_applications) as app
