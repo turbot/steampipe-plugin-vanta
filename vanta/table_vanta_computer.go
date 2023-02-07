@@ -102,7 +102,7 @@ func listVantaComputerApplications(ctx context.Context, d *plugin.QueryData, h *
 		return nil, err
 	}
 
-	// As of Jan 13, 2023, the query doesn't provide the paging information
+	// As of Feb 7, 2023, the query doesn't provide the paging information
 	query, err := api.ListEndpointApplications(context.Background(), conn, computer.Data.Id)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_computer.listVantaComputers", "query_error", err)
