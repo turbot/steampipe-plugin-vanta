@@ -101,6 +101,64 @@ where
   unsupported_reasons is not null;
 ```
 
+### List computers with Tailscale app installed
+
+```sql
+select
+  owner_name,
+  serial_number,
+  last_ping
+from
+  vanta_computer,
+  jsonb_array_elements_text(endpoint_applications) as app
+where
+  app like 'Tailscale %';
+```
+
+### List computers with no Slack installed
+
+```sql
+with device_with_slack_installed as (
+  select
+    distinct id
+  from
+    vanta_computer,
+    jsonb_array_elements_text(endpoint_applications) as app
+  where
+    app like 'Slack %'
+)
+select
+  owner_name,
+  serial_number,
+  last_ping
+from
+  vanta_computer
+where
+  endpoint_applications is not null
+  and id not in (
+    select
+      id
+    from
+      device_with_slack_installed
+  );
+```
+
+### List computers with Zoom installed with a version earlier than 5.12
+
+```sql
+select
+  owner_name,
+  serial_number,
+  last_ping,
+  app
+from
+  vanta_computer,
+  jsonb_array_elements_text(endpoint_applications) as app
+where
+  app like 'zoom.us %'
+  and string_to_array(split_part(app, ' ', 2), '.')::int[] < string_to_array('5.12', '.')::int[];
+```
+
 ### List computers owned by inactive users
 
 ```sql

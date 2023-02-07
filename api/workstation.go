@@ -13,6 +13,7 @@ type WorkstationData struct {
 	HasScreenLock              bool     `json:"hasScreenlock"`
 	HostIdentifier             string   `json:"hostIdentifier"`
 	Hostname                   string   `json:"hostname"`
+	Id                         string   `json:"id"`
 	InstalledAvPrograms        []string `json:"installedAvPrograms"`
 	InstalledPasswordManagers  []string `json:"installedPasswordManagers"`
 	IsEncrypted                bool     `json:"isEncrypted"`
@@ -60,7 +61,7 @@ type ListWorkstationsResponse struct {
 
 // Define the query
 const (
-	queryTest = `
+	queryWorkstationList = `
 query fetchDomainEndpoints {
   organization {
     id
@@ -166,6 +167,15 @@ fragment UserComputerFields on User {
   }
 }	
 `
+
+	queryEndpointApplicationsList = `
+query fetchEndpointApplications($endpointId: String!) {
+  organization {
+    id
+    osqueryEndpointApplicationData(endpointId: $endpointId)
+  }
+}
+`
 )
 
 // ListWorkstations returns the list all computers within your organization with their security-relevant settings information
@@ -179,7 +189,7 @@ func ListWorkstations(
 ) (*ListWorkstationsResponse, error) {
 
 	// Make a request
-	req := graphql.NewRequest(queryTest)
+	req := graphql.NewRequest(queryWorkstationList)
 
 	// set header fields
 	req.Header.Set("user-agent", "steampipe")
@@ -189,6 +199,50 @@ func ListWorkstations(
 
 	var err error
 	var data ListWorkstationsResponse
+
+	if err := client.Graphql.Run(ctx, req, &data); err != nil {
+		err = errorsHandler.BuildErrorMessage(err)
+		return nil, err
+	}
+
+	return &data, err
+}
+
+type EndpointApplicationQueryOrganization struct {
+	EndpointApplications []string `json:"osqueryEndpointApplicationData"`
+}
+
+// ListEndpointApplicationsResponse is returned by ListEndpointApplications on success
+type ListEndpointApplicationsResponse struct {
+	Organization EndpointApplicationQueryOrganization `json:"organization"`
+}
+
+// ListEndpointApplications returns the list of applications installed on a device
+//
+// @param ctx context for configuration
+//
+// @param client the API client
+//
+// @param id the endpoint ID
+func ListEndpointApplications(
+	ctx context.Context,
+	client *Client,
+	id string,
+) (*ListEndpointApplicationsResponse, error) {
+
+	// Make a request
+	req := graphql.NewRequest(queryEndpointApplicationsList)
+
+	req.Var("endpointId", id)
+
+	// set header fields
+	req.Header.Set("user-agent", "steampipe")
+	req.Header.Set("Cookie", fmt.Sprintf("connect.sid=%s", *client.SessionId))
+	req.Header.Set("x-csrf-token", "this_csrf_header_is_constant")
+	req.Header.Set("Cache-Control", "no-cache")
+
+	var err error
+	var data ListEndpointApplicationsResponse
 
 	if err := client.Graphql.Run(ctx, req, &data); err != nil {
 		err = errorsHandler.BuildErrorMessage(err)
