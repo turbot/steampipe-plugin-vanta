@@ -86,7 +86,7 @@ func listVantaComputers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 func listVantaComputerApplications(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	computer := h.Item.(api.Workstation)
 
-	// If the computer is unmonitored / unsupported, Vanta agent does not monitors
+	// If the computer is unmonitored/unsupported, the Vanta agent does not monitor
 	// the application installed on that device.
 	// Hence, the API returns an error if a request is being made for an unmonitored device.
 	// Return nil, if the device is unmonitored / unsupported.
@@ -98,14 +98,14 @@ func listVantaComputerApplications(ctx context.Context, d *plugin.QueryData, h *
 	// Create client
 	conn, err := getVantaAppClient(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_computer.listVantaComputers", "connection_error", err)
+		plugin.Logger(ctx).Error("vanta_computer.listVantaComputerApplications", "connection_error", err)
 		return nil, err
 	}
 
 	// As of Feb 7, 2023, the query doesn't provide the paging information
 	query, err := api.ListEndpointApplications(context.Background(), conn, computer.Data.Id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_computer.listVantaComputers", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_computer.listVantaComputerApplications", "query_error", err)
 		return nil, err
 	}
 

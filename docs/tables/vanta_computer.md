@@ -107,7 +107,8 @@ where
 select
   owner_name,
   serial_number,
-  last_ping
+  last_ping,
+  app as application
 from
   vanta_computer,
   jsonb_array_elements_text(endpoint_applications) as app
@@ -115,7 +116,7 @@ where
   app like 'Tailscale %';
 ```
 
-### List computers with no Slack installed
+### List computers with no Slack app installed
 
 ```sql
 with device_with_slack_installed as (
@@ -143,7 +144,7 @@ where
   );
 ```
 
-### List computers with older version of Zoom (< 5.12)
+### List computers with an older version of Zoom app (< 5.12)
 
 ```sql
 select
