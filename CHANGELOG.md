@@ -1,3 +1,13 @@
+## v0.1.0 [2023-02-10]
+
+_Enhancements_
+
+- Added column `endpoint_applications` to `vanta_computer` table. ([#9](https://github.com/turbot/steampipe-plugin-vanta/pull/9))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.1.3](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v513-2023-02-09) which fixes the issue of query caching. ([#10](https://github.com/turbot/steampipe-plugin-vanta/pull/10))
+
 ## v0.0.2 [2023-02-06]
 
 _Bug fixes_
