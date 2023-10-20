@@ -66,7 +66,6 @@ query fetchDomainEndpoints {
   organization {
     id
     name
-    requiresLocationServices
     uiComponentStates {
       agentBannerIsCollapsed
     }
