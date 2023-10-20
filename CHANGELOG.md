@@ -1,3 +1,9 @@
+## v0.3.2 [2023-10-20]
+
+_Bug fixes_
+
+- Fixed `vanta_computer` table queries failing due to inclusion of deprecated API field `requiresLocationServices` in `fetchDomainEndpoints` query. ([#19](https://github.com/turbot/steampipe-plugin-vanta/pull/19)) (Thanks [@eric-glb](https://github.com/eric-glb) for the contribution!)
+
 ## v0.3.1 [2023-10-05]
 
 _Dependencies_
