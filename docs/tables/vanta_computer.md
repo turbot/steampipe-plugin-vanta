@@ -1,14 +1,20 @@
-# Table: vanta_computer
+---
+title: "Steampipe Table: vanta_computer - Query Vanta Computer Assets using SQL"
+description: "Allows users to query Computer Assets in Vanta, specifically retrieving details about each computer including its ID, name, operating system, and other related information."
+---
 
-The `vanta_computer` table can be used to query information about all computers within your organization to ensure that security-relevant settings are configured promptly.
+# Table: vanta_computer - Query Vanta Computer Assets using SQL
 
-**NOTE:**
+Vanta is a security and compliance automation platform. It simplifies the complex process of achieving and maintaining compliance with standards like SOC 2, HIPAA, and GDPR. Vanta's Computer Assets are individual computing devices that are part of your organization's network.
 
-- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+## Table Usage Guide
+
+The `vanta_computer` table provides insights into computer assets within Vanta's security and compliance automation platform. As a security analyst or compliance officer, explore details about each computer, including its operating system, installed software, and other related information through this table. Utilize it to monitor the security status of each computer, track software installations, and maintain compliance with various standards.
 
 ## Examples
 
 ### Basic info
+Explore which computers have a specific owner, serial number, and operating system version. This can help in identifying and managing the different machines within your network.
 
 ```sql
 select
@@ -22,6 +28,7 @@ from
 ```
 
 ### List computers with unencrypted hard drive
+Discover the segments that consist of computers with unencrypted hard drives, allowing you to identify potential security vulnerabilities and take necessary actions to ensure data protection.
 
 ```sql
 select
@@ -37,6 +44,7 @@ where
 ```
 
 ### List computers with no screen lock configured
+Discover the segments that include computers lacking screen lock configuration. This could be useful for identifying potential security risks within your network and implementing necessary security measures.
 
 ```sql
 select
@@ -52,6 +60,7 @@ where
 ```
 
 ### List computers with no password manager installed
+Identify computers that may be vulnerable due to the absence of a password manager. This can help in enhancing system security by pinpointing machines that need password manager installations.
 
 ```sql
 select
@@ -67,6 +76,7 @@ where
 ```
 
 ### List computers not checked over the last 90 days
+Explore which computers haven't been checked in the last 90 days. This is useful to identify potential risks or issues that might have been overlooked due to lack of regular monitoring.
 
 ```sql
 select
@@ -83,6 +93,7 @@ where
 ```
 
 ### List unmonitored computers
+Discover the segments that contain computers that are not being monitored. This is useful in identifying potential gaps in your IT infrastructure, allowing you to address any unsupported operating systems or versions.
 
 ```sql
 select
@@ -102,6 +113,7 @@ where
 ```
 
 ### List computers with Tailscale app installed
+Determine the areas in which computers have the Tailscale app installed. This query is useful for gaining insights into the distribution and usage of this specific application within your network.
 
 ```sql
 select
@@ -117,6 +129,7 @@ where
 ```
 
 ### List computers with no Slack app installed
+Determine the computers that do not have the Slack app installed. This can be useful for IT administrators to identify and rectify gaps in software deployment across the organization.
 
 ```sql
 with device_with_slack_installed as (
@@ -145,6 +158,7 @@ where
 ```
 
 ### List computers with an older version of Zoom app (< 5.12)
+Determine the areas in which computers are running outdated versions of the Zoom app for potential software updates. This helps in maintaining system security and ensuring all devices are up-to-date with the latest software versions.
 
 ```sql
 select
@@ -161,6 +175,7 @@ where
 ```
 
 ### List computers owned by inactive users
+Explore which computers are owned by users who are no longer active. This can help in asset management and ensuring resources are effectively allocated.
 
 ```sql
 select

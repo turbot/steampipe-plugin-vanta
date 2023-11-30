@@ -1,14 +1,20 @@
-# Table: vanta_policy
+---
+title: "Steampipe Table: vanta_policy - Query Vanta Policies using SQL"
+description: "Allows users to query Vanta Policies, providing insights into the policy configurations and their associated details."
+---
 
-Policy contains a set of rules related to information security for your organization. Policies touch on all business areas, so the creation process requires cross-team collaboration.
+# Table: vanta_policy - Query Vanta Policies using SQL
 
-**NOTE:**
+Vanta is a security and compliance automation platform that simplifies the process of obtaining and maintaining compliance certifications. It automatically collects evidence of a company's security posture, tracks it over time, and streamlines workflows for certification renewals. A Vanta Policy is a set of rules and procedures that define how a company manages and secures its information.
 
-- To query the table; **you must set** `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+## Table Usage Guide
+
+The `vanta_policy` table provides insights into the policy configurations within Vanta. As a security analyst, explore policy-specific details through this table, including policy names, descriptions, and associated metadata. Utilize it to uncover information about policy configurations, such as policy status, the type of policy, and the verification of policy details.
 
 ## Examples
 
 ### Basic info
+Explore the various policies in your system by analyzing their title, type, status, and creation date. This can help you understand the range and scope of your current policies, as well as identify any gaps or inconsistencies.
 
 ```sql
 select
@@ -22,6 +28,7 @@ from
 ```
 
 ### List unapproved policies
+Identify policies that are pending approval to ensure timely review and validation for maintaining security compliance. This query is useful in managing organizational security by highlighting areas that need immediate attention.
 
 ```sql
 select
@@ -36,6 +43,7 @@ where
 ```
 
 ### List expired policies
+Discover the segments that have policies which have expired. This is useful in understanding which areas need immediate attention for policy renewal, ensuring compliance and reducing risk.
 
 ```sql
 select
@@ -51,6 +59,7 @@ where
 ```
 
 ### List policies expiring in the next 30 days
+Determine the policies that are due to expire in the next 30 days. This can be useful for administrators to proactively manage policy renewals and avoid any lapses in coverage.
 
 ```sql
 select
@@ -68,6 +77,7 @@ where
 ```
 
 ### List users who have not accepted a specific policy
+Determine the users who have not accepted a specific policy, such as a 'Code of Conduct'. This can be useful for ensuring all team members are in compliance with company policies.
 
 ```sql
 with policy_summary as (
