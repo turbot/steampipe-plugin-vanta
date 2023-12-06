@@ -11,6 +11,9 @@ Vanta is a security and compliance automation platform that simplifies the proce
 
 The `vanta_policy` table provides insights into the policy configurations within Vanta. As a security analyst, explore policy-specific details through this table, including policy names, descriptions, and associated metadata. Utilize it to uncover information about policy configurations, such as policy status, the type of policy, and the verification of policy details.
 
+**Important Notes**
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

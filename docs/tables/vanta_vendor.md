@@ -11,6 +11,9 @@ Vanta Vendor is a resource within the Vanta service that provides detailed infor
 
 The `vanta_vendor` table provides insights into the vendors used by an organization within the Vanta service. As a security analyst, you can explore vendor-specific details through this table, including their security and compliance status. Utilize it to uncover information about your vendors, such as their security scores, the number of employees, and the services they provide.
 
+**Important Notes**
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

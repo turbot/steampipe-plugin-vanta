@@ -11,6 +11,9 @@ Vanta is a security and compliance platform that automates the collection of evi
 
 The `vanta_evidence` table offers insights into the evidence collected by Vanta for security and compliance monitoring. As a Security Analyst, you can use this table to explore specific details about each piece of evidence, including its metadata, associated controls, and status. By querying this table, you can effectively track and verify your organization's compliance status and identify potential security issues.
 
+**Important Notes**
+- To query the table you must set `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

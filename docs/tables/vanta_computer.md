@@ -11,6 +11,9 @@ Vanta is a security and compliance automation platform. It simplifies the comple
 
 The `vanta_computer` table provides insights into computer assets within Vanta's security and compliance automation platform. As a security analyst or compliance officer, explore details about each computer, including its operating system, installed software, and other related information through this table. Utilize it to monitor the security status of each computer, track software installations, and maintain compliance with various standards.
 
+**Important Notes**
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

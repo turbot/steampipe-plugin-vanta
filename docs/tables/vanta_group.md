@@ -11,6 +11,9 @@ Vanta is a security monitoring platform that simplifies the complex process of s
 
 The `vanta_group` table provides insights into Groups within Vanta's security monitoring platform. As a Security or Compliance Officer, explore group-specific details through this table, including group names, user assignments, and associated permissions. Utilize it to uncover information about groups, such as those with high-level permissions, the distribution of user assignments among groups, and the verification of access rights.
 
+**Important Notes**
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

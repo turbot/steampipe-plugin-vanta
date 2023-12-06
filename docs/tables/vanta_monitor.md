@@ -11,6 +11,9 @@ Vanta is a security and compliance automation platform. It simplifies the comple
 
 The `vanta_monitor` table provides insights into the monitors within Vanta's security and compliance automation platform. As a security analyst, explore monitor-specific details through this table, including status, type, and associated metadata. Utilize it to uncover information about monitors, such as those with alerts, the type of monitors, and the verification of monitor details.
 
+**Important Notes**
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

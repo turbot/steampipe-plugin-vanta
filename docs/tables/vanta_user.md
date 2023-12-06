@@ -11,6 +11,9 @@ Vanta is a security and compliance platform that simplifies the complex, time-co
 
 The `vanta_user` table provides insights into user identities within Vanta. As a security analyst or system administrator, explore user-specific details through this table, including user ID, email, name, and role. Utilize it to manage user identities and access, monitor user activities, and maintain compliance with security standards.
 
+**Important Notes**
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info

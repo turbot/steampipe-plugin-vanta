@@ -11,6 +11,10 @@ Vanta is a security and compliance automation platform. It simplifies the comple
 
 The `vanta_integration` table provides insights into the various integrations within the Vanta security system. As a security analyst, explore integration-specific details through this table, including status, type, and associated metadata. Utilize it to uncover information about integrations, such as their current status, the type of integration, and other critical data.
 
+**Important Notes**
+- There are various integrations available that can be integrated. The table `vanta_integration` only returns the integrations that are connected.
+- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
 ## Examples
 
 ### Basic info
