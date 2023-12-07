@@ -19,7 +19,16 @@ The `vanta_group` table provides insights into Groups within Vanta's security mo
 ### Basic info
 Explore which Vanta groups are available by identifying their names and IDs, and assess the elements within each group's checklist. This can be useful to understand the composition and configuration of these groups for better management and organization.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  checklist
+from
+  vanta_group;
+```
+
+```sql+sqlite
 select
   name,
   id,
@@ -31,7 +40,7 @@ from
 ### User details associated with each group
 Discover the segments that detail the relationship between user information and their respective groups. This can be beneficial in managing user permissions and understanding the distribution of roles within your organization.
 
-```sql
+```sql+postgres
 select
   g.name,
   u.display_name,
@@ -42,10 +51,21 @@ from
   join vanta_user as u on g.id = u.role ->> 'id';
 ```
 
+```sql+sqlite
+select
+  g.name,
+  u.display_name,
+  u.email,
+  u.permission_level
+from
+  vanta_group as g
+  join vanta_user as u on g.id = json_extract(u.role, '$.id');
+```
+
 ### List all users in each group having administrator access
 Determine the areas in which users have been granted administrative access within different groups. This can help in understanding the distribution of administrative privileges across your organization, aiding in access control and security management.
 
-```sql
+```sql+postgres
 select
   g.name,
   u.display_name,
@@ -55,16 +75,37 @@ from
   join vanta_user as u on g.id = u.role ->> 'id' and u.permission_level = 'Admin';
 ```
 
+```sql+sqlite
+select
+  g.name,
+  u.display_name,
+  u.email
+from
+  vanta_group as g
+  join vanta_user as u on g.id = json_extract(u.role, '$.id') and u.permission_level = 'Admin';
+```
+
 ### Get the count of users in each group
 Explore which user groups have the most members to better manage resources and permissions. This can help in identifying areas for optimization and ensuring balanced distribution of users across different groups.
 
-```sql
+```sql+postgres
 select
   g.name,
   count(u.display_name)
 from
   vanta_group as g
   join vanta_user as u on g.id = u.role ->> 'id'
+group by
+  g.name;
+```
+
+```sql+sqlite
+select
+  g.name,
+  count(u.display_name)
+from
+  vanta_group as g
+  join vanta_user as u on g.id = json_extract(u.role, '$.id')
 group by
   g.name;
 ```

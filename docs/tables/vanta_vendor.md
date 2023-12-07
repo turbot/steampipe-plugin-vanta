@@ -19,7 +19,17 @@ The `vanta_vendor` table provides insights into the vendors used by an organizat
 ### Basic info
 Explore which vendors have been enlisted by Vanta, along with their respective severity levels and corresponding URLs. This can be useful for assessing the risk profile associated with each vendor and managing them efficiently.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  severity,
+  url
+from
+  vanta_vendor;
+```
+
+```sql+sqlite
 select
   name,
   id,
@@ -32,7 +42,19 @@ from
 ### List vendors with high severity
 Uncover the details of vendors categorized as high severity. This information can be useful for prioritizing vendor management tasks and focusing on potential risk areas.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  severity,
+  url
+from
+  vanta_vendor
+where
+  severity = 'high';
+```
+
+```sql+sqlite
 select
   name,
   id,
@@ -47,7 +69,7 @@ where
 ### List vendors with security checks overdue
 Discover the vendors whose security checks are overdue by a year. This query is useful to maintain security standards and ensure all vendors are regularly reviewed.
 
-```sql
+```sql+postgres
 select
   name,
   id,
@@ -59,10 +81,34 @@ where
   current_timestamp > (latest_security_review_completed_at + interval '1 year');
 ```
 
+```sql+sqlite
+select
+  name,
+  id,
+  severity,
+  url
+from
+  vanta_vendor
+where
+  strftime('%s', 'now') > strftime('%s', latest_security_review_completed_at) + 60 * 60 * 24 * 365;
+```
+
 ### List vendors with no documents provided
 Identify vendors who have not submitted any assessment documents. This query can be useful for compliance checks and to ensure all vendors are meeting documentation requirements.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  severity,
+  url
+from
+  vanta_vendor
+where
+  assessment_documents is null;
+```
+
+```sql+sqlite
 select
   name,
   id,
@@ -77,7 +123,7 @@ where
 ### Get the owner information of each vendor
 Discover the segments that have specific vendor ownership. This query allows you to identify and understand the relationship between vendors and their owners, which is essential for managing vendor relationships and permissions effectively.
 
-```sql
+```sql+postgres
 select
   v.name as vendor_name,
   v.severity as vendor_severity,
@@ -87,4 +133,16 @@ select
 from
   vanta_vendor as v
   join vanta_user as u on v.owner ->> 'id' = u.id;
+```
+
+```sql+sqlite
+select
+  v.name as vendor_name,
+  v.severity as vendor_severity,
+  u.display_name as owner_name,
+  u.email as owner_email,
+  u.permission_level
+from
+  vanta_vendor as v
+  join vanta_user as u on json_extract(v.owner, '$.id') = u.id;
 ```

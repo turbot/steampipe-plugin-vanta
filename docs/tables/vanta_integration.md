@@ -20,7 +20,17 @@ The `vanta_integration` table provides insights into the various integrations wi
 ### Basic info
 Explore the specific details of your integrated applications, such as their names, unique identifiers, and associated logos. This can assist in managing and tracking your integrations more effectively.
 
-```sql
+```sql+postgres
+select
+  display_name,
+  id,
+  description,
+  logo_slug_id
+from
+  vanta_integration;
+```
+
+```sql+sqlite
 select
   display_name,
   id,
@@ -33,7 +43,7 @@ from
 ### List integrations having disabled credentials
 Identify instances where certain integrations have been disabled. This is useful in maintaining system security and functionality by quickly pinpointing any inactive credentials.
 
-```sql
+```sql+postgres
 select
   display_name,
   id,
@@ -46,10 +56,23 @@ where
   c ->> 'isDisabled' = 'true';
 ```
 
+```sql+sqlite
+select
+  display_name,
+  id,
+  json_extract(c.value, '$.metadata') as credential_metadata,
+  json_extract(c.value, '$.service')
+from
+  vanta_integration,
+  json_each(credentials) as c
+where
+  json_extract(c.value, '$.isDisabled') = 'true';
+```
+
 ### List integrations with failed tests
 Assess the elements within your system integrations to identify instances where tests have failed. This can be beneficial in pinpointing specific areas of concern and taking corrective actions to improve system performance.
 
-```sql
+```sql+postgres
 select
   i.display_name,
   i.id,
@@ -59,4 +82,16 @@ from
   vanta_integration as i,
   jsonb_array_elements(tests) as t
   join vanta_monitor as m on m.test_id = t ->> 'testId' and outcome = 'FAIL';
+```
+
+```sql+sqlite
+select
+  i.display_name,
+  i.id,
+  json_extract(t.value, '$.testId') as test_id,
+  m.outcome as test_status
+from
+  vanta_integration as i,
+  json_each(tests) as t
+  join vanta_monitor as m on m.test_id = json_extract(t.value, '$.testId') and outcome = 'FAIL';
 ```

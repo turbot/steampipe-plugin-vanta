@@ -19,7 +19,18 @@ The `vanta_policy` table provides insights into the policy configurations within
 ### Basic info
 Explore the various policies in your system by analyzing their title, type, status, and creation date. This can help you understand the range and scope of your current policies, as well as identify any gaps or inconsistencies.
 
-```sql
+```sql+postgres
+select
+  title,
+  policy_type,
+  status,
+  created_at,
+  standards
+from
+  vanta_policy;
+```
+
+```sql+sqlite
 select
   title,
   policy_type,
@@ -33,7 +44,19 @@ from
 ### List unapproved policies
 Identify policies that are pending approval to ensure timely review and validation for maintaining security compliance. This query is useful in managing organizational security by highlighting areas that need immediate attention.
 
-```sql
+```sql+postgres
+select
+  title,
+  policy_type,
+  status,
+  created_at
+from
+  vanta_policy
+where
+  approver is null;
+```
+
+```sql+sqlite
 select
   title,
   policy_type,
@@ -48,7 +71,7 @@ where
 ### List expired policies
 Discover the segments that have policies which have expired. This is useful in understanding which areas need immediate attention for policy renewal, ensuring compliance and reducing risk.
 
-```sql
+```sql+postgres
 select
   title,
   policy_type,
@@ -61,10 +84,23 @@ where
   (approved_at + interval '1 year') < current_timestamp;
 ```
 
+```sql+sqlite
+select
+  title,
+  policy_type,
+  status,
+  created_at,
+  json_extract(approver, '$.displayName') as approver
+from
+  vanta_policy
+where
+  (julianday('now') - julianday(approved_at)) > 365;
+```
+
 ### List policies expiring in the next 30 days
 Determine the policies that are due to expire in the next 30 days. This can be useful for administrators to proactively manage policy renewals and avoid any lapses in coverage.
 
-```sql
+```sql+postgres
 select
   title,
   policy_type,
@@ -79,10 +115,25 @@ where
   and extract(day from ((approved_at + interval '1 year') - current_timestamp)) <= '30';
 ```
 
+```sql+sqlite
+select
+  title,
+  policy_type,
+  status,
+  created_at,
+  json_extract(approver, '$.displayName') as approver,
+  'expires in ' || cast(julianday(datetime('now')) - julianday(approved_at) as integer) || ' day(s)' as status
+from
+  vanta_policy
+where
+  datetime('now') < datetime(approved_at, '+1 year')
+  and cast(julianday(datetime(approved_at, '+1 year')) - julianday(datetime('now')) as integer) <= 30;
+```
+
 ### List users who have not accepted a specific policy
 Determine the users who have not accepted a specific policy, such as a 'Code of Conduct'. This can be useful for ensuring all team members are in compliance with company policies.
 
-```sql
+```sql+postgres
 with policy_summary as (
   select
     p.title as policy_name,
@@ -107,4 +158,31 @@ from
   join vanta_user as u on u.display_name = f ->> 'displayName'
 where
   f ->> '__typename' = 'User';
+```
+
+```sql+sqlite
+with policy_summary as (
+  select
+    p.title as policy_name,
+    p.status as policy_status,
+    p.approved_at,
+    json_extract(p.approver, '$.displayName') as approver,
+    m.failing_resource_entities
+  from
+    vanta_policy as p
+    join vanta_monitor as m on m.test_id = p.employee_acceptance_test_id
+  where
+    title = 'Code of Conduct'
+  order by policy_type
+)
+select
+  p.policy_name,
+  json_extract(f.value, '$.displayName') as user_name,
+  u.email
+from
+  policy_summary as p,
+  json_each(p.failing_resource_entities) as f
+  join vanta_user as u on u.display_name = json_extract(f.value, '$.displayName')
+where
+  json_extract(f.value, '$.__typename') = 'User';
 ```

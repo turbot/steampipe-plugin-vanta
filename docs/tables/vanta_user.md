@@ -19,7 +19,17 @@ The `vanta_user` table provides insights into user identities within Vanta. As a
 ### Basic info
 Analyze the employment status of users by using their display name and email. This can be useful for understanding the distribution of employment statuses within your user base.
 
-```sql
+```sql+postgres
+select
+  display_name,
+  id,
+  email,
+  employment_status
+from
+  vanta_user;
+```
+
+```sql+sqlite
 select
   display_name,
   id,
@@ -32,7 +42,19 @@ from
 ### List all admins
 Identify instances where users have admin permissions. This could be useful for auditing purposes or to ensure that admin privileges are appropriately assigned.
 
-```sql
+```sql+postgres
+select
+  display_name,
+  id,
+  email,
+  employment_status
+from
+  vanta_user
+where
+  permission_level = 'Admin';
+```
+
+```sql+sqlite
 select
   display_name,
   id,
@@ -47,7 +69,19 @@ where
 ### List current employees
 Discover the segments that consist of currently employed individuals. This can be useful for understanding the active workforce within your organization.
 
-```sql
+```sql+postgres
+select
+  display_name,
+  id,
+  email,
+  employment_status
+from
+  vanta_user
+where
+  employment_status = 'CURRENTLY_EMPLOYED';
+```
+
+```sql+sqlite
 select
   display_name,
   id,
@@ -62,7 +96,19 @@ where
 ### List inactive users
 Explore which users are not currently active in your organization. This can be particularly useful for managing access controls and ensuring security compliance.
 
-```sql
+```sql+postgres
+select
+  display_name,
+  id,
+  email,
+  employment_status
+from
+  vanta_user
+where
+  employment_status = 'INACTIVE_EMPLOYEE';
+```
+
+```sql+sqlite
 select
   display_name,
   id,
@@ -77,7 +123,7 @@ where
 ### List users with security tasks overdue
 Discover the segments that consist of users who have pending security tasks. This is crucial to identify potential security risks and ensure timely completion of these tasks.
 
-```sql
+```sql+postgres
 select
   display_name,
   id,
@@ -90,10 +136,23 @@ where
   task_status = 'SECURITY_TASKS_OVERDUE';
 ```
 
+```sql+sqlite
+select
+  display_name,
+  id,
+  email,
+  employment_status,
+  'Due ' || julianday('now') - julianday(json_extract(task_status_info, '$.dueDate')) || ' day(s) ago.' as security_task_status
+from
+  vanta_user
+where
+  task_status = 'SECURITY_TASKS_OVERDUE';
+```
+
 ### List current users by duration of employment
 Analyze the duration of employment for your currently active users to gain insights into their tenure within your organization. This can be beneficial for HR planning, such as understanding workforce stability and planning for potential retirements or turnovers.
 
-```sql
+```sql+postgres
 select
   display_name,
   employment_status,
@@ -107,10 +166,24 @@ order by
   years desc;
 ```
 
+```sql+sqlite
+select
+  display_name,
+  employment_status,
+  date(start_date),
+  round(julianday('now') - julianday(start_date)) / 365.0 as years
+from
+  vanta_user
+where
+  employment_status = 'CURRENTLY_EMPLOYED'
+order by
+  years desc;
+```
+
 ### Get the count of users by group
 Analyze the distribution of users across different groups to understand the user composition in each group. This can be useful for managing user access and permissions, and for understanding the structure of your user base.
 
-```sql
+```sql+postgres
 select
   role ->> 'name' as group_name,
   count(display_name)
@@ -118,4 +191,14 @@ from
   vanta_user
 group by
   role ->> 'name';
+```
+
+```sql+sqlite
+select
+  json_extract(role, '$.name') as group_name,
+  count(display_name)
+from
+  vanta_user
+group by
+  json_extract(role, '$.name');
 ```

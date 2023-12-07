@@ -19,7 +19,18 @@ The `vanta_evidence` table offers insights into the evidence collected by Vanta 
 ### Basic info
 Explore the various categories of evidence requests in the Vanta system, identifying instances where access to certain information might be restricted. This can help in understanding the nature of information requests and ensuring compliance with access control policies.
 
-```sql
+```sql+postgres
+select
+  title,
+  evidence_request_id,
+  category,
+  description,
+  restricted
+from
+  vanta_evidence;
+```
+
+```sql+sqlite
 select
   title,
   evidence_request_id,
@@ -33,7 +44,7 @@ from
 ### List evidences with restricted document access
 Explore which evidences have restricted document access to ensure compliance and maintain the integrity of sensitive information. This can be beneficial in situations where access needs to be limited due to confidentiality or security reasons.
 
-```sql
+```sql+postgres
 select
   title,
   evidence_request_id,
@@ -45,10 +56,22 @@ where
   restricted;
 ```
 
+```sql+sqlite
+select
+  title,
+  evidence_request_id,
+  category,
+  description
+from
+  vanta_evidence
+where
+  restricted = 1;
+```
+
 ### List non-relevant evidences
 Uncover the details of dismissed evidences in your Vanta security compliance data. This query is particularly useful in identifying and reviewing non-relevant evidences that have been marked as dismissed.
 
-```sql
+```sql+postgres
 select
   title,
   evidence_request_id,
@@ -60,10 +83,22 @@ where
   dismissed_status -> 'isDismissed' = 'true';
 ```
 
+```sql+sqlite
+select
+  title,
+  evidence_request_id,
+  category,
+  dismissed_status
+from
+  vanta_evidence
+where
+  json_extract(dismissed_status, '$.isDismissed') = 'true';
+```
+
 ### List evidences up for renewal within 30 days
 Explore which pieces of evidence are due for renewal within the next month. This is useful for staying on top of compliance requirements and ensuring that all evidence is updated in a timely manner.
 
-```sql
+```sql+postgres
 select
   title,
   category,
@@ -77,10 +112,34 @@ where
   and dismissed_status is null;
 ```
 
+```sql+sqlite
+select
+  title,
+  category,
+  json_extract(renewal_metadata, '$.nextDate') as update_by
+from
+  vanta_evidence
+where
+  json_extract(renewal_metadata, '$.nextDate') != ''
+  and strftime('%s','now') < strftime('%s', json_extract(renewal_metadata, '$.nextDate'))
+  and julianday(json_extract(renewal_metadata, '$.nextDate')) - julianday('now') < 30
+  and dismissed_status is null;
+```
+
 ### Get the count of evidence by category
 Explore which categories have the most evidence. This can be useful in identifying areas that may require additional scrutiny or attention.
 
-```sql
+```sql+postgres
+select
+  category,
+  count(title)
+from
+  vanta_evidence
+group by
+  category;
+```
+
+```sql+sqlite
 select
   category,
   count(title)

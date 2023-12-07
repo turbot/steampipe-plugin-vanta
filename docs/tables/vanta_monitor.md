@@ -19,7 +19,7 @@ The `vanta_monitor` table provides insights into the monitors within Vanta's sec
 ### Basic info
 Explore the status and outcome of different categories within a monitoring system. This can help you understand the areas requiring attention and the effectiveness of remediation efforts.
 
-```sql
+```sql+postgres
 select
   name,
   category,
@@ -30,10 +30,34 @@ from
   vanta_monitor;
 ```
 
+```sql+sqlite
+select
+  name,
+  category,
+  outcome,
+  latest_flip_time,
+  json_extract(remediation_status, '$.status') as status
+from
+  vanta_monitor;
+```
+
 ### List all failed tests
 Explore which monitors have failed tests to assess the areas of non-compliance and understand when the last status change occurred. This allows you to pinpoint specific issues and address them promptly.
 
-```sql
+```sql+postgres
+select
+  name,
+  category,
+  outcome,
+  compliance_status,
+  latest_flip_time
+from
+  vanta_monitor
+where
+  outcome = 'FAIL';
+```
+
+```sql+sqlite
 select
   name,
   category,
@@ -49,7 +73,20 @@ where
 ### Filter a specific test result by test ID
 Explore the details of a specific test result by using its test ID, allowing you to gain insights into its category, outcome, and compliance status, as well as the time of the most recent status change. This is particularly useful for tracking and reviewing the performance of individual tests over time.
 
-```sql
+```sql+postgres
+select
+  name,
+  category,
+  outcome,
+  compliance_status,
+  latest_flip_time
+from
+  vanta_monitor
+where
+  test_id = 'test-03neqwol876pxg1iqjqib9';
+```
+
+```sql+sqlite
 select
   name,
   category,
@@ -65,7 +102,7 @@ where
 ### Count tests by remediation status
 Analyze the status of remediation efforts by quantifying the number of tests associated with each status. This can help in prioritizing and tracking remediation tasks effectively.
 
-```sql
+```sql+postgres
 select
   remediation_status ->> 'status' as status,
   count(name)
@@ -75,10 +112,20 @@ group by
   remediation_status ->> 'status';
 ```
 
+```sql+sqlite
+select
+  json_extract(remediation_status, '$.status') as status,
+  count(name)
+from
+  vanta_monitor
+group by
+  json_extract(remediation_status, '$.status');
+```
+
 ### List failed tests by owner
 Explore which tests have failed and identify the owners responsible for these tests. This is useful for assessing the areas that need immediate attention or remediation.
 
-```sql
+```sql+postgres
 select
   name,
   category,
@@ -91,10 +138,23 @@ where
   outcome = 'FAIL';
 ```
 
+```sql+sqlite
+select
+  name,
+  category,
+  json_extract(a.value, '$.displayName') as owner,
+  json_extract(remediation_status, '$.status') as status
+from
+  vanta_monitor,
+  json_each(assignees) as a
+where
+  outcome = 'FAIL';
+```
+
 ### List failed tests by standard
 Discover the segments that have failed tests according to different standards. This query can be used to assess the status of remediation and identify areas needing attention in order to meet various standards.
 
-```sql
+```sql+postgres
 select
   name,
   category,
@@ -108,10 +168,24 @@ where
   outcome = 'FAIL';
 ```
 
+```sql+sqlite
+select
+  name,
+  category,
+  json_extract(s.value, '$.standardInfo.standard') as standard,
+  json_extract(remediation_status, '$.status') as status
+from
+  vanta_monitor,
+  json_each(controls) as c,
+  json_each(c.value, '$.standardSections') as s
+where
+  outcome = 'FAIL';
+```
+
 ### List failed tests by integration
 Explore which integrations have failed tests, allowing you to identify areas of concern and take necessary corrective actions. This is useful in maintaining system integrity and ensuring seamless integration performance.
 
-```sql
+```sql+postgres
 select
   m.name,
   m.category,
@@ -123,10 +197,32 @@ from
   join vanta_monitor as m on m.test_id = t ->> 'testId' and m.outcome = 'FAIL';
 ```
 
+```sql+sqlite
+select
+  m.name,
+  m.category,
+  m.outcome,
+  i.display_name as integration
+from
+  vanta_integration as i,
+  json_each(i.tests) as t
+  join vanta_monitor as m on m.test_id = json_extract(t.value, '$.testId') and m.outcome = 'FAIL';
+```
+
 ### Count tests by outcome
 Assess the distribution of test outcomes within your Vanta monitor system. This query is useful for understanding the frequency of different outcomes, helping to identify patterns or areas for improvement.
 
-```sql
+```sql+postgres
+select
+  outcome,
+  count(name)
+from
+  vanta_monitor
+group by
+  outcome;
+```
+
+```sql+sqlite
 select
   outcome,
   count(name)
@@ -139,7 +235,19 @@ group by
 ### Count active tests by category
 Analyze the settings to understand the distribution of active tests across different categories. This can help in identifying the areas that are being frequently tested and those that require more attention.
 
-```sql
+```sql+postgres
+select
+  category,
+  count(name)
+from
+  vanta_monitor
+where
+  disabled_status is null
+group by
+  category;
+```
+
+```sql+sqlite
 select
   category,
   count(name)
