@@ -8,6 +8,7 @@ short_name: "vanta"
 description: "Steampipe plugin to query users, policies, compliances, and more from your Vanta organization."
 og_description: "Query Vanta with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/vanta-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Vanta + Steampipe
