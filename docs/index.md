@@ -97,7 +97,4 @@ To retrieve your Session ID:
 - Open any `graphql` request from the list and check the `Cookies` section to get the list of request cookies.
 - Get the session ID value from the list named as `connect.sid`.
 
-## Get involved
 
-- Open source: https://github.com/turbot/steampipe-plugin-vanta
-- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
