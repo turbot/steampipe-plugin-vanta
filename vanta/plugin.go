@@ -15,7 +15,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		Name: pluginName,
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
-			Schema:      ConfigSchema,
 		},
 		DefaultTransform: transform.FromCamel().Transform(transform.NullIfZeroValue),
 		TableMap: map[string]*plugin.Table{
