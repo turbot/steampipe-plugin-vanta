@@ -8,13 +8,14 @@ short_name: "vanta"
 description: "Steampipe plugin to query users, policies, compliances, and more from your Vanta organization."
 og_description: "Query Vanta with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/vanta-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Vanta + Steampipe
 
 [Vanta](https://www.vanta.com) helps businesses get and stay compliant by continuously monitoring your people, systems and tools to improve the security posture.
 
-[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
+[Steampipe](https://steampipe.io) is an open-source zero-ETL engine to instantly query cloud APIs using SQL.
 
 List all active users in your organization:
 
@@ -96,7 +97,4 @@ To retrieve your Session ID:
 - Open any `graphql` request from the list and check the `Cookies` section to get the list of request cookies.
 - Get the session ID value from the list named as `connect.sid`.
 
-## Get involved
 
-- Open source: https://github.com/turbot/steampipe-plugin-vanta
-- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)

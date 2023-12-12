@@ -1,16 +1,36 @@
-# Table: vanta_evidence
+---
+title: "Steampipe Table: vanta_evidence - Query Vanta Evidence using SQL"
+description: "Allows users to query Vanta Evidence, specifically the metadata and details of the evidence collected by Vanta for security and compliance monitoring."
+---
 
-The evidence request provides a list of documents that need to provide as a part of the audit for the chosen certificate, i.e., SOC2, ISO 27001, or HIPAA. Each request is a piece of evidence that is required to complete the audit.
+# Table: vanta_evidence - Query Vanta Evidence using SQL
 
-**NOTE:**
+Vanta is a security and compliance platform that automates the collection of evidence for various security standards and regulations. It provides a centralized way to monitor and manage security controls across your infrastructure, applications, and services. Vanta Evidence is a key component of this platform, capturing and storing the necessary data to demonstrate compliance with these standards.
 
-- To query the table; **you must set** `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+## Table Usage Guide
+
+The `vanta_evidence` table offers insights into the evidence collected by Vanta for security and compliance monitoring. As a Security Analyst, you can use this table to explore specific details about each piece of evidence, including its metadata, associated controls, and status. By querying this table, you can effectively track and verify your organization's compliance status and identify potential security issues.
+
+**Important Notes**
+- To query the table you must set `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
 
 ## Examples
 
 ### Basic info
+Explore the various categories of evidence requests in the Vanta system, identifying instances where access to certain information might be restricted. This can help in understanding the nature of information requests and ensuring compliance with access control policies.
 
-```sql
+```sql+postgres
+select
+  title,
+  evidence_request_id,
+  category,
+  description,
+  restricted
+from
+  vanta_evidence;
+```
+
+```sql+sqlite
 select
   title,
   evidence_request_id,
@@ -22,8 +42,9 @@ from
 ```
 
 ### List evidences with restricted document access
+Explore which evidences have restricted document access to ensure compliance and maintain the integrity of sensitive information. This can be beneficial in situations where access needs to be limited due to confidentiality or security reasons.
 
-```sql
+```sql+postgres
 select
   title,
   evidence_request_id,
@@ -35,9 +56,22 @@ where
   restricted;
 ```
 
-### List non-relevant evidences
+```sql+sqlite
+select
+  title,
+  evidence_request_id,
+  category,
+  description
+from
+  vanta_evidence
+where
+  restricted = 1;
+```
 
-```sql
+### List non-relevant evidences
+Uncover the details of dismissed evidences in your Vanta security compliance data. This query is particularly useful in identifying and reviewing non-relevant evidences that have been marked as dismissed.
+
+```sql+postgres
 select
   title,
   evidence_request_id,
@@ -49,9 +83,22 @@ where
   dismissed_status -> 'isDismissed' = 'true';
 ```
 
-### List evidences up for renewal within 30 days
+```sql+sqlite
+select
+  title,
+  evidence_request_id,
+  category,
+  dismissed_status
+from
+  vanta_evidence
+where
+  json_extract(dismissed_status, '$.isDismissed') = 'true';
+```
 
-```sql
+### List evidences up for renewal within 30 days
+Explore which pieces of evidence are due for renewal within the next month. This is useful for staying on top of compliance requirements and ensuring that all evidence is updated in a timely manner.
+
+```sql+postgres
 select
   title,
   category,
@@ -65,9 +112,34 @@ where
   and dismissed_status is null;
 ```
 
-### Get the count of evidence by category
+```sql+sqlite
+select
+  title,
+  category,
+  json_extract(renewal_metadata, '$.nextDate') as update_by
+from
+  vanta_evidence
+where
+  json_extract(renewal_metadata, '$.nextDate') != ''
+  and strftime('%s','now') < strftime('%s', json_extract(renewal_metadata, '$.nextDate'))
+  and julianday(json_extract(renewal_metadata, '$.nextDate')) - julianday('now') < 30
+  and dismissed_status is null;
+```
 
-```sql
+### Get the count of evidence by category
+Explore which categories have the most evidence. This can be useful in identifying areas that may require additional scrutiny or attention.
+
+```sql+postgres
+select
+  category,
+  count(title)
+from
+  vanta_evidence
+group by
+  category;
+```
+
+```sql+sqlite
 select
   category,
   count(title)
