@@ -2,21 +2,11 @@ package vanta
 
 import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/schema"
 )
 
 type vantaConfig struct {
-	ApiToken  *string `cty:"api_token"`
-	SessionId *string `cty:"session_id"`
-}
-
-var ConfigSchema = map[string]*schema.Attribute{
-	"api_token": {
-		Type: schema.TypeString,
-	},
-	"session_id": {
-		Type: schema.TypeString,
-	},
+	ApiToken  *string `hcl:"api_token"`
+	SessionId *string `hcl:"session_id"`
 }
 
 // ConfigInstance returns an instance of a connection config struct
