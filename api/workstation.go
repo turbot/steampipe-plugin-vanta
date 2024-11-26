@@ -214,16 +214,15 @@ func ListWorkstations(
 
 type EndpointApplicationQueryOrganization struct {
 
-  OsqueryEndpointsByIds []AppData `graphql:"type: osqueryEndpointsByIds
-"`
+  OsqueryEndpointsByIds []AppData `json:"osqueryEndpointsByIds"`
 	
 }
 
 type AppData struct {
   Data struct {
-    TypeName        string       `graphql:"type: __typename"`
-    ApplicationData []AppDetails `graphql:"type: applicationData"`
-  }`graphql:"type: data"`
+    TypeName        string       `json:"__typename"`
+    ApplicationData []AppDetails `json:"applicationData"`
+  }`json:"data"`
 } 
 
 type AppDetails struct {
