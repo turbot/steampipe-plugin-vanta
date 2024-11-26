@@ -126,7 +126,6 @@ fragment peoplePageFields on User {
   id
   displayName
   email
-  permissionLevel
   isActive
   familyName
   givenName

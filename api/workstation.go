@@ -97,16 +97,14 @@ fragment UserComputerFields on User {
         installedAvPrograms
         installedPasswordManagers
         isEncrypted
-        isPasswordManagerInstalled
-        numBrowserExtensions
+        browserExtensions
         hasScreenlock
       }
       ... on windowsWorkstationData {
         installedAvPrograms
         installedPasswordManagers
         isEncrypted
-        isPasswordManagerInstalled
-        numBrowserExtensions
+        browserExtensions
         hasScreenlock
       }
       ... on linuxWorkstationData {
@@ -168,10 +166,17 @@ fragment UserComputerFields on User {
 `
 
 	queryEndpointApplicationsList = `
-query fetchEndpointApplications($endpointId: String!) {
+query fetchEndpointApplications($endpointId: ID!) {
   organization {
     id
-    osqueryEndpointApplicationData(endpointId: $endpointId)
+    osqueryEndpointsByIds(endpointIds: [$endpointId]) {
+      data {
+        applicationData {
+          name
+          version
+        }
+      }
+    }
   }
 }
 `
@@ -208,7 +213,23 @@ func ListWorkstations(
 }
 
 type EndpointApplicationQueryOrganization struct {
-	EndpointApplications []string `json:"osqueryEndpointApplicationData"`
+
+  OsqueryEndpointsByIds []AppData `graphql:"type: osqueryEndpointsByIds
+"`
+	
+}
+
+type AppData struct {
+  Data struct {
+    TypeName        string       `graphql:"type: __typename"`
+    ApplicationData []AppDetails `graphql:"type: applicationData"`
+  }`graphql:"type: data"`
+} 
+
+type AppDetails struct {
+	TypeName string `json:"__typename"`
+	Name     string `json:"name"`
+	Version  string `json:"version"`
 }
 
 // ListEndpointApplicationsResponse is returned by ListEndpointApplications on success

@@ -106,14 +106,10 @@ fragment PoliciesV2PolicyInfo on Policy {
     id
     displayName
   }
-  approverName
   uploader {
     id
     displayName
   }
-  numUsers
-  numUsersAccepted
-  source
   uploadedDoc {
     id
     slugId
