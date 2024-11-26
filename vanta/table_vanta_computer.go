@@ -111,7 +111,6 @@ func listVantaComputerApplications(ctx context.Context, d *plugin.QueryData, h *
 	var result []api.AppDetails
 	for _, endpointIds := range query.Organization.OsqueryEndpointsByIds {
 		
-		plugin.Logger(ctx).Error("Application Name:", len(endpointIds.Data.ApplicationData))
 		for _, app := range endpointIds.Data.ApplicationData {
 
 			// Remove all entries with empty data
