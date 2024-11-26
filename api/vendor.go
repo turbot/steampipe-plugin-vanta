@@ -101,11 +101,17 @@ type ListVendorsResponse struct {
 
 // VendorFilters defines filters for querying vendors.
 type VendorFilters struct {
+	// Filter using vendor risk level.
+	// Supported values: HIGH, MEDIUM, LOW
 	SeverityFilter []string `json:"severityFilter"`
 }
 
 // ListVendorsRequestConfiguration defines request parameters for the ListVendors function.
 type ListVendorsRequestConfiguration struct {
+	// The maximum number of results to return in a single call. To retrieve the
+	// remaining results, make another call with the returned EndCursor value.
+	//
+	// Maximum limit is 100.
 	Limit     int
 	EndCursor string
 	Filters   *VendorFilters

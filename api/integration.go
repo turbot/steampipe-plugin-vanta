@@ -173,13 +173,6 @@ func ListIntegrations(
 	// Make a request
 	req := graphql.NewRequest(queryIntegrationList)
 
-	// Default to true
-	// onlyConnected := true
-	// if options.OnlyConnected != nil {
-	// 	onlyConnected = *options.OnlyConnected
-	// }
-	// req.Var("onlyConnected", onlyConnected)
-
 	// Check for options and set it
 	if options.Limit > 0 {
 		req.Var("first", options.Limit)
