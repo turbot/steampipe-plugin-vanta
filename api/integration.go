@@ -86,10 +86,10 @@ type ListIntegrationsRequestConfiguration struct {
 // Define the query
 const (
 	queryIntegrationList = `
-query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
+query ListIntegrations($first: Int!, $after: String) {
   organization {
     name
-    integrations(first: $first, after: $after, onlyConnected: $onlyConnected) {
+    integrations(first: $first, after: $after) {
       totalCount
       pageInfo {
         endCursor
@@ -111,10 +111,6 @@ query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
           }
           ... on FirstPartyIntegration {
             helpCenterArticleLink
-            serviceCategoryToProductName {
-              serviceCategory
-              productName
-            }
             permissionsDescription
             additionalInformation
             credentials {
@@ -137,7 +133,6 @@ query ListIntegrations($first: Int!, $after: String, $onlyConnected: Boolean!) {
                 enabledProducts
               }
             }
-            lifecycleState
           }
           ... on ThirdPartyIntegration {
             logoSlugId
@@ -177,13 +172,6 @@ func ListIntegrations(
 
 	// Make a request
 	req := graphql.NewRequest(queryIntegrationList)
-
-	// Default to true
-	onlyConnected := true
-	if options.OnlyConnected != nil {
-		onlyConnected = *options.OnlyConnected
-	}
-	req.Var("onlyConnected", onlyConnected)
 
 	// Check for options and set it
 	if options.Limit > 0 {

@@ -39,33 +39,6 @@ from
   vanta_user;
 ```
 
-### List all admins
-Identify instances where users have admin permissions. This could be useful for auditing purposes or to ensure that admin privileges are appropriately assigned.
-
-```sql+postgres
-select
-  display_name,
-  id,
-  email,
-  employment_status
-from
-  vanta_user
-where
-  permission_level = 'Admin';
-```
-
-```sql+sqlite
-select
-  display_name,
-  id,
-  email,
-  employment_status
-from
-  vanta_user
-where
-  permission_level = 'Admin';
-```
-
 ### List current employees
 Discover the segments that consist of currently employed individuals. This can be useful for understanding the active workforce within your organization.
 

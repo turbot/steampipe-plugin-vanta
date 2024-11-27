@@ -51,7 +51,7 @@ select
 from
   vanta_vendor
 where
-  severity = 'high';
+  severity = 'HIGH';
 ```
 
 ```sql+sqlite
@@ -63,7 +63,7 @@ select
 from
   vanta_vendor
 where
-  severity = 'high';
+  severity = 'HIGH';
 ```
 
 ### List vendors with security checks overdue
@@ -91,58 +91,4 @@ from
   vanta_vendor
 where
   strftime('%s', 'now') > strftime('%s', latest_security_review_completed_at) + 60 * 60 * 24 * 365;
-```
-
-### List vendors with no documents provided
-Identify vendors who have not submitted any assessment documents. This query can be useful for compliance checks and to ensure all vendors are meeting documentation requirements.
-
-```sql+postgres
-select
-  name,
-  id,
-  severity,
-  url
-from
-  vanta_vendor
-where
-  assessment_documents is null;
-```
-
-```sql+sqlite
-select
-  name,
-  id,
-  severity,
-  url
-from
-  vanta_vendor
-where
-  assessment_documents is null;
-```
-
-### Get the owner information of each vendor
-Discover the segments that have specific vendor ownership. This query allows you to identify and understand the relationship between vendors and their owners, which is essential for managing vendor relationships and permissions effectively.
-
-```sql+postgres
-select
-  v.name as vendor_name,
-  v.severity as vendor_severity,
-  u.display_name as owner_name,
-  u.email as owner_email,
-  u.permission_level
-from
-  vanta_vendor as v
-  join vanta_user as u on v.owner ->> 'id' = u.id;
-```
-
-```sql+sqlite
-select
-  v.name as vendor_name,
-  v.severity as vendor_severity,
-  u.display_name as owner_name,
-  u.email as owner_email,
-  u.permission_level
-from
-  vanta_vendor as v
-  join vanta_user as u on json_extract(v.owner, '$.id') = u.id;
 ```

@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -109,15 +108,15 @@ func listVantaComputerApplications(ctx context.Context, d *plugin.QueryData, h *
 		return nil, err
 	}
 
-	var result []string
-	for _, app := range query.Organization.EndpointApplications {
-		// Remove all entries with empty data
-		if strings.ReplaceAll(app, " ", "") == "" {
-			continue
-		}
+	var result []api.AppDetails
+	for _, endpointIds := range query.Organization.OsqueryEndpointsByIds {
+		
+		for _, app := range endpointIds.Data.ApplicationData {
 
-		// Remove all duplicate data
-		if !helpers.StringSliceContains(result, app) {
+			// Remove all entries with empty data
+			if strings.ReplaceAll(app.Name, " ", "") == "" {
+				continue
+			}
 			result = append(result, app)
 		}
 	}

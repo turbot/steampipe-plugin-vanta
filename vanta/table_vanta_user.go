@@ -25,7 +25,6 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the user."},
 			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the user."},
 			{Name: "email", Type: proto.ColumnType_STRING, Description: "The email of the user."},
-			{Name: "permission_level", Type: proto.ColumnType_STRING, Description: "The permission level of the user."},
 			{Name: "employment_status", Type: proto.ColumnType_STRING, Description: "The current employment status of the user."},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the user was created."},
 			{Name: "task_status", Type: proto.ColumnType_STRING, Description: "The security task status of the user."},

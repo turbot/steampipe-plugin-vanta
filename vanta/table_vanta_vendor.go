@@ -6,6 +6,7 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 	"github.com/turbot/steampipe-plugin-vanta/api"
 )
 
@@ -24,17 +25,12 @@ func tableVantaVendor(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "The display name of the vendor."},
 			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the vendor."},
-			{Name: "severity", Type: proto.ColumnType_STRING, Description: "The risk level of the vendor."},
+			{Name: "severity", Type: proto.ColumnType_STRING, Transform: transform.FromField("RiskLevel"), Description: "The risk level of the vendor."},
 			{Name: "url", Type: proto.ColumnType_STRING, Description: "The URL of the vendor tool."},
-			{Name: "vendor_category", Type: proto.ColumnType_STRING, Description: "The vendor category."},
-			{Name: "latest_security_review_completed_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the security assessment was last reviewed."},
-			{Name: "services_provided", Type: proto.ColumnType_STRING, Description: "Specifies the use-case of the vendor."},
-			{Name: "shares_credit_card_data", Type: proto.ColumnType_BOOL, Description: "If true, Vanta shares credit card information with the vendor."},
+			{Name: "latest_security_review_completed_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LatestSecurityReview.CompletionDate"), Description: "The time when the security assessment was last reviewed."},
 			{Name: "vendor_risk_locked", Type: proto.ColumnType_BOOL, Description: "If true, the vendor risk level is locked."},
-			{Name: "assessment_documents", Type: proto.ColumnType_JSON, Description: "Specifies the list of uploaded security assessment documents."},
 			{Name: "owner", Type: proto.ColumnType_JSON, Description: "The owner of the vendor."},
 			{Name: "risk_profile", Type: proto.ColumnType_JSON, Description: "Specifies the risk profile of the vendor."},
-			{Name: "submitted_vaqs", Type: proto.ColumnType_JSON, Description: "A list of submitted VAQs."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
 		},
 	}

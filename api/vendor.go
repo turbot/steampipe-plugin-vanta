@@ -8,140 +8,155 @@ import (
 	errorsHandler "github.com/turbot/steampipe-plugin-vanta/errors"
 )
 
-type VendorAssessmentDocument struct {
-	Id string `json:"id"`
-}
-
-// Vendor owner object
+// VendorOwner represents the owner of a vendor.
 type VendorOwner struct {
-	DisplayName string `json:"displayName"`
 	Id          string `json:"id"`
+	DisplayName string `json:"displayName"`
 }
 
-type VendorRiskAttributes struct {
-	Id             string `json:"displayName"`
-	RiskCategoryId string `json:"riskCategoryId"`
-	RiskLevel      string `json:"riskLevel"`
+// VendorDocumentStatus represents the status of vendor agreements.
+type VendorDocumentStatus struct {
+	Baa struct {
+		Required bool `json:"required"`
+		Uploaded bool `json:"uploaded"`
+	} `json:"baa"`
+	Dpa struct {
+		Required bool `json:"required"`
+		Uploaded bool `json:"uploaded"`
+	} `json:"dpa"`
+}
+
+// VendorRiskAttribute represents the risk attribute of a vendor.
+type VendorRiskAttribute struct {
+	Id             string `json:"id"`
 	RiskName       string `json:"riskName"`
+	RiskLevel      string `json:"riskLevel"`
+	IsActive       bool   `json:"isActive"`
+	Description    string `json:"description"`
+	RiskCategoryId string `json:"riskCategoryId"`
 }
+
+// VendorRiskCategory represents a risk category for a vendor.
+type VendorRiskCategory struct {
+	RiskCategoryId   string                `json:"riskCategoryId"`
+	RiskCategoryName string                `json:"riskCategoryName"`
+	Active           bool                  `json:"active"`
+	RiskAttributes   []VendorRiskAttribute `json:"riskAttributes"`
+}
+
+// VendorRiskProfile represents the risk profile of a vendor.
 type VendorRiskProfile struct {
-	RiskCategories []VendorRiskLevelRiskCategories `json:"riskCategories"`
+	RiskCategories []VendorRiskCategory `json:"riskCategories"`
 }
 
-type VendorRiskLevelRiskCategories struct {
-	Active           bool                   `json:"active"`
-	RiskAttributes   []VendorRiskAttributes `json:"riskAttributes"`
-	RiskCategoryId   string                 `json:"riskCategoryId"`
-	RiskCategoryName string                 `json:"riskCategoryName"`
-}
-
-// Data about a vendor within Vanta
+// Vendor represents the vendor entity with associated data.
 type Vendor struct {
-	AssessmentDocuments             []VendorAssessmentDocument `json:"assessmentDocuments"`
-	Id                              string                     `json:"id"`
-	LatestSecurityReviewCompletedAt string                     `json:"latestSecurityReviewCompletedAt"`
-	Name                            string                     `json:"name"`
-	OrganizationName                string                     `json:"-"`
-	Owner                           VendorOwner                `json:"owner"`
-	RiskAttributes                  []string                   `json:"riskAttributes"`
-	ServicesProvided                string                     `json:"servicesProvided"`
-	Severity                        string                     `json:"severity"`
-	SharesCreditCardData            bool                       `json:"sharesCreditCardData"`
-	SubmittedVaqs                   []string                   `json:"submittedVAQs"`
-	Url                             string                     `json:"url"`
-	VendorCategory                  string                     `json:"vendorCategory"`
-	VendorRiskLocked                bool                       `json:"vendorRiskLocked"`
+	Id                   string `json:"id"`
+	RiskLevel            string `json:"riskLevel"`
+	CreatedAt            string `json:"createdAt"`
+	LatestSecurityReview struct {
+		CompletionDate string `json:"completionDate"`
+	} `json:"latestSecurityReview"`
+	Name                      string               `json:"name"`
+	Url                       string               `json:"url"`
+	VendorCategory            string               `json:"vendorCategory"`
+	PublicTrustReportURL      string               `json:"publicTrustReportURL"`
+	OrganizationName          string               `json:"organizationName"`
+	VendorState               string               `json:"vendorState"`
+	Owner                     VendorOwner          `json:"owner"`
+	VendorRiskLocked          bool                 `json:"vendorRiskLocked"`
+	RiskProfile               VendorRiskProfile    `json:"riskProfile"`
+	VendorDocumentStatuses    VendorDocumentStatus `json:"vendorDocumentStatuses"`
+	SecurityReviewStatus      string               `json:"securityReviewStatus"`
+	ContractTerminationDate   string               `json:"contractTerminationDate"`
+	LastArchivedByActor       VendorOwner          `json:"lastArchivedByActor"`
+	SecurityReviewRenewalInfo struct {
+		DueDate              string `json:"dueDate"`
+		LatestCompletionDate string `json:"latestCompletionDate"`
+	} `json:"securityReviewRenewalInfo"`
 }
 
-// Relay-style edge for vendor
+// VendorEdge represents a single edge in the vendors query result.
 type VendorEdge struct {
 	Vendor Vendor `json:"node"`
 }
 
-// Paginated list of vendors
+// Vendors represents the paginated list of vendors.
 type Vendors struct {
 	Edges      []VendorEdge `json:"edges"`
 	PageInfo   PageInfo     `json:"pageInfo"`
 	TotalCount int          `json:"totalCount"`
 }
 
+// VendorQueryOrganization represents the organization data in the query.
 type VendorQueryOrganization struct {
 	Name    string  `json:"name"`
 	Vendors Vendors `json:"vendors"`
 }
 
-// ListVendorsResponse is returned by ListVendors on success
+// ListVendorsResponse represents the full response of the ListVendors query.
 type ListVendorsResponse struct {
 	Organization VendorQueryOrganization `json:"organization"`
 }
 
+// VendorFilters defines filters for querying vendors.
 type VendorFilters struct {
 	// Filter using vendor risk level.
 	// Supported values: HIGH, MEDIUM, LOW
-	SeverityFilter []string
+	SeverityFilter []string `json:"severityFilter"`
 }
 
+// ListVendorsRequestConfiguration defines request parameters for the ListVendors function.
 type ListVendorsRequestConfiguration struct {
 	// The maximum number of results to return in a single call. To retrieve the
 	// remaining results, make another call with the returned EndCursor value.
 	//
 	// Maximum limit is 100.
-	Limit int
-
-	// When paginating forwards, the cursor to continue.
+	Limit     int
 	EndCursor string
-
-	Filters *VendorFilters
+	Filters   *VendorFilters
 }
 
-// Define the query
-const (
-	queryVendorList = `
-query ListVendors($first: Int!, $after: String, $sortParams: sortParams!, $filters: VendorFilters!) {
+// GraphQL query with fragments
+const queryVendorList = `
+query fetchVendorTableData($first: Int!, $after: String, $sortParams: sortParams!, $filters: VendorFilters!) {
   organization {
     name
     vendors(first: $first, after: $after, sortParams: $sortParams, filters: $filters) {
       totalCount
       pageInfo {
+        startCursor
         endCursor
         hasNextPage
+        hasPreviousPage
       }
       edges {
         node {
           id
-          ...VenderTableData
+		  riskLevel
+		  createdAt
+		  latestSecurityReview {
+			completionDate
+		  }
+          ...VendorTableContent_Vendor
         }
       }
     }
   }
 }
 
-fragment VenderTableData on Vendor {
+fragment VendorTableContent_Vendor on Vendor {
   id
-  assessmentDocuments {
-    id
-  }
-  attestationOfComplianceDocuments {
-    id
-  }
-  baaDocuments {
-    id
-  }
   name
-  latestSecurityReviewCompletedAt
-  securityReviewCompletedAt
+  url
+  vendorCategory
+  publicTrustReportURL
+  vendorState
   owner {
     id
     displayName
   }
-  servicesProvided
-  severity
-  sharesCreditCardData
-  sharesEPHI
-  submittedVAQs {
-    id
-  }
-  url
+  vendorRiskLocked
   riskProfile {
     riskCategories {
       riskCategoryId
@@ -150,16 +165,33 @@ fragment VenderTableData on Vendor {
       riskAttributes {
         id
         riskName
-        riskCategoryId
         riskLevel
+        description
+        riskCategoryId
       }
     }
   }
-  vendorCategory
-  vendorRiskLocked
+  vendorDocumentStatuses {
+    baa {
+      required
+      uploaded
+    }
+    dpa {
+      required
+      uploaded
+    }
+  }
+  securityReviewStatus
+  securityReviewRenewalInfo {
+    dueDate
+    latestCompletionDate
+  }
+  contractTerminationDate
+  lastArchivedByActor {
+    displayName
+  }
 }
 `
-)
 
 // ListVendors returns a paginated list of vendors
 //
@@ -188,7 +220,7 @@ func ListVendors(
 
 	if options.Filters != nil {
 		if len(options.Filters.SeverityFilter) > 0 {
-			filters["severityFilter"] = options.Filters.SeverityFilter
+			filters["riskFilter"] = options.Filters.SeverityFilter
 		}
 	}
 	req.Var("filters", filters)

@@ -207,9 +207,9 @@ select
   app as application
 from
   vanta_computer,
-  jsonb_array_elements_text(endpoint_applications) as app
+  jsonb_array_elements(endpoint_applications) as app
 where
-  app like 'Tailscale %';
+  (app ->> 'name') like 'Tailscale %';
 ```
 
 ```sql+sqlite
@@ -217,12 +217,12 @@ select
   owner_name,
   serial_number,
   last_ping,
-  app.value as application
+  json_extract(app.value, '$.name') as application
 from
   vanta_computer,
   json_each(endpoint_applications) as app
 where
-  app.value like 'Tailscale %';
+  json_extract(app.value, '$.name') like 'Tailscale %';
 ```
 
 ### List computers with no Slack app installed
@@ -234,9 +234,9 @@ with device_with_slack_installed as (
     distinct id
   from
     vanta_computer,
-    jsonb_array_elements_text(endpoint_applications) as app
+    jsonb_array_elements(endpoint_applications) as app
   where
-    app like 'Slack %'
+    (app ->> 'name') like 'Slack %'
 )
 select
   owner_name,
@@ -262,7 +262,7 @@ with device_with_slack_installed as (
     vanta_computer,
     json_each(endpoint_applications) as app
   where
-    app.value like 'Slack %'
+    json_extract(app.value, '$.name') like 'Slack %';
 )
 select
   owner_name,
@@ -293,8 +293,8 @@ from
   vanta_computer,
   jsonb_array_elements_text(endpoint_applications) as app
 where
-  app like 'zoom.us %'
-  and string_to_array(split_part(app, ' ', 2), '.')::int[] < string_to_array('5.12', '.')::int[];
+  (app::jsonb ->> 'name') like 'zoom.us %'
+  and string_to_array(split_part((app::jsonb ->> 'name'), ' ', 2), '.')::int[] < string_to_array('5.12', '.')::int[];
 ```
 
 ```sql+sqlite

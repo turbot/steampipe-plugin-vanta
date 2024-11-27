@@ -143,7 +143,6 @@ fragment TestsPageTestResult on TestResult {
   id
   description
   complianceStatus
-  useRemediationTimelines
   services
   controls {
     id
