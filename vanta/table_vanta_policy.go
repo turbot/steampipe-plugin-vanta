@@ -2,8 +2,8 @@ package vanta
 
 import (
 	"context"
+	"slices"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -90,7 +90,7 @@ func getVantaPolicyStandards(ctx context.Context, d *plugin.QueryData, h *plugin
 	var standards []string
 	for _, i := range data.Metadata.AcceptanceControls {
 		for _, standardSection := range i.StandardSections {
-			if !helpers.StringSliceContains(standards, standardSection.Standard) {
+			if !slices.Contains(standards, standardSection.Standard) {
 				standards = append(standards, standardSection.Standard)
 			}
 		}
