@@ -2,7 +2,7 @@
 
 _Breaking changes_
 
-The GraphQL API has deprecated the following fields from the tables, which have been removed from the plugin:
+The GraphQL API has deprecated the following fields from the tables, which have been removed from the plugin: ([#44](https://github.com/turbot/steampipe-plugin-vanta/pull/44))
 - Removed the `permission_level` column from the `vanta_user` table.  
 - Removed the following columns from the `vanta_policy` table: `num_users`, `num_users_accepted`, and `source`.  
 - Removed the following columns from the `vanta_vendor` table: `assessment_documents`, `latest_security_review`, `severity`, `services_provided`, `shares_credit_card_data`, `submitted_vaqs` and `vendor_category`.
