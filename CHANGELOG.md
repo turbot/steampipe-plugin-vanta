@@ -1,8 +1,15 @@
 ## v1.1.0 [2025-04-17]
 
+_Breaking changes_
+
+The GraphQL API has deprecated the following fields from the tables, which have been removed from the plugin:
+- Removed the `permission_level` column from the `vanta_user` table.  
+- Removed the following columns from the `vanta_policy` table: `num_users`, `num_users_accepted`, and `source`.  
+- Removed the following columns from the `vanta_vendor` table: `assessment_documents`, `latest_security_review`, `severity`, `services_provided`, `shares_credit_card_data`, `submitted_vaqs` and `vendor_category`.
+
 _Dependencies_
 
-- Recompiled plugin with Go version `1.23.1`. ([#45](https://github.com/turbot/steampipe-plugin-vanta/pull/45))
+- Recompiled plugin with Go version `1.23.1`. ([#45](https://github.com/turbot/steampipe-plugin-vanta/pull/45))  
 - Recompiled plugin with [steampipe-plugin-sdk v5.11.5](https://github.com/turbot/steampipe-plugin-sdk/blob/v5.11.5/CHANGELOG.md#v5115-2025-03-31) that addresses critical and high vulnerabilities in dependent packages. ([#45](https://github.com/turbot/steampipe-plugin-vanta/pull/45))
 
 ## v1.0.0 [2024-10-22]
