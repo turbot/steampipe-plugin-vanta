@@ -5,8 +5,13 @@ import (
 )
 
 type vantaConfig struct {
+	ClientID     *string `hcl:"client_id"`
+	ClientSecret *string `hcl:"client_secret"`
+	AccessToken  *string `hcl:"access_token"`
+	RefreshToken *string `hcl:"refresh_token"`
+
 	ApiToken  *string `hcl:"api_token"`
-	SessionId *string `hcl:"session_id"`
+	SessionId *string `hcl:"session_id"` // This is the connect.sid cookie from a logged in Vanta browser session. Required to access tables that are using the deprecated https://app.vanta.com/graphql endpoint
 }
 
 // ConfigInstance returns an instance of a connection config struct

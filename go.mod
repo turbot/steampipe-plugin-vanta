@@ -5,6 +5,7 @@ go 1.23.1
 toolchain go1.23.2
 
 require (
+	github.com/adrianosela/vanta-sdk-go v1.0.0
 	github.com/machinebox/graphql v0.2.2
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.11.7
 )
