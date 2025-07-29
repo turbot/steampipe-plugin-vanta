@@ -78,16 +78,16 @@ func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		return nil, err
 	}
 
-	// Default page limit
-	pageLimit := 100
-
-	// Adjust page limit if query limit is smaller
-	if d.QueryContext.Limit != nil && int(*d.QueryContext.Limit) < pageLimit {
-		pageLimit = int(*d.QueryContext.Limit)
+	maxLimit := int32(100)
+	if d.QueryContext.Limit != nil {
+		limit := int32(*d.QueryContext.Limit)
+		if limit < maxLimit {
+			maxLimit = limit
+		}
 	}
 
 	options := &model.ListMonitorsOptions{
-		Limit:  pageLimit,
+		Limit:  int(maxLimit),
 		Cursor: "",
 	}
 
