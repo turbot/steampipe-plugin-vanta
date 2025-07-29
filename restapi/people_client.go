@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
@@ -23,21 +24,6 @@ func (c *RestClient) ListPeople(ctx context.Context, options *model.ListPeopleOp
 		}
 	}
 
-	// Add debug logging for the request
-	fmt.Printf("DEBUG: ListPeople parameters: limit=%d, cursor=%s\n",
-		func() int {
-			if options != nil {
-				return options.Limit
-			}
-			return 0
-		}(),
-		func() string {
-			if options != nil {
-				return options.Cursor
-			}
-			return ""
-		}())
-
 	resp, err := c.makeRequest(ctx, "GET", "/v1/people", params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
@@ -54,7 +40,7 @@ func (c *RestClient) ListPeople(ctx context.Context, options *model.ListPeopleOp
 	}
 
 	// Add debug logging for the response
-	fmt.Printf("DEBUG: ListPeople response: people_count=%d, has_next_page=%t, end_cursor=%s\n",
+	log.Printf("DEBUG: ListPeople response: people_count=%d, has_next_page=%t, end_cursor=%s",
 		len(result.Results.Data),
 		result.Results.PageInfo.HasNextPage,
 		result.Results.PageInfo.EndCursor)

@@ -185,7 +185,7 @@ func listVantaMonitorFailingResourceEntities(ctx context.Context, d *plugin.Quer
 		result, err := client.ListTestEntities(ctx, testId, options)
 		if err != nil {
 			plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "api_error", err)
-			return []interface{}{}, nil // Return empty instead of error for backward compatibility
+			return []interface{}{}, err
 		}
 
 		entities = append(entities, result.Results.Data...)

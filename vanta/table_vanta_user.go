@@ -2,7 +2,6 @@ package vanta
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -139,9 +138,6 @@ func getVantaUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 // getIsActiveStatus determines if a user is active based on employment status
 func getIsActiveStatus(ctx context.Context, d *transform.TransformData) (interface{}, error) {
 	item := d.HydrateItem
-
-	// Debug logging to see what we're getting
-	plugin.Logger(ctx).Debug("getIsActiveStatus", "hydrate_item_type", fmt.Sprintf("%T", item), "hydrate_item", item)
 
 	person, ok := item.(*model.Person)
 	if !ok {
