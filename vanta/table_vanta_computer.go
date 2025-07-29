@@ -63,7 +63,7 @@ func tableVantaComputer(ctx context.Context) *plugin.Table {
 
 func listVantaComputers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_computer.listVantaComputers", "connection_error", err)
 		return nil, err
@@ -120,7 +120,7 @@ func getVantaComputer(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	}
 
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_computer.getVantaComputer", "connection_error", err)
 		return nil, err

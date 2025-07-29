@@ -76,7 +76,7 @@ func tableVantaVendor(ctx context.Context) *plugin.Table {
 
 func listVantaVendors(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_vendor.listVantaVendors", "connection_error", err)
 		return nil, err
@@ -132,7 +132,7 @@ func getVantaVendor(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	}
 
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_vendor.getVantaVendor", "connection_error", err)
 		return nil, err

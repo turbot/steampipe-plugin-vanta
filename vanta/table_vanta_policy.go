@@ -50,7 +50,7 @@ func tableVantaPolicy(ctx context.Context) *plugin.Table {
 
 func listVantaPolicies(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_policy.listVantaPolicies", "connection_error", err)
 		return nil, err
@@ -107,7 +107,7 @@ func getVantaPolicy(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	}
 
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_policy.getVantaPolicy", "connection_error", err)
 		return nil, err

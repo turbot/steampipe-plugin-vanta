@@ -6,7 +6,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/api"
 	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
 )
 
@@ -43,7 +42,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 			{Name: "deactivated_status_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("DeactivatedStatusInfo"), Description: "Information about deactivation status."},
 			{Name: "remediation_status_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("RemediationStatusInfo"), Description: "Specifies the remediation information."},
 			{Name: "owner", Type: proto.ColumnType_JSON, Transform: transform.FromField("Owner"), Description: "Owner information for the test."},
-			
+
 			// Derived columns from nested data
 			{Name: "owner_display_name", Type: proto.ColumnType_STRING, Transform: transform.From(getMonitorOwnerDisplayName), Description: "Display name of the test owner."},
 			{Name: "owner_email", Type: proto.ColumnType_STRING, Transform: transform.From(getMonitorOwnerEmail), Description: "Email address of the test owner."},
@@ -53,7 +52,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 			{Name: "remediation_item_count", Type: proto.ColumnType_INT, Transform: transform.From(getMonitorRemediationItemCount), Description: "Number of items requiring remediation."},
 			{Name: "version_major", Type: proto.ColumnType_INT, Transform: transform.From(getMonitorVersionMajor), Description: "Major version number of the test."},
 			{Name: "version_minor", Type: proto.ColumnType_INT, Transform: transform.From(getMonitorVersionMinor), Description: "Minor version number of the test."},
-			
+
 			// Backward compatibility columns (mapped from REST API data)
 			{Name: "test_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "A unique identifier for this test (same as id)."},
 			{Name: "latest_flip_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LatestFlipDate"), Description: "The last time the test flipped to a passing or failing state."},
@@ -64,7 +63,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 			{Name: "disabled_status", Type: proto.ColumnType_JSON, Transform: transform.FromField("DeactivatedStatusInfo"), Description: "Metadata about whether this test is disabled."},
 			{Name: "controls", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of controls being checked during the test."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
-			{Name: "failing_resource_entities", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] Failing resource entities (requires separate API call).", Hydrate: listVantaMonitorFailingResourceEntities, Transform: transform.FromValue()},
+			//{Name: "failing_resource_entities", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] Failing resource entities (requires separate API call).", Hydrate: listVantaMonitorFailingResourceEntities, Transform: transform.FromValue()},
 		},
 	}
 }
@@ -73,7 +72,7 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 
 func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitors", "connection_error", err)
 		return nil, err
@@ -104,7 +103,7 @@ func listVantaMonitors(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 			if shouldFilterMonitor(d, monitor) {
 				continue
 			}
-			
+
 			// Stream the raw Monitor object
 			d.StreamListItem(ctx, monitor)
 
@@ -135,7 +134,7 @@ func getVantaMonitor(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_monitor.getVantaMonitor", "connection_error", err)
 		return nil, err
@@ -331,52 +330,52 @@ func getMonitorAssignees(ctx context.Context, d *transform.TransformData) (inter
 
 //// HYDRATE FUNCTIONS (Legacy support)
 
-func listVantaMonitorFailingResourceEntities(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	// Get monitor ID
-	var testId string
-	
-	// Try to get from REST API monitor object
-	if monitor, ok := h.Item.(*model.Monitor); ok {
-		testId = monitor.ID
-	} else if data, ok := h.Item.(api.Monitor); ok {
-		// Fallback for legacy GraphQL object
-		testId = data.TestId
-	} else {
-		return []interface{}{}, nil
-	}
+// func listVantaMonitorFailingResourceEntities(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+// 	// Get monitor ID
+// 	var testId string
 
-	// Create client
-	conn, err := getVantaAppClient(ctx, d)
-	if err != nil {
-		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "connection_error", err)
-		return []interface{}{}, nil // Return empty instead of error for backward compatibility
-	}
+// 	// Try to get from REST API monitor object
+// 	if monitor, ok := h.Item.(*model.Monitor); ok {
+// 		testId = monitor.ID
+// 	} else if data, ok := h.Item.(api.Monitor); ok {
+// 		// Fallback for legacy GraphQL object
+// 		testId = data.TestId
+// 	} else {
+// 		return []interface{}{}, nil
+// 	}
 
-	options := &api.ListTestFailingResourceEntitiesRequestConfiguration{
-		Limit:   100, // Default to maximum; e.g. 100
-		TestIds: []string{testId},
-	}
+// 	// Create client
+// 	conn, err := getVantaAppClient(ctx, d)
+// 	if err != nil {
+// 		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "connection_error", err)
+// 		return []interface{}{}, nil // Return empty instead of error for backward compatibility
+// 	}
 
-	var failingResourceEntities []api.Resource
-	for {
-		query, err := api.ListTestFailingResourceEntities(context.Background(), conn, options)
-		if err != nil {
-			plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "query_error", err)
-			return []interface{}{}, nil // Return empty instead of error for backward compatibility
-		}
+// 	options := &api.ListTestFailingResourceEntitiesRequestConfiguration{
+// 		Limit:   100, // Default to maximum; e.g. 100
+// 		TestIds: []string{testId},
+// 	}
 
-		for _, result := range query.Organization.CurrentTestResults {
-			for _, e := range result.FailingResourceEntities.Edges {
-				failingResourceEntities = append(failingResourceEntities, e.Node.Resource)
-			}
+// 	var failingResourceEntities []api.Resource
+// 	for {
+// 		query, err := api.ListTestFailingResourceEntities(context.Background(), conn, options)
+// 		if err != nil {
+// 			plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "query_error", err)
+// 			return []interface{}{}, nil // Return empty instead of error for backward compatibility
+// 		}
 
-			// Return if all resources are processed
-			if !result.FailingResourceEntities.PageInfo.HasNextPage {
-				return failingResourceEntities, nil
-			}
+// 		for _, result := range query.Organization.CurrentTestResults {
+// 			for _, e := range result.FailingResourceEntities.Edges {
+// 				failingResourceEntities = append(failingResourceEntities, e.Node.Resource)
+// 			}
 
-			// Else set the next page cursor
-			options.EndCursor = result.FailingResourceEntities.PageInfo.EndCursor
-		}
-	}
-}
+// 			// Return if all resources are processed
+// 			if !result.FailingResourceEntities.PageInfo.HasNextPage {
+// 				return failingResourceEntities, nil
+// 			}
+
+// 			// Else set the next page cursor
+// 			options.EndCursor = result.FailingResourceEntities.PageInfo.EndCursor
+// 		}
+// 	}
+// }

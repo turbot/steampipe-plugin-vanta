@@ -44,7 +44,7 @@ func tableVantaIntegration(ctx context.Context) *plugin.Table {
 
 func listVantaIntegrations(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_integration.listVantaIntegrations", "connection_error", err)
 		return nil, err
@@ -101,7 +101,7 @@ func getVantaIntegration(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	}
 
 	// Create REST client
-	client, err := CreateRestClient(ctx, d)
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_integration.getVantaIntegration", "connection_error", err)
 		return nil, err
