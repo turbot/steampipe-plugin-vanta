@@ -93,7 +93,7 @@ func listVantaEvidences(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	for {
 		result, err := client.ListVendors(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "api_error", err)
 			return nil, err
 		}
 
@@ -136,7 +136,7 @@ func getVantaEvidence(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 
 	vendor, err := client.GetVendorByID(ctx, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_evidence.getVantaEvidence", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_evidence.getVantaEvidence", "api_error", err)
 		return nil, err
 	}
 

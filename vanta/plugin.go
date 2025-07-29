@@ -16,7 +16,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
 		},
-		DefaultTransform: transform.FromCamel().Transform(transform.NullIfZeroValue),
+		DefaultShouldIgnoreError: isNotFoundError([]string{"not found"}),
+		DefaultTransform:         transform.FromCamel().Transform(transform.NullIfZeroValue),
 		TableMap: map[string]*plugin.Table{
 			"vanta_computer":    tableVantaComputer(ctx),
 			"vanta_evidence":    tableVantaEvidence(ctx),

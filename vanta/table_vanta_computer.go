@@ -85,7 +85,7 @@ func listVantaComputers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	for {
 		result, err := client.ListComputers(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_computer.listVantaComputers", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_computer.listVantaComputers", "api_error", err)
 			return nil, err
 		}
 
@@ -128,7 +128,7 @@ func getVantaComputer(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 
 	computer, err := client.GetComputerByID(ctx, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_computer.getVantaComputer", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_computer.getVantaComputer", "api_error", err)
 		return nil, err
 	}
 

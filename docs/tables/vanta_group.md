@@ -1,6 +1,6 @@
 ---
 title: "Steampipe Table: vanta_group - Query Vanta Groups using SQL"
-description: "Allows users to query Groups in Vanta, specifically the group details and associated users, providing insights into group management and user assignments."
+description: "Allows users to query Groups in Vanta, specifically the group details including name, ID, and creation date."
 ---
 
 # Table: vanta_group - Query Vanta Groups using SQL
@@ -9,21 +9,18 @@ Vanta is a security monitoring platform that simplifies the complex process of s
 
 ## Table Usage Guide
 
-The `vanta_group` table provides insights into Groups within Vanta's security monitoring platform. As a Security or Compliance Officer, explore group-specific details through this table, including group names, user assignments, and associated permissions. Utilize it to uncover information about groups, such as those with high-level permissions, the distribution of user assignments among groups, and the verification of access rights.
-
-**Important Notes**
-- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
+The `vanta_group` table provides insights into Groups within Vanta's security monitoring platform. As a Security or Compliance Officer, explore group-specific details through this table, including group names, IDs, and creation dates. This table provides basic group information available through the Vanta REST API.
 
 ## Examples
 
 ### Basic info
-Explore which Vanta groups are available by identifying their names and IDs, and assess the elements within each group's checklist. This can be useful to understand the composition and configuration of these groups for better management and organization.
+Explore which Vanta groups are available by identifying their names, IDs, and creation dates.
 
 ```sql+postgres
 select
   name,
   id,
-  checklist
+  creation_date
 from
   vanta_group;
 ```
@@ -32,80 +29,96 @@ from
 select
   name,
   id,
-  checklist
+  creation_date
 from
   vanta_group;
 ```
 
-### User details associated with each group
-Discover the segments that detail the relationship between user information and their respective groups. This can be beneficial in managing user permissions and understanding the distribution of roles within your organization.
+### List groups created in the last 30 days
+Discover recently created groups to track organizational changes and new team formations.
 
 ```sql+postgres
 select
-  g.name,
-  u.display_name,
-  u.email,
-  u.permission_level
+  name,
+  id,
+  creation_date
 from
-  vanta_group as g
-  join vanta_user as u on g.id = u.role ->> 'id';
+  vanta_group
+where
+  creation_date > (current_timestamp - interval '30 days')
+order by
+  creation_date desc;
 ```
 
 ```sql+sqlite
 select
-  g.name,
-  u.display_name,
-  u.email,
-  u.permission_level
+  name,
+  id,
+  creation_date
 from
-  vanta_group as g
-  join vanta_user as u on g.id = json_extract(u.role, '$.id');
+  vanta_group
+where
+  creation_date > datetime('now', '-30 days')
+order by
+  creation_date desc;
 ```
 
-### List all users in each group having administrator access
-Determine the areas in which users have been granted administrative access within different groups. This can help in understanding the distribution of administrative privileges across your organization, aiding in access control and security management.
+### List groups by creation date
+Analyze the timeline of group creation to understand organizational growth and structure evolution.
 
 ```sql+postgres
 select
-  g.name,
-  u.display_name,
-  u.email
+  name,
+  id,
+  creation_date,
+  extract(year from creation_date) as created_year,
+  extract(month from creation_date) as created_month
 from
-  vanta_group as g
-  join vanta_user as u on g.id = u.role ->> 'id' and u.permission_level = 'Admin';
+  vanta_group
+order by
+  creation_date desc;
 ```
 
 ```sql+sqlite
 select
-  g.name,
-  u.display_name,
-  u.email
+  name,
+  id,
+  creation_date,
+  strftime('%Y', creation_date) as created_year,
+  strftime('%m', creation_date) as created_month
 from
-  vanta_group as g
-  join vanta_user as u on g.id = json_extract(u.role, '$.id') and u.permission_level = 'Admin';
+  vanta_group
+order by
+  creation_date desc;
 ```
 
-### Get the count of users in each group
-Explore which user groups have the most members to better manage resources and permissions. This can help in identifying areas for optimization and ensuring balanced distribution of users across different groups.
+### Count groups by creation year
+Get insights into organizational expansion by analyzing group creation patterns over time.
 
 ```sql+postgres
 select
-  g.name,
-  count(u.display_name)
+  extract(year from creation_date) as creation_year,
+  count(*) as groups_created
 from
-  vanta_group as g
-  join vanta_user as u on g.id = u.role ->> 'id'
+  vanta_group
+where
+  creation_date is not null
 group by
-  g.name;
+  extract(year from creation_date)
+order by
+  creation_year desc;
 ```
 
 ```sql+sqlite
 select
-  g.name,
-  count(u.display_name)
+  strftime('%Y', creation_date) as creation_year,
+  count(*) as groups_created
 from
-  vanta_group as g
-  join vanta_user as u on g.id = json_extract(u.role, '$.id')
+  vanta_group
+where
+  creation_date is not null
 group by
-  g.name;
+  strftime('%Y', creation_date)
+order by
+  creation_year desc;
 ```

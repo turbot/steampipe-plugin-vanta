@@ -34,6 +34,12 @@ type Vanta interface {
 	GetVendorByID(ctx context.Context, id string) (*model.Vendor, error)
 	ListMonitors(ctx context.Context, options *model.ListMonitorsOptions) (*model.MonitorResults, error)
 	GetMonitorByID(ctx context.Context, id string) (*model.Monitor, error)
+	ListTestEntities(ctx context.Context, testID string, options *model.ListTestEntitiesOptions) (*model.TestEntitiesResults, error)
+
+	// Comprehensive Test API methods
+	ListTests(ctx context.Context, options *model.ListTestsOptions) (*model.TestResults, error)
+	GetTestByID(ctx context.Context, id string) (*model.Test, error)
+
 	SetHTTPClient(client *http.Client)
 }
 
@@ -304,6 +310,34 @@ func (v *vanta) GetMonitorByID(ctx context.Context, id string) (*model.Monitor, 
 		tokenStore: v.tokenStore,
 	}
 	return client.GetMonitorByID(ctx, id)
+}
+
+func (v *vanta) ListTestEntities(ctx context.Context, testID string, options *model.ListTestEntitiesOptions) (*model.TestEntitiesResults, error) {
+	client := &RestClient{
+		baseURL:    v.baseURL,
+		httpClient: v.httpClient,
+		tokenStore: v.tokenStore,
+	}
+	return client.ListTestEntities(ctx, testID, options)
+}
+
+// Comprehensive Test API method implementations
+func (v *vanta) ListTests(ctx context.Context, options *model.ListTestsOptions) (*model.TestResults, error) {
+	client := &RestClient{
+		baseURL:    v.baseURL,
+		httpClient: v.httpClient,
+		tokenStore: v.tokenStore,
+	}
+	return client.ListTests(ctx, options)
+}
+
+func (v *vanta) GetTestByID(ctx context.Context, id string) (*model.Test, error) {
+	client := &RestClient{
+		baseURL:    v.baseURL,
+		httpClient: v.httpClient,
+		tokenStore: v.tokenStore,
+	}
+	return client.GetTestByID(ctx, id)
 }
 
 func (v *vanta) SetHTTPClient(client *http.Client) {

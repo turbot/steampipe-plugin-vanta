@@ -64,3 +64,32 @@ type ListMonitorsOptions struct {
 	Limit  int    `json:"limit,omitempty"`
 	Cursor string `json:"cursor,omitempty"`
 }
+
+// TestEntity represents an entity associated with a test
+type TestEntity struct {
+	ID                string     `json:"id"`
+	EntityStatus      string     `json:"entityStatus"`
+	DisplayName       string     `json:"displayName"`
+	ResponseType      string     `json:"responseType"`
+	DeactivatedReason *string    `json:"deactivatedReason"`
+	LastUpdatedDate   *time.Time `json:"lastUpdatedDate"`
+	CreatedDate       *time.Time `json:"createdDate"`
+}
+
+// TestEntitiesResults represents the paginated response for test entities
+type TestEntitiesResults struct {
+	Results TestEntitiesResultsData `json:"results"`
+}
+
+// TestEntitiesResultsData represents the data portion of test entities results
+type TestEntitiesResultsData struct {
+	PageInfo PageInfo      `json:"pageInfo"`
+	Data     []*TestEntity `json:"data"`
+}
+
+// ListTestEntitiesOptions represents options for listing test entities
+type ListTestEntitiesOptions struct {
+	Limit        int    `json:"limit,omitempty"`
+	Cursor       string `json:"cursor,omitempty"`
+	EntityStatus string `json:"entityStatus,omitempty"`
+}

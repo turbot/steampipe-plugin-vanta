@@ -65,3 +65,42 @@ func (c *RestClient) GetMonitorByID(ctx context.Context, id string) (*model.Moni
 
 	return monitor, nil
 }
+
+// ListTestEntities retrieves a paginated list of entities for a specific test
+func (c *RestClient) ListTestEntities(ctx context.Context, testID string, options *model.ListTestEntitiesOptions) (*model.TestEntitiesResults, error) {
+	if testID == "" {
+		return nil, fmt.Errorf("test ID cannot be empty")
+	}
+
+	// Build URL with query parameters
+	params := url.Values{}
+
+	if options != nil {
+		if options.Limit > 0 {
+			params.Set("pageSize", strconv.Itoa(options.Limit))
+		}
+		if options.Cursor != "" {
+			params.Set("pageCursor", options.Cursor)
+		}
+		if options.EntityStatus != "" {
+			params.Set("entityStatus", options.EntityStatus)
+		}
+	}
+
+	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/tests/%s/entities", testID), params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %w", err)
+	}
+
+	respBodyBytes, err := c.readResponseBody(resp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var result *model.TestEntitiesResults
+	if err = json.Unmarshal(respBodyBytes, &result); err != nil {
+		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
+	}
+
+	return result, nil
+}

@@ -11,9 +11,6 @@ Vanta is a security and compliance automation platform. It simplifies the comple
 
 The `vanta_computer` table provides insights into computer assets within Vanta's security and compliance automation platform. As a security analyst or compliance officer, explore details about each computer, including its operating system, installed software, and other related information through this table. Utilize it to monitor the security status of each computer, track software installations, and maintain compliance with various standards.
 
-**Important Notes**
-- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
-
 ## Examples
 
 ### Basic info
@@ -23,9 +20,9 @@ Explore which computers have a specific owner, serial number, and operating syst
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  last_check_date
 from
   vanta_computer;
 ```
@@ -34,9 +31,9 @@ from
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  last_check_date
 from
   vanta_computer;
 ```
@@ -48,9 +45,9 @@ Discover the segments that consist of computers with unencrypted hard drives, al
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  disk_encryption
 from
   vanta_computer
 where
@@ -61,9 +58,9 @@ where
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  disk_encryption
 from
   vanta_computer
 where
@@ -77,9 +74,9 @@ Discover the segments that include computers lacking screen lock configuration. 
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  screenlock
 from
   vanta_computer
 where
@@ -90,9 +87,9 @@ where
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  screenlock
 from
   vanta_computer
 where
@@ -106,199 +103,119 @@ Identify computers that may be vulnerable due to the absence of a password manag
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  password_manager
 from
   vanta_computer
 where
-  installed_password_managers is null;
+  not is_password_manager_installed;
 ```
 
 ```sql+sqlite
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname
+  udid,
+  password_manager
 from
   vanta_computer
 where
-  installed_password_managers is null;
+  is_password_manager_installed = 0;
 ```
 
-### List computers not checked over the last 90 days
-Explore which computers haven't been checked in the last 90 days. This is useful to identify potential risks or issues that might have been overlooked due to lack of regular monitoring.
+### List computers not checked recently
+Explore which computers haven't been checked in the last 30 days. This is useful to identify potential risks or issues that might have been overlooked due to lack of regular monitoring.
 
 ```sql+postgres
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname,
-  last_ping
+  udid,
+  last_check_date
 from
   vanta_computer
 where
-  last_ping < (current_timestamp - interval '90 days');
+  last_check_date < (current_timestamp - interval '30 days');
 ```
 
 ```sql+sqlite
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname,
-  last_ping
+  udid,
+  last_check_date
 from
   vanta_computer
 where
-  last_ping < datetime('now', '-90 day');
+  last_check_date < datetime('now', '-30 day');
 ```
 
-### List unmonitored computers
-Discover the segments that contain computers that are not being monitored. This is useful in identifying potential gaps in your IT infrastructure, allowing you to address any unsupported operating systems or versions.
+### List computers by operating system type
+Discover the distribution of computers by operating system type. This can help in understanding your infrastructure composition and planning for OS-specific security measures.
+
+```sql+postgres
+select
+  operating_system ->> 'type' as os_type,
+  operating_system ->> 'version' as os_version,
+  count(*) as computer_count
+from
+  vanta_computer
+where
+  operating_system is not null
+group by
+  operating_system ->> 'type',
+  operating_system ->> 'version'
+order by
+  computer_count desc;
+```
+
+```sql+sqlite
+select
+  json_extract(operating_system, '$.type') as os_type,
+  json_extract(operating_system, '$.version') as os_version,
+  count(*) as computer_count
+from
+  vanta_computer
+where
+  operating_system is not null
+group by
+  json_extract(operating_system, '$.type'),
+  json_extract(operating_system, '$.version')
+order by
+  computer_count desc;
+```
+
+### List computers with antivirus issues
+Identify computers that have issues with antivirus installation or configuration.
 
 ```sql+postgres
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname,
-  case
-    when (unsupported_reasons -> 'unsupportedOsVersion')::boolean then 'OS version not supported'
-    when (unsupported_reasons -> 'unsupportedOsType')::boolean then 'OS not supported'
-  end as status
+  antivirus_installation ->> 'outcome' as antivirus_status,
+  antivirus_installation ->> 'lastCheckDate' as last_antivirus_check
 from
   vanta_computer
 where
-  unsupported_reasons is not null;
+  antivirus_installation ->> 'outcome' != 'PASS';
 ```
 
 ```sql+sqlite
 select
   owner_name,
   serial_number,
-  agent_version,
   os_version,
-  hostname,
-  case
-    when json_extract(unsupported_reasons, '$.unsupportedOsVersion') = 'true' then 'OS version not supported'
-    when json_extract(unsupported_reasons, '$.unsupportedOsType') = 'true' then 'OS not supported'
-  end as status
+  json_extract(antivirus_installation, '$.outcome') as antivirus_status,
+  json_extract(antivirus_installation, '$.lastCheckDate') as last_antivirus_check
 from
   vanta_computer
 where
-  unsupported_reasons is not null;
-```
-
-### List computers with Tailscale app installed
-Determine the areas in which computers have the Tailscale app installed. This query is useful for gaining insights into the distribution and usage of this specific application within your network.
-
-```sql+postgres
-select
-  owner_name,
-  serial_number,
-  last_ping,
-  app as application
-from
-  vanta_computer,
-  jsonb_array_elements(endpoint_applications) as app
-where
-  (app ->> 'name') like 'Tailscale %';
-```
-
-```sql+sqlite
-select
-  owner_name,
-  serial_number,
-  last_ping,
-  json_extract(app.value, '$.name') as application
-from
-  vanta_computer,
-  json_each(endpoint_applications) as app
-where
-  json_extract(app.value, '$.name') like 'Tailscale %';
-```
-
-### List computers with no Slack app installed
-Determine the computers that do not have the Slack app installed. This can be useful for IT administrators to identify and rectify gaps in software deployment across the organization.
-
-```sql+postgres
-with device_with_slack_installed as (
-  select
-    distinct id
-  from
-    vanta_computer,
-    jsonb_array_elements(endpoint_applications) as app
-  where
-    (app ->> 'name') like 'Slack %'
-)
-select
-  owner_name,
-  serial_number,
-  last_ping
-from
-  vanta_computer
-where
-  endpoint_applications is not null
-  and id not in (
-    select
-      id
-    from
-      device_with_slack_installed
-  );
-```
-
-```sql+sqlite
-with device_with_slack_installed as (
-  select
-    distinct id
-  from
-    vanta_computer,
-    json_each(endpoint_applications) as app
-  where
-    json_extract(app.value, '$.name') like 'Slack %';
-)
-select
-  owner_name,
-  serial_number,
-  last_ping
-from
-  vanta_computer
-where
-  endpoint_applications is not null
-  and id not in (
-    select
-      id
-    from
-      device_with_slack_installed
-  );
-```
-
-### List computers with an older version of Zoom app (< 5.12)
-Determine the areas in which computers are running outdated versions of the Zoom app for potential software updates. This helps in maintaining system security and ensuring all devices are up-to-date with the latest software versions.
-
-```sql+postgres
-select
-  owner_name,
-  serial_number,
-  last_ping,
-  app as application
-from
-  vanta_computer,
-  jsonb_array_elements_text(endpoint_applications) as app
-where
-  (app::jsonb ->> 'name') like 'zoom.us %'
-  and string_to_array(split_part((app::jsonb ->> 'name'), ' ', 2), '.')::int[] < string_to_array('5.12', '.')::int[];
-```
-
-```sql+sqlite
-Error: SQLite does not support string_to_array and split functions.
+  json_extract(antivirus_installation, '$.outcome') != 'PASS';
 ```
 
 ### List computers owned by inactive users
@@ -308,8 +225,9 @@ Explore which computers are owned by users who are no longer active. This can he
 select
   u.display_name as owner,
   c.serial_number,
-  u.end_date,
-  c.last_ping
+  c.os_version,
+  u.employment_status,
+  c.last_check_date
 from
   vanta_computer as c
   join vanta_user as u on c.owner_id = u.id and not u.is_active;
@@ -319,8 +237,9 @@ from
 select
   u.display_name as owner,
   c.serial_number,
-  u.end_date,
-  c.last_ping
+  c.os_version,
+  u.employment_status,
+  c.last_check_date
 from
   vanta_computer as c
   join vanta_user as u on c.owner_id = u.id and u.is_active = 0;

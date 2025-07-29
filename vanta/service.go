@@ -3,6 +3,7 @@ package vanta
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-vanta/restapi"
@@ -19,6 +20,12 @@ func getClient(ctx context.Context, d *plugin.QueryData) (restapi.Vanta, error) 
 	// Get the config
 	vantaConfig := GetConfig(d.Connection)
 
+	// Validate configuration
+	if err := validateConfig(vantaConfig); err != nil {
+		plugin.Logger(ctx).Error("vanta.getClient", "config_validation_error", err)
+		return nil, err
+	}
+
 	var options []restapi.Option
 	options = append(options, restapi.WithScopes(restapi.ScopeAllRead))
 
@@ -28,10 +35,6 @@ func getClient(ctx context.Context, d *plugin.QueryData) (restapi.Vanta, error) 
 	} else if vantaConfig.AccessToken != nil {
 		// If access token is provided, use it
 		options = append(options, restapi.WithToken(*vantaConfig.AccessToken))
-	} else {
-		// Fallback: this maintains backward compatibility with existing configurations
-		plugin.Logger(ctx).Warn("vanta.CreateRestClient", "warning", "No OAuth credentials or access token found, REST client requires authentication")
-		return nil, fmt.Errorf("authentication required: provide either client_id/client_secret or access_token in connection config")
 	}
 
 	client, err := restapi.New(ctx, options...)
@@ -44,4 +47,62 @@ func getClient(ctx context.Context, d *plugin.QueryData) (restapi.Vanta, error) 
 	d.ConnectionManager.Cache.Set(cacheKey, client)
 
 	return client, nil
+}
+
+// validateConfig validates the Vanta configuration and returns appropriate errors
+func validateConfig(config vantaConfig) error {
+	// Check if OAuth credentials are provided
+	hasOAuthCredentials := config.ClientID != nil && config.ClientSecret != nil
+	hasPartialOAuthCredentials := (config.ClientID != nil && config.ClientSecret == nil) || (config.ClientID == nil && config.ClientSecret != nil)
+	hasAccessToken := config.AccessToken != nil
+
+	// Validate that OAuth credentials are complete if provided
+	if hasPartialOAuthCredentials {
+		if config.ClientID != nil && config.ClientSecret == nil {
+			return fmt.Errorf("invalid configuration: client_secret is required when client_id is provided")
+		}
+		if config.ClientID == nil && config.ClientSecret != nil {
+			return fmt.Errorf("invalid configuration: client_id is required when client_secret is provided")
+		}
+	}
+
+	// Validate that at least one authentication method is provided
+	if !hasOAuthCredentials && !hasAccessToken {
+		return fmt.Errorf("authentication required: provide either OAuth credentials (client_id and client_secret) or access_token in connection config")
+	}
+
+	// Validate credential formats
+	if hasOAuthCredentials {
+		if err := validateCredentialFormat("client_id", *config.ClientID, "vci_"); err != nil {
+			return err
+		}
+		if err := validateCredentialFormat("client_secret", *config.ClientSecret, "vcs_"); err != nil {
+			return err
+		}
+	}
+
+	if hasAccessToken {
+		if err := validateCredentialFormat("access_token", *config.AccessToken, "vat_"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// validateCredentialFormat validates that credentials follow the expected format
+func validateCredentialFormat(credType, credential, expectedPrefix string) error {
+	if credential == "" {
+		return fmt.Errorf("invalid configuration: %s cannot be empty", credType)
+	}
+
+	if !strings.HasPrefix(credential, expectedPrefix) {
+		return fmt.Errorf("invalid configuration: %s should start with '%s'", credType, expectedPrefix)
+	}
+
+	// Basic length validation (Vanta credentials are typically longer than just the prefix)
+	if len(credential) <= len(expectedPrefix)+5 {
+		return fmt.Errorf("invalid configuration: %s appears to be too short or invalid", credType)
+	}
+
+	return nil
 }

@@ -26,9 +26,10 @@ func tableVantaPolicy(ctx context.Context) *plugin.Table {
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: "The title of the policy."},
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "A unique identifier of the policy."},
 			{Name: "description", Type: proto.ColumnType_STRING, Transform: transform.FromField("Description"), Description: "A human-readable description of the policy."},
-			{Name: "policy_type", Type: proto.ColumnType_STRING, Transform: transform.FromConstant(""), Description: "[DEPRECATED] The type of the policy."},
 			{Name: "status", Type: proto.ColumnType_STRING, Transform: transform.FromField("Status"), Description: "The current status of the policy."},
 			{Name: "approved_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("ApprovedAtDate"), Description: "The time when the policy was approved."},
+			{Name: "latest_version_status", Type: proto.ColumnType_STRING, Transform: transform.FromField("LatestVersion.Status"), Description: "The status of the latest version of the policy."},
+			{Name: "policy_type", Type: proto.ColumnType_STRING, Transform: transform.FromConstant(""), Description: "[DEPRECATED] The type of the policy."},
 			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromConstant(nil), Description: "[DEPRECATED] The time when the policy was created."},
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromConstant(nil), Description: "[DEPRECATED] The time when the policy was last modified."},
 			{Name: "employee_acceptance_test_id", Type: proto.ColumnType_STRING, Transform: transform.FromConstant(""), Description: "[DEPRECATED] The test Id of the control that runs against employees policy acceptance."},
@@ -41,7 +42,6 @@ func tableVantaPolicy(ctx context.Context) *plugin.Table {
 			{Name: "uploaded_doc", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(nil), Description: "[DEPRECATED] Specifies the docs uploaded for the policy."},
 			{Name: "uploader", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(nil), Description: "[DEPRECATED] The Vanta user that uploaded the document to Vanta."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Transform: transform.FromConstant(""), Description: "[DEPRECATED] The name of the organization."},
-			{Name: "latest_version_status", Type: proto.ColumnType_STRING, Transform: transform.FromField("LatestVersion.Status"), Description: "The status of the latest version of the policy."},
 		},
 	}
 }
@@ -72,7 +72,7 @@ func listVantaPolicies(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	for {
 		result, err := client.ListPolicies(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_policy.listVantaPolicies", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_policy.listVantaPolicies", "api_error", err)
 			return nil, err
 		}
 
@@ -115,7 +115,7 @@ func getVantaPolicy(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 	policy, err := client.GetPolicyByID(ctx, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_policy.getVantaPolicy", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_policy.getVantaPolicy", "api_error", err)
 		return nil, err
 	}
 

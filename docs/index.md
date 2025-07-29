@@ -56,14 +56,12 @@ steampipe plugin install vanta
 
 ### Credentials
 
-The plugin uses two different endpoints that uses different credential mechanism
-
-| Item        | Description                                                                                                                                                                                                                                                                                                                                               |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Credentials | The plugin uses two different endpoints that use different credential mechanisms:<br/>1. Using a user's personal [API token](https://developer.vanta.com/docs/quick-start#1-make-an-api-token).<br/>2. Using the [cookie-based authentication](#getting-the-session-id-for-cookie-based-authentication) by passing a unique session ID for every request. |
-| Permissions | User requires admin access to generate an API token to access the resources.                                                                                                                                                                                                                                                                             |
-| Radius      | Each connection represents a single Vanta installation.                                                                                                                                                                                                                                                                                                   |
-| Resolution  | Credentials explicitly set in a steampipe config file (`~/.steampipe/config/vanta.spc`).                                                                                                                                                                                                                                                                  |
+| Item        | Description                                                                                                                                                                                                                      |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Credentials | The plugin supports OAuth-based authentication using either:<br/>1. OAuth client credentials (`client_id` and `client_secret`)<br/>2. Personal [access token]https://developer.vanta.com/docs/api-access-setup) (`access_token`) |
+| Permissions | User requires appropriate access permissions to query Vanta resources. OAuth applications need to be configured with the necessary scopes for the resources you want to access.                                                  |
+| Radius      | Each connection represents a single Vanta organization.                                                                                                                                                                          |
+| Resolution  | Credentials explicitly set in a steampipe config file (`~/.steampipe/config/vanta.spc`).                                                                                                                                         |
 
 ### Configuration
 
@@ -73,28 +71,44 @@ Installing the latest vanta plugin will create a config file (`~/.steampipe/conf
 connection "vanta" {
   plugin = "vanta"
 
-  # A personal API token to access Vanta API
-  # This is only required while querying `vanta_evidence` table.
-  # To generate an API token, refer: https://developer.vanta.com/docs/quick-start#1-make-an-api-token
-  # api_token = "97GtVsdAPwowRToaWDtgZtILdXI_agszONwajQslZ1o"
+  # OAuth client credentials for authenticating with Vanta API
+  # To generate OAuth credentials, refer: https://developer.vanta.com/docs/api-access-setup
+  # client_id = "vci_jsur8ca2093fb6djsu847528d1629d424941ff545029urj"
+  # client_secret = "vcs_jskaoer_kksjded84f8a40d5e64eedeaeolseru813710492300efee0dcff51208f093ujd"
 
-  # Session ID of your current vanta session
-  # Set the value of `connect.sid` cookie from a logged in Vanta browser session
-  # Required to access tables that are using the https://app.vanta.com/graphql endpoint
-  # session_id = "s:3nZSteamPipe1fSu4iNV_1TB5UTesTToGK.zVANtaplugintest+GVxPvQffhnFY3skWlfkceZxXKSCjc"
+  # Alternatively, you can use a personal access token instead of client credentials
+  # access_token = "vat_9aa069_Bi3K7v9IoQPMIufU1w4GSJZIh2StgfC0"
 }
 ```
 
-### Getting the Session ID for cookie-based authentication
+### Authentication Methods
 
-The Vanta APIs generally use a user's personal [API token](https://developer.vanta.com/docs/quick-start#1-make-an-api-token) to authenticate the requests. But some of the tables in this plugin use a different endpoint, which requires a unique session ID to access the query endpoint.
+The Vanta plugin supports two authentication methods:
 
-To retrieve your Session ID:
+#### Method 1: OAuth Client Credentials (Recommended)
 
-- Log into the Vanta console.
-- Open your browser [developer tools](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_are_browser_developer_tools).
-- Open the `Network` view to see and analyze the network requests that make up each individual page load within a single user's session.
-- Open any `graphql` request from the list and check the `Cookies` section to get the list of request cookies.
-- Get the session ID value from the list named as `connect.sid`.
+Use OAuth client credentials for production environments and automated workflows:
 
+```hcl
+connection "vanta" {
+  plugin = "vanta"
+  # OAuth client credentials for authenticating with Vanta API
+  # To generate OAuth credentials, refer: https://developer.vanta.com/docs/api-access-setup
+  client_id = "vci_jsur8ca2093fb6djsu847528d1629d424941ff545029urj"
+  client_secret = "vcs_jskaoer_kksjded84f8a40d5e64eedeaeolseru813710492300efee0dcff51208f093ujd"
+}
+```
 
+#### Method 2: Personal Access Token
+
+Use a personal access token for development and testing:
+
+```hcl
+connection "vanta" {
+  plugin = "vanta"
+  # Alternatively, you can use a personal access token instead of client credentials
+  access_token = "vat_9aa069_Bi3K7v9IoQPMIufU1w4GSJZIh2StgfC0"
+}
+```
+
+To generate credentials, visit the [Vanta Developer Documentation](https://developer.vanta.com/docs/quick-start) for detailed instructions.

@@ -38,14 +38,14 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 			{Name: "family_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name.Last"), Description: "The family name of the user."},
 			{Name: "given_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name.First"), Description: "The given name of the user."},
 			{Name: "is_active", Type: proto.ColumnType_BOOL, Transform: transform.From(getIsActiveStatus), Description: "If true, the user is active."},
-			{Name: "is_not_human", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the resource is not a human."},
-			{Name: "is_from_scan", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the user was discovered by the security scan."},
-			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, user will get an email digest of their incomplete security tasks."},
 			{Name: "group_ids", Type: proto.ColumnType_JSON, Description: "List of group IDs the user belongs to."},
 			{Name: "employment", Type: proto.ColumnType_JSON, Description: "Employment information including job title and dates."},
 			{Name: "name", Type: proto.ColumnType_JSON, Description: "Name information including display, first, and last name."},
 			{Name: "sources", Type: proto.ColumnType_JSON, Description: "Information about data sources for this user."},
 			{Name: "tasks_summary", Type: proto.ColumnType_JSON, Description: "Summary of security task completion status."},
+			{Name: "is_from_scan", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the user was discovered by the security scan."},
+			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, user will get an email digest of their incomplete security tasks."},
+			{Name: "is_not_human", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the resource is not a human."},
 		},
 	}
 }
@@ -79,7 +79,7 @@ func listVantaUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	for {
 		result, err := client.ListPeople(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_user.listVantaUsers", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_user.listVantaUsers", "api_error", err)
 			return nil, err
 		}
 
@@ -122,7 +122,7 @@ func getVantaUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 
 	person, err := client.GetPersonByID(ctx, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_user.getVantaUser", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_user.getVantaUser", "api_error", err)
 		return nil, err
 	}
 

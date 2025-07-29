@@ -25,16 +25,16 @@ func tableVantaIntegration(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the integration."},
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("IntegrationID"), Description: "A unique identifier of the integration."},
+			{Name: "connections", Type: proto.ColumnType_JSON, Description: "A list of connections for this integration."},
+			{Name: "tests", Type: proto.ColumnType_JSON, Hydrate: getVantaIntegrationTests, Transform: transform.FromValue(), Description: "[DEPRECATED] A list of tests defined for monitoring the integrations."},
+			{Name: "scopable_resource", Type: proto.ColumnType_JSON, Transform: transform.FromField("ResourceKinds"), Description: "A list of scopable resources (resource kinds)."},
 			{Name: "description", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] A human-readable description of the integration."},
 			{Name: "application_url", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The URL of the application."},
 			{Name: "installation_url", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The installation URL of the integration."},
 			{Name: "logo_slug_id", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The slug of the logo used for the integration."},
 			{Name: "credentials", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] The credential metadata of the integration."},
 			{Name: "integration_categories", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of integration categories."},
-			{Name: "scopable_resource", Type: proto.ColumnType_JSON, Transform: transform.FromField("ResourceKinds"), Description: "A list of scopable resources (resource kinds)."},
 			{Name: "service_categories", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of service categories."},
-			{Name: "tests", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of tests defined for monitoring the integrations."},
-			{Name: "connections", Type: proto.ColumnType_JSON, Description: "A list of connections for this integration."},
 			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
 		},
 	}
@@ -66,7 +66,7 @@ func listVantaIntegrations(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	for {
 		result, err := client.ListConnectedIntegrations(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_integration.listVantaIntegrations", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_integration.listVantaIntegrations", "api_error", err)
 			return nil, err
 		}
 
@@ -109,7 +109,7 @@ func getVantaIntegration(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 	integration, err := client.GetIntegrationByID(ctx, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_integration.getVantaIntegration", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_integration.getVantaIntegration", "api_error", err)
 		return nil, err
 	}
 
@@ -118,4 +118,43 @@ func getVantaIntegration(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	}
 
 	return integration, nil
+}
+
+func getVantaIntegrationTests(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	id := h.Item.(*model.Integration).IntegrationID
+
+	// Create REST client
+	client, err := getClient(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("vanta_integration.getVantaIntegrationTests", "connection_error", err)
+		return nil, err
+	}
+
+	opts := &model.ListTestsOptions{
+		IntegrationFilter: id,
+		PageSize:          100,
+		PageCursor:        "",
+	}
+
+	var testsByIntegration []*model.Test
+	for {
+
+		tests, err := client.ListTests(ctx, opts)
+		if err != nil {
+			plugin.Logger(ctx).Error("vanta_integration.getVantaIntegrationTests", "api_error", err)
+			return nil, err
+		}
+
+		if tests.Results.Data != nil {
+			testsByIntegration = append(testsByIntegration, tests.Results.Data...)
+		}
+
+		if !tests.Results.PageInfo.HasNextPage {
+			break
+		}
+
+		opts.PageCursor = tests.Results.PageInfo.EndCursor
+	}
+
+	return testsByIntegration, nil
 }

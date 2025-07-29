@@ -11,21 +11,18 @@ Vanta is a security and compliance automation platform. It simplifies the comple
 
 The `vanta_monitor` table provides insights into the monitors within Vanta's security and compliance automation platform. As a security analyst, explore monitor-specific details through this table, including status, type, and associated metadata. Utilize it to uncover information about monitors, such as those with alerts, the type of monitors, and the verification of monitor details.
 
-**Important Notes**
-- To query the table you must set `session_id` argument in the config file (`~/.steampipe/config/vanta.spc`).
-
 ## Examples
 
 ### Basic info
-Explore the status and outcome of different categories within a monitoring system. This can help you understand the areas requiring attention and the effectiveness of remediation efforts.
+Explore the status and details of different monitors within your monitoring system.
 
 ```sql+postgres
 select
   name,
   category,
-  outcome,
-  latest_flip_time,
-  remediation_status ->> 'status' as status
+  status,
+  latest_flip_date,
+  remediation_status
 from
   vanta_monitor;
 ```
@@ -34,227 +31,267 @@ from
 select
   name,
   category,
-  outcome,
-  latest_flip_time,
-  json_extract(remediation_status, '$.status') as status
+  status,
+  latest_flip_date,
+  remediation_status
 from
   vanta_monitor;
 ```
 
 ### List all failed tests
-Explore which monitors have failed tests to assess the areas of non-compliance and understand when the last status change occurred. This allows you to pinpoint specific issues and address them promptly.
+Explore which monitors are in a failing state to assess areas of non-compliance and understand when the last status change occurred.
 
 ```sql+postgres
 select
   name,
   category,
-  outcome,
-  compliance_status,
-  latest_flip_time
+  status,
+  latest_flip_date,
+  owner_display_name,
+  remediation_item_count
 from
   vanta_monitor
 where
-  outcome = 'FAIL';
+  status = 'NEEDS_ATTENTION';
 ```
 
 ```sql+sqlite
 select
   name,
   category,
-  outcome,
-  compliance_status,
-  latest_flip_time
+  status,
+  latest_flip_date,
+  owner_display_name,
+  remediation_item_count
 from
   vanta_monitor
 where
-  outcome = 'FAIL';
+  status = 'NEEDS_ATTENTION';
 ```
 
-### Filter a specific test result by test ID
-Explore the details of a specific test result by using its test ID, allowing you to gain insights into its category, outcome, and compliance status, as well as the time of the most recent status change. This is particularly useful for tracking and reviewing the performance of individual tests over time.
+### Filter monitors by specific test ID
+Explore the details of a specific monitor by using its test ID.
 
 ```sql+postgres
 select
   name,
   category,
-  outcome,
-  compliance_status,
-  latest_flip_time
+  status,
+  latest_flip_date,
+  description,
+  failure_description
 from
   vanta_monitor
 where
-  test_id = 'test-03neqwol876pxg1iqjqib9';
+  id = 'test-03neqwol876pxg1iqjqib9';
 ```
 
 ```sql+sqlite
 select
   name,
   category,
-  outcome,
-  compliance_status,
-  latest_flip_time
+  status,
+  latest_flip_date,
+  description,
+  failure_description
 from
   vanta_monitor
 where
-  test_id = 'test-03neqwol876pxg1iqjqib9';
+  id = 'test-03neqwol876pxg1iqjqib9';
 ```
 
-### Count tests by remediation status
-Analyze the status of remediation efforts by quantifying the number of tests associated with each status. This can help in prioritizing and tracking remediation tasks effectively.
+### Count monitors by status
+Analyze the distribution of monitor statuses to understand your overall compliance health.
 
 ```sql+postgres
 select
-  remediation_status ->> 'status' as status,
-  count(name)
+  status,
+  count(*) as monitor_count
 from
   vanta_monitor
 group by
-  remediation_status ->> 'status';
+  status
+order by
+  monitor_count desc;
 ```
 
 ```sql+sqlite
 select
-  json_extract(remediation_status, '$.status') as status,
-  count(name)
+  status,
+  count(*) as monitor_count
 from
   vanta_monitor
 group by
-  json_extract(remediation_status, '$.status');
+  status
+order by
+  monitor_count desc;
 ```
 
-### List failed tests by owner
-Explore which tests have failed and identify the owners responsible for these tests. This is useful for assessing the areas that need immediate attention or remediation.
+### List failed monitors by owner
+Explore which monitors have failed and identify the owners responsible for these tests.
 
 ```sql+postgres
 select
   name,
   category,
-  a ->> 'displayName' as owner,
-  remediation_status ->> 'status' as status
+  status,
+  owner_display_name,
+  owner_email,
+  remediation_item_count
 from
   vanta_monitor
-  left join jsonb_array_elements(assignees) as a on true
 where
-  outcome = 'FAIL';
-```
-
-```sql+sqlite
-select
-  name,
-  category,
-  json_extract(a.value, '$.displayName') as owner,
-  json_extract(remediation_status, '$.status') as status
-from
-  vanta_monitor,
-  json_each(assignees) as a
-where
-  outcome = 'FAIL';
-```
-
-### List failed tests by standard
-Discover the segments that have failed tests according to different standards. This query can be used to assess the status of remediation and identify areas needing attention in order to meet various standards.
-
-```sql+postgres
-select
-  name,
-  category,
-  s -> 'standardInfo' ->> 'standard' as standard,
-  remediation_status ->> 'status' as status
-from
-  vanta_monitor,
-  jsonb_array_elements(controls) as c,
-  jsonb_array_elements(c -> 'standardSections') as s
-where
-  outcome = 'FAIL';
+  status = 'NEEDS_ATTENTION'
+  and owner_display_name is not null
+order by
+  owner_display_name;
 ```
 
 ```sql+sqlite
 select
   name,
   category,
-  json_extract(s.value, '$.standardInfo.standard') as standard,
-  json_extract(remediation_status, '$.status') as status
+  status,
+  owner_display_name,
+  owner_email,
+  remediation_item_count
 from
-  vanta_monitor,
-  json_each(controls) as c,
-  json_each(c.value, '$.standardSections') as s
+  vanta_monitor
 where
-  outcome = 'FAIL';
+  status = 'NEEDS_ATTENTION'
+  and owner_display_name is not null
+order by
+  owner_display_name;
 ```
 
-### List failed tests by integration
-Explore which integrations have failed tests, allowing you to identify areas of concern and take necessary corrective actions. This is useful in maintaining system integrity and ensuring seamless integration performance.
+### List monitors with remediation in progress
+Identify monitors that currently have active remediation efforts.
 
 ```sql+postgres
 select
-  m.name,
-  m.category,
-  m.outcome,
-  i.display_name as integration
+  name,
+  category,
+  status,
+  remediation_status,
+  remediation_item_count,
+  owner_display_name
 from
-  vanta_integration as i,
-  jsonb_array_elements(i.tests) as t
-  join vanta_monitor as m on m.test_id = t ->> 'testId' and m.outcome = 'FAIL';
+  vanta_monitor
+where
+  remediation_status = 'IN_PROGRESS'
+order by
+  remediation_item_count desc;
 ```
 
 ```sql+sqlite
 select
-  m.name,
-  m.category,
-  m.outcome,
-  i.display_name as integration
+  name,
+  category,
+  status,
+  remediation_status,
+  remediation_item_count,
+  owner_display_name
 from
-  vanta_integration as i,
-  json_each(i.tests) as t
-  join vanta_monitor as m on m.test_id = json_extract(t.value, '$.testId') and m.outcome = 'FAIL';
+  vanta_monitor
+where
+  remediation_status = 'IN_PROGRESS'
+order by
+  remediation_item_count desc;
 ```
 
-### Count tests by outcome
-Assess the distribution of test outcomes within your Vanta monitor system. This query is useful for understanding the frequency of different outcomes, helping to identify patterns or areas for improvement.
+### List deactivated monitors
+Discover monitors that have been deactivated and understand the reasons.
 
 ```sql+postgres
 select
-  outcome,
-  count(name)
+  name,
+  category,
+  status,
+  is_deactivated,
+  deactivated_reason,
+  latest_flip_date
 from
   vanta_monitor
-group by
-  outcome;
+where
+  is_deactivated = true;
 ```
 
 ```sql+sqlite
 select
-  outcome,
-  count(name)
+  name,
+  category,
+  status,
+  is_deactivated,
+  deactivated_reason,
+  latest_flip_date
 from
   vanta_monitor
-group by
-  outcome;
+where
+  is_deactivated = 1;
 ```
 
-### Count active tests by category
-Analyze the settings to understand the distribution of active tests across different categories. This can help in identifying the areas that are being frequently tested and those that require more attention.
+### Count active monitors by category
+Analyze the distribution of active monitors across different categories.
 
 ```sql+postgres
 select
   category,
-  count(name)
+  count(*) as active_monitor_count
 from
   vanta_monitor
 where
-  disabled_status is null
+  is_deactivated = false
 group by
-  category;
+  category
+order by
+  active_monitor_count desc;
 ```
 
 ```sql+sqlite
 select
   category,
-  count(name)
+  count(*) as active_monitor_count
 from
   vanta_monitor
 where
-  disabled_status is null
+  is_deactivated = 0
 group by
-  category;
+  category
+order by
+  active_monitor_count desc;
+```
+
+### List monitors with failing resource entities
+Explore monitors that have failing resources requiring attention.
+
+```sql+postgres
+select
+  name,
+  category,
+  status,
+  jsonb_array_length(failing_resource_entities) as failing_entities_count,
+  owner_display_name
+from
+  vanta_monitor
+where
+  failing_resource_entities is not null
+  and jsonb_array_length(failing_resource_entities) > 0
+order by
+  failing_entities_count desc;
+```
+
+```sql+sqlite
+select
+  name,
+  category,
+  status,
+  json_array_length(failing_resource_entities) as failing_entities_count,
+  owner_display_name
+from
+  vanta_monitor
+where
+  failing_resource_entities is not null
+  and json_array_length(failing_resource_entities) > 0
+order by
+  failing_entities_count desc;
 ```

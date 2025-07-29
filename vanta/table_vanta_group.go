@@ -59,7 +59,7 @@ func listVantaGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	for {
 		result, err := client.ListGroups(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_group.listVantaGroups", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_group.listVantaGroups", "api_error", err)
 			return nil, err
 		}
 
@@ -102,7 +102,7 @@ func getVantaGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	group, err := client.GetGroupByID(ctx, id)
 	if err != nil {
-		plugin.Logger(ctx).Error("vanta_group.getVantaGroup", "query_error", err)
+		plugin.Logger(ctx).Error("vanta_group.getVantaGroup", "api_error", err)
 		return nil, err
 	}
 
