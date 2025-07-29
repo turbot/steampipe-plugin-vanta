@@ -172,7 +172,7 @@ func listVantaMonitorFailingResourceEntities(ctx context.Context, d *plugin.Quer
 	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_monitor.listVantaMonitorFailingResourceEntities", "connection_error", err)
-		return []interface{}{}, nil // Return empty instead of error for backward compatibility
+		return []interface{}{}, err
 	}
 
 	options := &model.ListTestEntitiesOptions{
