@@ -59,9 +59,15 @@ steampipe plugin install vanta
 | Item        | Description                                                                                                                                                                                                                      |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Credentials | The plugin supports OAuth-based authentication using either:<br/>1. OAuth client credentials (`client_id` and `client_secret`)<br/>2. Personal [access token]https://developer.vanta.com/docs/api-access-setup) (`access_token`) |
-| Permissions | User requires appropriate access permissions to query Vanta resources. OAuth applications need to be configured with the necessary scopes for the resources you want to access.                                                  |
+| Permissions | User requires appropriate access permissions to query Vanta resources. OAuth applications need to be configured with the scopes `auditor-api.audit:read` and `vanta-api.all:read` for the resources you want to access.          |
 | Radius      | Each connection represents a single Vanta organization.                                                                                                                                                                          |
 | Resolution  | Credentials explicitly set in a steampipe config file (`~/.steampipe/config/vanta.spc`).                                                                                                                                         |
+
+The `vanta_evidence` table requires auditor-level access with specific scopes (`auditor-api.audit:read`, `auditor-api.audit:write`, `auditor-api.auditor:read`, `auditor-api.auditor:write`). You must be a registered Vanta Audit Partner to access evidence data.
+
+For auditor setup instructions, visit the [Auditor Application Setup Guide](https://developer.vanta.com/docs/auditor-application-setup).
+
+To generate standard credentials, visit the [Vanta Developer Documentation](https://developer.vanta.com/docs/api-access-setup) for detailed instructions.
 
 ### Configuration
 
@@ -101,14 +107,12 @@ connection "vanta" {
 
 #### Method 2: Personal Access Token
 
-Use a personal access token for development and testing:
+Use a access token for development and testing:
 
 ```hcl
 connection "vanta" {
   plugin = "vanta"
-  # Alternatively, you can use a personal access token instead of client credentials
+  # Alternatively, you can use a access token instead of client credentials
   access_token = "vat_9aa069_Bi3K7v9IoQPMIufU1w4GSJZIh2StgfC0"
 }
 ```
-
-To generate credentials, visit the [Vanta Developer Documentation](https://developer.vanta.com/docs/quick-start) for detailed instructions.

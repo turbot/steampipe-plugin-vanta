@@ -40,6 +40,9 @@ type Vanta interface {
 	ListTests(ctx context.Context, options *model.ListTestsOptions) (*model.TestResults, error)
 	GetTestByID(ctx context.Context, id string) (*model.Test, error)
 
+	// Evidence API methods
+	ListEvidence(ctx context.Context, auditID string, options *model.ListEvidenceOptions) (*model.ListEvidenceOutput, error)
+
 	SetHTTPClient(client *http.Client)
 }
 
@@ -338,6 +341,15 @@ func (v *vanta) GetTestByID(ctx context.Context, id string) (*model.Test, error)
 		tokenStore: v.tokenStore,
 	}
 	return client.GetTestByID(ctx, id)
+}
+
+func (v *vanta) ListEvidence(ctx context.Context, auditID string, options *model.ListEvidenceOptions) (*model.ListEvidenceOutput, error) {
+	client := &RestClient{
+		baseURL:    v.baseURL,
+		httpClient: v.httpClient,
+		tokenStore: v.tokenStore,
+	}
+	return client.ListEvidence(ctx, auditID, options)
 }
 
 func (v *vanta) SetHTTPClient(client *http.Client) {
