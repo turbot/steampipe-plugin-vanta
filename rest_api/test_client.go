@@ -1,4 +1,4 @@
-package restapi
+package rest_api
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 // ListTests retrieves a paginated list of comprehensive tests from Vanta

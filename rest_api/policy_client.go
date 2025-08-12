@@ -1,4 +1,4 @@
-package restapi
+package rest_api
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
-// ListVendors retrieves a paginated list of vendors from Vanta
-func (c *RestClient) ListVendors(ctx context.Context, options *model.ListVendorsOptions) (*model.ListVendorsOutput, error) {
+// ListPolicies retrieves a paginated list of policies from Vanta
+func (c *RestClient) ListPolicies(ctx context.Context, options *model.ListPoliciesOptions) (*model.ListPoliciesOutput, error) {
 	// Build URL with query parameters
 	params := url.Values{}
 
@@ -23,7 +23,7 @@ func (c *RestClient) ListVendors(ctx context.Context, options *model.ListVendors
 		}
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", "/v1/vendors", params)
+	resp, err := c.makeRequest(ctx, "GET", "/v1/policies", params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -33,7 +33,7 @@ func (c *RestClient) ListVendors(ctx context.Context, options *model.ListVendors
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var result *model.ListVendorsOutput
+	var result *model.ListPoliciesOutput
 	if err = json.Unmarshal(respBodyBytes, &result); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
@@ -41,13 +41,13 @@ func (c *RestClient) ListVendors(ctx context.Context, options *model.ListVendors
 	return result, nil
 }
 
-// GetVendorByID retrieves a specific vendor by its ID
-func (c *RestClient) GetVendorByID(ctx context.Context, id string) (*model.Vendor, error) {
+// GetPolicyByID retrieves a specific policy by its ID
+func (c *RestClient) GetPolicyByID(ctx context.Context, id string) (*model.PolicyItem, error) {
 	if id == "" {
-		return nil, fmt.Errorf("vendor ID cannot be empty")
+		return nil, fmt.Errorf("policy ID cannot be empty")
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/vendors/%s", id), nil)
+	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/policies/%s", id), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -57,10 +57,10 @@ func (c *RestClient) GetVendorByID(ctx context.Context, id string) (*model.Vendo
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var vendor *model.Vendor
-	if err = json.Unmarshal(respBodyBytes, &vendor); err != nil {
+	var policy *model.PolicyItem
+	if err = json.Unmarshal(respBodyBytes, &policy); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
 
-	return vendor, nil
+	return policy, nil
 }

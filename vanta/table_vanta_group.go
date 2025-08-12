@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -23,12 +23,9 @@ func tableVantaGroup(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.SingleColumn("id"),
 		},
 		Columns: []*plugin.Column{
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: "The name of the group."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the group."},
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "A unique identifier of the group."},
-			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreationDate"), Description: "The creation date of the group."},
-			{Name: "checklist", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] Describes the security requirements for the group."},
-			{Name: "embedded_idp_group", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of embedded IDP group."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
+			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "The creation date of the group."},
 		},
 	}
 }

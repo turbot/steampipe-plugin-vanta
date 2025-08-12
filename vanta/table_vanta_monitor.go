@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -29,19 +29,19 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			// Available columns from REST API
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "An internal Vanta generated ID of the test."},
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: "A human-readable name of the test."},
-			{Name: "last_test_run_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LastTestRunDate"), Description: "The date when the test was last run."},
-			{Name: "latest_flip_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LatestFlipDate"), Description: "The last time the test flipped to a passing or failing state."},
-			{Name: "description", Type: proto.ColumnType_STRING, Transform: transform.FromField("Description"), Description: "A human-readable description of the test."},
-			{Name: "failure_description", Type: proto.ColumnType_STRING, Transform: transform.FromField("FailureDescription"), Description: "Description of what failure means for this test."},
-			{Name: "remediation_description", Type: proto.ColumnType_STRING, Transform: transform.FromField("RemediationDescription"), Description: "Description of how to remediate failures for this test."},
-			{Name: "version", Type: proto.ColumnType_JSON, Transform: transform.FromField("Version"), Description: "Version information for the test."},
-			{Name: "category", Type: proto.ColumnType_STRING, Transform: transform.FromField("Category"), Description: "A high-level categorization of the test."},
-			{Name: "integrations", Type: proto.ColumnType_JSON, Transform: transform.FromField("Integrations"), Description: "List of integrations associated with this test."},
-			{Name: "status", Type: proto.ColumnType_STRING, Transform: transform.FromField("Status"), Description: "Current status of the test."},
-			{Name: "deactivated_status_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("DeactivatedStatusInfo"), Description: "Information about deactivation status."},
-			{Name: "remediation_status_info", Type: proto.ColumnType_JSON, Transform: transform.FromField("RemediationStatusInfo"), Description: "Specifies the remediation information."},
-			{Name: "owner", Type: proto.ColumnType_JSON, Transform: transform.FromField("Owner"), Description: "Owner information for the test."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "A human-readable name of the test."},
+			{Name: "last_test_run_date", Type: proto.ColumnType_TIMESTAMP, Description: "The date when the test was last run."},
+			{Name: "latest_flip_date", Type: proto.ColumnType_TIMESTAMP, Description: "The last time the test flipped to a passing or failing state."},
+			{Name: "description", Type: proto.ColumnType_STRING, Description: "A human-readable description of the test."},
+			{Name: "failure_description", Type: proto.ColumnType_STRING, Description: "Description of what failure means for this test."},
+			{Name: "remediation_description", Type: proto.ColumnType_STRING, Description: "Description of how to remediate failures for this test."},
+			{Name: "version", Type: proto.ColumnType_JSON, Description: "Version information for the test."},
+			{Name: "category", Type: proto.ColumnType_STRING, Description: "A high-level categorization of the test."},
+			{Name: "integrations", Type: proto.ColumnType_JSON, Description: "List of integrations associated with this test."},
+			{Name: "status", Type: proto.ColumnType_STRING, Description: "Current status of the test."},
+			{Name: "deactivated_status_info", Type: proto.ColumnType_JSON, Description: "Information about deactivation status."},
+			{Name: "remediation_status_info", Type: proto.ColumnType_JSON, Description: "Specifies the remediation information."},
+			{Name: "owner", Type: proto.ColumnType_JSON, Description: "Owner information for the test."},
 
 			// Derived columns from nested data
 			{Name: "owner_display_name", Type: proto.ColumnType_STRING, Transform: transform.From(getMonitorOwnerDisplayName), Description: "Display name of the test owner."},
@@ -61,8 +61,6 @@ func tableVantaMonitor(ctx context.Context) *plugin.Table {
 			{Name: "services", Type: proto.ColumnType_JSON, Transform: transform.FromField("Integrations"), Description: "A list of services (mapped from integrations)."},
 			{Name: "assignees", Type: proto.ColumnType_JSON, Transform: transform.From(getMonitorAssignees), Description: "A list of users assigned as owner for this test."},
 			{Name: "disabled_status", Type: proto.ColumnType_JSON, Transform: transform.FromField("DeactivatedStatusInfo"), Description: "Metadata about whether this test is disabled."},
-			{Name: "controls", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of controls being checked during the test."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
 			{Name: "failing_resource_entities", Type: proto.ColumnType_JSON, Description: "Failing resource entities (requires separate API call).", Hydrate: listVantaMonitorFailingResourceEntities, Transform: transform.FromValue()},
 		},
 	}

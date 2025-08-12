@@ -1,17 +1,16 @@
-package restapi
+package rest_api
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
-// ListPeople retrieves a paginated list of people from Vanta
-func (c *RestClient) ListPeople(ctx context.Context, options *model.ListPeopleOptions) (*model.ListPeopleOutput, error) {
+// ListConnectedIntegrations retrieves a paginated list of integrations from Vanta
+func (c *RestClient) ListConnectedIntegrations(ctx context.Context, options *model.ListIntegrationsOptions) (*model.ListIntegrationsOutput, error) {
 	// Build URL with query parameters
 	params := url.Values{}
 
@@ -24,7 +23,7 @@ func (c *RestClient) ListPeople(ctx context.Context, options *model.ListPeopleOp
 		}
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", "/v1/people", params)
+	resp, err := c.makeRequest(ctx, "GET", "/v1/integrations", params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -34,27 +33,21 @@ func (c *RestClient) ListPeople(ctx context.Context, options *model.ListPeopleOp
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var result *model.ListPeopleOutput
+	var result *model.ListIntegrationsOutput
 	if err = json.Unmarshal(respBodyBytes, &result); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
 
-	// Add debug logging for the response
-	log.Printf("DEBUG: ListPeople response: people_count=%d, has_next_page=%t, end_cursor=%s",
-		len(result.Results.Data),
-		result.Results.PageInfo.HasNextPage,
-		result.Results.PageInfo.EndCursor)
-
 	return result, nil
 }
 
-// GetPersonByID retrieves a specific person by their ID
-func (c *RestClient) GetPersonByID(ctx context.Context, id string) (*model.Person, error) {
+// GetIntegrationByID retrieves a specific integration by its ID
+func (c *RestClient) GetIntegrationByID(ctx context.Context, id string) (*model.Integration, error) {
 	if id == "" {
-		return nil, fmt.Errorf("person ID cannot be empty")
+		return nil, fmt.Errorf("integration ID cannot be empty")
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/people/%s", id), nil)
+	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/integrations/%s", id), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -64,10 +57,10 @@ func (c *RestClient) GetPersonByID(ctx context.Context, id string) (*model.Perso
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var person *model.Person
-	if err = json.Unmarshal(respBodyBytes, &person); err != nil {
+	var integration *model.Integration
+	if err = json.Unmarshal(respBodyBytes, &integration); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
 
-	return person, nil
+	return integration, nil
 }

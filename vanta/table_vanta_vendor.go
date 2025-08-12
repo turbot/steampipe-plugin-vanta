@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -30,30 +30,30 @@ func tableVantaVendor(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			// Available columns from REST API
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "A unique identifier of the vendor."},
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: "The display name of the vendor."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "The display name of the vendor."},
 			{Name: "website_url", Type: proto.ColumnType_STRING, Transform: transform.FromField("WebsiteURL"), Description: "The website URL of the vendor."},
-			{Name: "account_manager_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("AccountManagerName"), Description: "The name of the account manager."},
-			{Name: "account_manager_email", Type: proto.ColumnType_STRING, Transform: transform.FromField("AccountManagerEmail"), Description: "The email of the account manager."},
-			{Name: "services_provided", Type: proto.ColumnType_STRING, Transform: transform.FromField("ServicesProvided"), Description: "Description of services provided by the vendor."},
-			{Name: "additional_notes", Type: proto.ColumnType_STRING, Transform: transform.FromField("AdditionalNotes"), Description: "Additional notes about the vendor."},
+			{Name: "account_manager_name", Type: proto.ColumnType_STRING, Description: "The name of the account manager."},
+			{Name: "account_manager_email", Type: proto.ColumnType_STRING, Description: "The email of the account manager."},
+			{Name: "services_provided", Type: proto.ColumnType_STRING, Description: "Description of services provided by the vendor."},
+			{Name: "additional_notes", Type: proto.ColumnType_STRING, Description: "Additional notes about the vendor."},
 			{Name: "security_owner_user_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("SecurityOwnerUserID"), Description: "The user ID of the security owner."},
 			{Name: "business_owner_user_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("BusinessOwnerUserID"), Description: "The user ID of the business owner."},
-			{Name: "contract_start_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("ContractStartDate"), Description: "The contract start date."},
-			{Name: "contract_renewal_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("ContractRenewalDate"), Description: "The contract renewal date."},
-			{Name: "contract_termination_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("ContractTerminationDate"), Description: "The contract termination date."},
-			{Name: "next_security_review_due_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("NextSecurityReviewDueDate"), Description: "The next security review due date."},
-			{Name: "last_security_review_completion_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LastSecurityReviewCompletionDate"), Description: "The last security review completion date."},
-			{Name: "is_visible_to_auditors", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsVisibleToAuditors"), Description: "If true, the vendor is visible to auditors."},
-			{Name: "is_risk_auto_scored", Type: proto.ColumnType_BOOL, Transform: transform.FromField("IsRiskAutoScored"), Description: "If true, the vendor risk is auto-scored."},
-			{Name: "category", Type: proto.ColumnType_JSON, Transform: transform.FromField("Category"), Description: "The category information of the vendor."},
-			{Name: "auth_details", Type: proto.ColumnType_JSON, Transform: transform.FromField("AuthDetails"), Description: "Authentication details for the vendor."},
+			{Name: "contract_start_date", Type: proto.ColumnType_TIMESTAMP, Description: "The contract start date."},
+			{Name: "contract_renewal_date", Type: proto.ColumnType_TIMESTAMP, Description: "The contract renewal date."},
+			{Name: "contract_termination_date", Type: proto.ColumnType_TIMESTAMP, Description: "The contract termination date."},
+			{Name: "next_security_review_due_date", Type: proto.ColumnType_TIMESTAMP, Description: "The next security review due date."},
+			{Name: "last_security_review_completion_date", Type: proto.ColumnType_TIMESTAMP, Description: "The last security review completion date."},
+			{Name: "is_visible_to_auditors", Type: proto.ColumnType_BOOL, Description: "If true, the vendor is visible to auditors."},
+			{Name: "is_risk_auto_scored", Type: proto.ColumnType_BOOL, Description: "If true, the vendor risk is auto-scored."},
+			{Name: "category", Type: proto.ColumnType_JSON, Description: "The category information of the vendor."},
+			{Name: "auth_details", Type: proto.ColumnType_JSON, Description: "Authentication details for the vendor."},
 			{Name: "risk_attribute_ids", Type: proto.ColumnType_JSON, Transform: transform.FromField("RiskAttributeIDs"), Description: "List of risk attribute IDs."},
-			{Name: "status", Type: proto.ColumnType_STRING, Transform: transform.FromField("Status"), Description: "The status of the vendor."},
-			{Name: "inherent_risk_level", Type: proto.ColumnType_STRING, Transform: transform.FromField("InherentRiskLevel"), Description: "The inherent risk level of the vendor."},
-			{Name: "residual_risk_level", Type: proto.ColumnType_STRING, Transform: transform.FromField("ResidualRiskLevel"), Description: "The residual risk level of the vendor."},
-			{Name: "vendor_headquarters", Type: proto.ColumnType_STRING, Transform: transform.FromField("VendorHeadquarters"), Description: "The headquarters location of the vendor."},
-			{Name: "contract_amount", Type: proto.ColumnType_DOUBLE, Transform: transform.FromField("ContractAmount"), Description: "The contract amount."},
-			{Name: "custom_fields", Type: proto.ColumnType_JSON, Transform: transform.FromField("CustomFields"), Description: "Custom fields for the vendor."},
+			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the vendor."},
+			{Name: "inherent_risk_level", Type: proto.ColumnType_STRING, Description: "The inherent risk level of the vendor."},
+			{Name: "residual_risk_level", Type: proto.ColumnType_STRING, Description: "The residual risk level of the vendor."},
+			{Name: "vendor_headquarters", Type: proto.ColumnType_STRING, Description: "The headquarters location of the vendor."},
+			{Name: "contract_amount", Type: proto.ColumnType_DOUBLE, Description: "The contract amount."},
+			{Name: "custom_fields", Type: proto.ColumnType_JSON, Description: "Custom fields for the vendor."},
 
 			// Derived columns from nested data
 			{Name: "category_display_name", Type: proto.ColumnType_STRING, Transform: transform.From(getVendorCategoryDisplayName), Description: "The display name of the vendor category."},
@@ -62,12 +62,6 @@ func tableVantaVendor(ctx context.Context) *plugin.Table {
 			{Name: "severity", Type: proto.ColumnType_STRING, Transform: transform.From(getSeverity), Description: "The risk level of the vendor (mapped from inherent_risk_level)."},
 			{Name: "url", Type: proto.ColumnType_STRING, Transform: transform.FromField("WebsiteURL"), Description: "The URL of the vendor tool."},
 			{Name: "latest_security_review_completed_at", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LastSecurityReviewCompletionDate"), Description: "The time when the security assessment was last reviewed."},
-
-			// Deprecated columns (not available in REST API)
-			{Name: "vendor_risk_locked", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the vendor risk level is locked."},
-			{Name: "owner", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] The owner of the vendor."},
-			{Name: "risk_profile", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] Specifies the risk profile of the vendor."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
 		},
 	}
 }

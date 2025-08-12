@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -42,9 +42,6 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 			{Name: "name", Type: proto.ColumnType_JSON, Description: "Name information including display, first, and last name."},
 			{Name: "sources", Type: proto.ColumnType_JSON, Description: "Information about data sources for this user."},
 			{Name: "tasks_summary", Type: proto.ColumnType_JSON, Description: "Summary of security task completion status."},
-			{Name: "is_from_scan", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the user was discovered by the security scan."},
-			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, user will get an email digest of their incomplete security tasks."},
-			{Name: "is_not_human", Type: proto.ColumnType_BOOL, Description: "[DEPRECATED] If true, the resource is not a human."},
 		},
 	}
 }

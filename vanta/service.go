@@ -6,15 +6,15 @@ import (
 	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-vanta/restapi"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api"
 )
 
 // getClient:: returns vanta client after authentication
-func getClient(ctx context.Context, d *plugin.QueryData) (restapi.Vanta, error) {
+func getClient(ctx context.Context, d *plugin.QueryData) (rest_api.Vanta, error) {
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "vanta"
 	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		return cachedData.(restapi.Vanta), nil
+		return cachedData.(rest_api.Vanta), nil
 	}
 
 	// Get the config
@@ -26,18 +26,18 @@ func getClient(ctx context.Context, d *plugin.QueryData) (restapi.Vanta, error) 
 		return nil, err
 	}
 
-	var options []restapi.Option
-	options = append(options, restapi.WithScopes(restapi.ScopeAllRead))
+	var options []rest_api.Option
+	options = append(options, rest_api.WithScopes(rest_api.ScopeAllRead))
 
 	// If OAuth credentials are provided, use them
 	if vantaConfig.ClientID != nil && vantaConfig.ClientSecret != nil {
-		options = append(options, restapi.WithOAuthCredentials(*vantaConfig.ClientID, *vantaConfig.ClientSecret))
+		options = append(options, rest_api.WithOAuthCredentials(*vantaConfig.ClientID, *vantaConfig.ClientSecret))
 	} else if vantaConfig.AccessToken != nil {
 		// If access token is provided, use it
-		options = append(options, restapi.WithToken(*vantaConfig.AccessToken))
+		options = append(options, rest_api.WithToken(*vantaConfig.AccessToken))
 	}
 
-	client, err := restapi.New(ctx, options...)
+	client, err := rest_api.New(ctx, options...)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta.CreateRestClient", "error", err)
 		return nil, err

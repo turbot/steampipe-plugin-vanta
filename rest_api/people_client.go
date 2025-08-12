@@ -1,16 +1,17 @@
-package restapi
+package rest_api
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
-// ListComputers retrieves a paginated list of computers from Vanta
-func (c *RestClient) ListComputers(ctx context.Context, options *model.ListComputersOptions) (*model.ListComputersOutput, error) {
+// ListPeople retrieves a paginated list of people from Vanta
+func (c *RestClient) ListPeople(ctx context.Context, options *model.ListPeopleOptions) (*model.ListPeopleOutput, error) {
 	// Build URL with query parameters
 	params := url.Values{}
 
@@ -23,7 +24,7 @@ func (c *RestClient) ListComputers(ctx context.Context, options *model.ListCompu
 		}
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", "/v1/monitored-computers", params)
+	resp, err := c.makeRequest(ctx, "GET", "/v1/people", params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -33,21 +34,27 @@ func (c *RestClient) ListComputers(ctx context.Context, options *model.ListCompu
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var result *model.ListComputersOutput
+	var result *model.ListPeopleOutput
 	if err = json.Unmarshal(respBodyBytes, &result); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
 
+	// Add debug logging for the response
+	log.Printf("DEBUG: ListPeople response: people_count=%d, has_next_page=%t, end_cursor=%s",
+		len(result.Results.Data),
+		result.Results.PageInfo.HasNextPage,
+		result.Results.PageInfo.EndCursor)
+
 	return result, nil
 }
 
-// GetComputerByID retrieves a specific computer by its ID
-func (c *RestClient) GetComputerByID(ctx context.Context, id string) (*model.Computer, error) {
+// GetPersonByID retrieves a specific person by their ID
+func (c *RestClient) GetPersonByID(ctx context.Context, id string) (*model.Person, error) {
 	if id == "" {
-		return nil, fmt.Errorf("computer ID cannot be empty")
+		return nil, fmt.Errorf("person ID cannot be empty")
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/monitored-computers/%s", id), nil)
+	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/people/%s", id), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -57,10 +64,10 @@ func (c *RestClient) GetComputerByID(ctx context.Context, id string) (*model.Com
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var computer *model.Computer
-	if err = json.Unmarshal(respBodyBytes, &computer); err != nil {
+	var person *model.Person
+	if err = json.Unmarshal(respBodyBytes, &person); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
 
-	return computer, nil
+	return person, nil
 }

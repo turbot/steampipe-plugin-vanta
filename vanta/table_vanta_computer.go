@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -26,15 +26,15 @@ func tableVantaComputer(ctx context.Context) *plugin.Table {
 			// Available columns from REST API
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "A unique identifier of the computer."},
 			{Name: "integration_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("IntegrationID"), Description: "The integration ID associated with this computer."},
-			{Name: "last_check_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("LastCheckDate"), Description: "The last time this computer was checked."},
-			{Name: "operating_system", Type: proto.ColumnType_JSON, Transform: transform.FromField("OperatingSystem"), Description: "Operating system information including type and version."},
-			{Name: "owner", Type: proto.ColumnType_JSON, Transform: transform.FromField("Owner"), Description: "Owner information including ID, email, and display name."},
-			{Name: "serial_number", Type: proto.ColumnType_STRING, Transform: transform.FromField("SerialNumber"), Description: "The serial number of the computer."},
+			{Name: "last_check_date", Type: proto.ColumnType_TIMESTAMP, Description: "The last time this computer was checked."},
+			{Name: "operating_system", Type: proto.ColumnType_JSON, Description: "Operating system information including type and version."},
+			{Name: "owner", Type: proto.ColumnType_JSON, Description: "Owner information including ID, email, and display name."},
+			{Name: "serial_number", Type: proto.ColumnType_STRING, Description: "The serial number of the computer."},
 			{Name: "udid", Type: proto.ColumnType_STRING, Transform: transform.FromField("UDID"), Description: "The unique device identifier."},
-			{Name: "screenlock", Type: proto.ColumnType_JSON, Transform: transform.FromField("Screenlock"), Description: "Screenlock security check results."},
-			{Name: "disk_encryption", Type: proto.ColumnType_JSON, Transform: transform.FromField("DiskEncryption"), Description: "Disk encryption security check results."},
-			{Name: "password_manager", Type: proto.ColumnType_JSON, Transform: transform.FromField("PasswordManager"), Description: "Password manager security check results."},
-			{Name: "antivirus_installation", Type: proto.ColumnType_JSON, Transform: transform.FromField("AntivirusInstallation"), Description: "Antivirus installation security check results."},
+			{Name: "screenlock", Type: proto.ColumnType_JSON, Description: "Screenlock security check results."},
+			{Name: "disk_encryption", Type: proto.ColumnType_JSON, Description: "Disk encryption security check results."},
+			{Name: "password_manager", Type: proto.ColumnType_JSON, Description: "Password manager security check results."},
+			{Name: "antivirus_installation", Type: proto.ColumnType_JSON, Description: "Antivirus installation security check results."},
 
 			// Derived columns (available via transform from REST API)
 			{Name: "owner_name", Type: proto.ColumnType_STRING, Transform: transform.From(getOwnerName), Description: "The name of the workstation owner."},
@@ -43,18 +43,6 @@ func tableVantaComputer(ctx context.Context) *plugin.Table {
 			{Name: "has_screen_lock", Type: proto.ColumnType_BOOL, Transform: transform.From(getScreenlockStatus), Description: "If true, the workstation has a screen lock configured."},
 			{Name: "is_encrypted", Type: proto.ColumnType_BOOL, Transform: transform.From(getDiskEncryptionStatus), Description: "If true, the workstation's hard drive is encrypted."},
 			{Name: "is_password_manager_installed", Type: proto.ColumnType_BOOL, Transform: transform.From(getPasswordManagerStatus), Description: "If true, a password manager is installed in the workstation."},
-
-			// Deprecated columns (not available in REST API)
-			{Name: "agent_version", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The Vanta agent version."},
-			{Name: "hostname", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The hostname of the workstation."},
-			{Name: "host_identifier", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The host identifier of the workstation."},
-			{Name: "last_ping", Type: proto.ColumnType_TIMESTAMP, Description: "[DEPRECATED] The time when the workstation was last scanned by the Vanta agent."},
-			{Name: "num_browser_extensions", Type: proto.ColumnType_INT, Description: "[DEPRECATED] The number of browser extensions installed in the workstation."},
-			{Name: "endpoint_applications", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of applications installed on the device."},
-			{Name: "installed_av_programs", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of anti-virus programs installed in the workstation."},
-			{Name: "installed_password_managers", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of password managers installed in the workstation."},
-			{Name: "unsupported_reasons", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] Specifies the reason for unmonitored computers."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
 		},
 	}
 }

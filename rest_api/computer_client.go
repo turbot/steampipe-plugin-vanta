@@ -1,4 +1,4 @@
-package restapi
+package rest_api
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
-// ListGroups retrieves a paginated list of groups from Vanta
-func (c *RestClient) ListGroups(ctx context.Context, options *model.ListGroupsOptions) (*model.ListGroupsOutput, error) {
+// ListComputers retrieves a paginated list of computers from Vanta
+func (c *RestClient) ListComputers(ctx context.Context, options *model.ListComputersOptions) (*model.ListComputersOutput, error) {
 	// Build URL with query parameters
 	params := url.Values{}
 
@@ -23,7 +23,7 @@ func (c *RestClient) ListGroups(ctx context.Context, options *model.ListGroupsOp
 		}
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", "/v1/groups", params)
+	resp, err := c.makeRequest(ctx, "GET", "/v1/monitored-computers", params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -33,7 +33,7 @@ func (c *RestClient) ListGroups(ctx context.Context, options *model.ListGroupsOp
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var result *model.ListGroupsOutput
+	var result *model.ListComputersOutput
 	if err = json.Unmarshal(respBodyBytes, &result); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
@@ -41,13 +41,13 @@ func (c *RestClient) ListGroups(ctx context.Context, options *model.ListGroupsOp
 	return result, nil
 }
 
-// GetGroupByID retrieves a specific group by its ID
-func (c *RestClient) GetGroupByID(ctx context.Context, id string) (*model.GroupItem, error) {
+// GetComputerByID retrieves a specific computer by its ID
+func (c *RestClient) GetComputerByID(ctx context.Context, id string) (*model.Computer, error) {
 	if id == "" {
-		return nil, fmt.Errorf("group ID cannot be empty")
+		return nil, fmt.Errorf("computer ID cannot be empty")
 	}
 
-	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/groups/%s", id), nil)
+	resp, err := c.makeRequest(ctx, "GET", fmt.Sprintf("/v1/monitored-computers/%s", id), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
@@ -57,10 +57,10 @@ func (c *RestClient) GetGroupByID(ctx context.Context, id string) (*model.GroupI
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var group *model.GroupItem
-	if err = json.Unmarshal(respBodyBytes, &group); err != nil {
+	var computer *model.Computer
+	if err = json.Unmarshal(respBodyBytes, &computer); err != nil {
 		return nil, fmt.Errorf("failed to JSON-decode response body: %w", err)
 	}
 
-	return group, nil
+	return computer, nil
 }

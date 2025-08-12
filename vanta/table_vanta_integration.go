@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -26,16 +26,8 @@ func tableVantaIntegration(ctx context.Context) *plugin.Table {
 			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the integration."},
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("IntegrationID"), Description: "A unique identifier of the integration."},
 			{Name: "connections", Type: proto.ColumnType_JSON, Description: "A list of connections for this integration."},
-			{Name: "tests", Type: proto.ColumnType_JSON, Hydrate: getVantaIntegrationTests, Transform: transform.FromValue(), Description: "[DEPRECATED] A list of tests defined for monitoring the integrations."},
 			{Name: "scopable_resource", Type: proto.ColumnType_JSON, Transform: transform.FromField("ResourceKinds"), Description: "A list of scopable resources (resource kinds)."},
-			{Name: "description", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] A human-readable description of the integration."},
-			{Name: "application_url", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The URL of the application."},
-			{Name: "installation_url", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The installation URL of the integration."},
-			{Name: "logo_slug_id", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The slug of the logo used for the integration."},
-			{Name: "credentials", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] The credential metadata of the integration."},
-			{Name: "integration_categories", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of integration categories."},
-			{Name: "service_categories", Type: proto.ColumnType_JSON, Description: "[DEPRECATED] A list of service categories."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "[DEPRECATED] The name of the organization."},
+			{Name: "tests", Type: proto.ColumnType_JSON, Hydrate: getVantaIntegrationTests, Transform: transform.FromValue(), Description: "A list of tests defined for monitoring the integrations."},
 		},
 	}
 }

@@ -1,4 +1,4 @@
-package restapi
+package rest_api
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 // ListEvidence retrieves a list of evidence for a specific audit

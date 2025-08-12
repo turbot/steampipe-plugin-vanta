@@ -1,4 +1,4 @@
-package restapi
+package rest_api
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/turbot/steampipe-plugin-vanta/restapi/model"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 const (
