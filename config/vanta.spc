@@ -7,5 +7,6 @@ connection "vanta" {
   # client_secret = "vcs_jskaoer_kksjded84f8a40d5e64eedeaeolseru813710492300efee0dcff51208f093ujd"
 
   # Alternatively, you can use an access token instead of client credentials
+  # For reference: https://developer.vanta.com/docs/api-access-setup#authentication-and-token-retrieval
   # access_token = "vat_9aa069_Bi3K7v9IoQPMIufU1w4GSJZIh2StgfC0"
 }
