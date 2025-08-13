@@ -2,10 +2,12 @@ package vanta
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-vanta/api"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -16,22 +18,30 @@ func tableVantaEvidence(ctx context.Context) *plugin.Table {
 		Description: "Vanta Evidence",
 		List: &plugin.ListConfig{
 			Hydrate: listVantaEvidences,
-		},
-		Get: &plugin.GetConfig{
-			Hydrate:    getVantaEvidence,
-			KeyColumns: plugin.SingleColumn("evidence_request_id"),
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "audit_id", Require: plugin.Required},
+			},
 		},
 		Columns: []*plugin.Column{
-			{Name: "title", Type: proto.ColumnType_STRING, Description: "The title of the document."},
-			{Name: "evidence_request_id", Type: proto.ColumnType_STRING, Description: "A unique identifier for this evidence request."},
-			{Name: "category", Type: proto.ColumnType_STRING, Description: "Specifies the category of the evidence request."},
-			{Name: "description", Type: proto.ColumnType_STRING, Description: "A human-readable description of the evidence requested."},
-			{Name: "uid", Type: proto.ColumnType_STRING, Description: "An identifier that is unique across all of Vanta."},
-			{Name: "app_upload_enabled", Type: proto.ColumnType_BOOL, Description: "If true, applications are allowed to upload documents on behalf of customers for this evidence request."},
-			{Name: "restricted", Type: proto.ColumnType_BOOL, Description: "If true, access to the contents of the evidence documents is restricted."},
-			{Name: "dismissed_status", Type: proto.ColumnType_JSON, Description: "Information about the dismissed status of the evidence request."},
-			{Name: "renewal_metadata", Type: proto.ColumnType_JSON, Description: "Information on the renewal cadence of the evidence request."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
+			// Required parameters
+			{Name: "audit_id", Type: proto.ColumnType_STRING, Transform: transform.FromQual("audit_id"), Description: "The audit ID (required parameter)."},
+
+			// Evidence fields from API response
+			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "Vanta internal reference to evidence."},
+			{Name: "external_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ExternalID"), Description: "This is a static UUID to map Audit Firm controls to Vanta controls."},
+			{Name: "status", Type: proto.ColumnType_STRING, Description: "Vanta internal statuses for audit evidence."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "Mutable name for evidence. Not guaranteed to be unique."},
+			{Name: "deletion_date", Type: proto.ColumnType_TIMESTAMP, Description: "The date this Audit Evidence was deleted."},
+			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "The date this Audit Evidence was created."},
+			{Name: "status_updated_date", Type: proto.ColumnType_TIMESTAMP, Description: "Point in time that status was last updated."},
+			{Name: "test_status", Type: proto.ColumnType_STRING, Description: "The outcome of the automated test run, for Test-type evidence."},
+			{Name: "evidence_type", Type: proto.ColumnType_STRING, Description: "The type of Audit Evidence."},
+			{Name: "evidence_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("EvidenceID"), Description: "Unique identifier for evidence."},
+			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description for the evidence. It will be set to null if the evidence is deleted."},
+			{Name: "related_controls", Type: proto.ColumnType_JSON, Description: "The controls associated to this evidence."},
+
+			// Derived columns from nested data
+			{Name: "related_control_names", Type: proto.ColumnType_JSON, Transform: transform.From(getRelatedControlNames), Description: "Names of controls associated to this evidence."},
 		},
 	}
 }
@@ -39,87 +49,76 @@ func tableVantaEvidence(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVantaEvidences(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	// Create client
-	conn, err := getClient(ctx, d)
+	// Get audit_id from required qualifier
+	auditID := d.EqualsQualString("audit_id")
+	if auditID == "" {
+		return nil, fmt.Errorf("audit_id is required")
+	}
+
+	// Create REST client
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "connection_error", err)
 		return nil, err
 	}
 
-	options := &api.ListEvidencesConfiguration{}
-
-	// Default set to 100.
-	// This is the maximum number of items can be requested
-	pageLimit := 100
-
-	// Adjust page limit, if less than default value
-	limit := d.QueryContext.Limit
-	if limit != nil && int(*limit) < pageLimit {
-		pageLimit = int(*limit)
+	maxLimit := int32(50)
+	if d.QueryContext.Limit != nil {
+		limit := int32(*d.QueryContext.Limit)
+		if limit < maxLimit {
+			maxLimit = limit
+		}
 	}
-	options.Limit = pageLimit
+
+	options := &model.ListEvidenceOptions{
+		AuditID: auditID,
+		Limit:   int(maxLimit),
+		Cursor:  "",
+	}
 
 	for {
-		query, err := api.ListEvidences(context.Background(), conn, options)
+		result, err := client.ListEvidence(ctx, auditID, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_evidence.listVantaEvidences", "api_error", err)
 			return nil, err
 		}
 
-		for _, e := range query.Organization.Evidences.Edges {
-			user := e.Evidence
-			user.OrganizationName = query.Organization.Name
-			d.StreamListItem(ctx, user)
+		for _, evidence := range result.Results.Data {
+			// Stream the evidence object
+			d.StreamListItem(ctx, evidence)
 
-			// Context can be cancelled due to manual cancellation or the limit has been hit
+			// Check if we should stop (limit reached or context cancelled)
 			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
 
-		// Return if all resources are processed
-		if !query.Organization.Evidences.PageInfo.HasNextPage {
+		// Check if there are more pages
+		if !result.Results.PageInfo.HasNextPage {
 			break
 		}
 
-		// Else set the next page cursor
-		options.EndCursor = query.Organization.Evidences.PageInfo.EndCursor
+		// Set cursor for next page
+		options.Cursor = result.Results.PageInfo.EndCursor
 	}
 
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
+//// TRANSFORM FUNCTIONS
 
-func getVantaEvidence(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	id := d.EqualsQualString("evidence_request_id")
-
-	// Return nil, if empty
-	if id == "" {
+// getRelatedControlNames extracts the control names from the evidence object
+func getRelatedControlNames(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	item := d.HydrateItem
+	evidence, ok := item.(*model.Evidence)
+	if !ok {
 		return nil, nil
 	}
 
-	// Create client
-	conn, err := getClient(ctx, d)
-	if err != nil {
-		plugin.Logger(ctx).Error("vanta_evidence.getVantaEvidence", "connection_error", err)
-		return nil, err
+	var controlNames []string
+	for _, control := range evidence.RelatedControls {
+		controlNames = append(controlNames, control.Name)
 	}
 
-	query, err := api.GetEvidence(context.Background(), conn, id)
-	if err != nil {
-		plugin.Logger(ctx).Error("vanta_evidence.getVantaEvidence", "query_error", err)
-		return nil, err
-	}
-
-	// Since GET uses the same LIST query with additional filter to extract the queried evidence request,
-	// return the first element
-	if len(query.Organization.Evidences.Edges) > 0 {
-		result := query.Organization.Evidences.Edges[0].Evidence
-		result.OrganizationName = query.Organization.Name
-
-		return result, nil
-	}
-
-	return nil, nil
+	return controlNames, nil
 }

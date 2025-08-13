@@ -4,10 +4,7 @@ go 1.24
 
 toolchain go1.24.1
 
-require (
-	github.com/machinebox/graphql v0.2.2
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.13.0
-)
+require github.com/turbot/steampipe-plugin-sdk/v5 v5.13.0
 
 require (
 	cloud.google.com/go v0.112.1 // indirect
@@ -57,7 +54,6 @@ require (
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.17.2 // indirect
-	github.com/matryer/is v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect

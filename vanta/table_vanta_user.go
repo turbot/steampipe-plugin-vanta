@@ -5,7 +5,8 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-vanta/api"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
 )
 
 //// TABLE DEFINITION
@@ -18,28 +19,29 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 			Hydrate: listVantaUsers,
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "employment_status", Require: plugin.Optional},
-				{Name: "task_status", Require: plugin.Optional},
 			},
 		},
+		Get: &plugin.GetConfig{
+			Hydrate:    getVantaUser,
+			KeyColumns: plugin.SingleColumn("id"),
+		},
 		Columns: []*plugin.Column{
-			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the user."},
-			{Name: "id", Type: proto.ColumnType_STRING, Description: "A unique identifier of the user."},
-			{Name: "email", Type: proto.ColumnType_STRING, Description: "The email of the user."},
-			{Name: "employment_status", Type: proto.ColumnType_STRING, Description: "The current employment status of the user."},
-			{Name: "created_at", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the user was created."},
-			{Name: "task_status", Type: proto.ColumnType_STRING, Description: "The security task status of the user."},
-			{Name: "start_date", Type: proto.ColumnType_TIMESTAMP, Description: "The on-boarding time of the user."},
-			{Name: "end_date", Type: proto.ColumnType_TIMESTAMP, Description: "The off-boarding time of the user."},
-			{Name: "family_name", Type: proto.ColumnType_STRING, Description: "The family name of the user."},
-			{Name: "given_name", Type: proto.ColumnType_STRING, Description: "The given name of the user."},
-			{Name: "is_active", Type: proto.ColumnType_BOOL, Description: "If true, the user is active."},
-			{Name: "is_not_human", Type: proto.ColumnType_BOOL, Description: "If true, the resource is not a human."},
-			{Name: "is_from_scan", Type: proto.ColumnType_BOOL, Description: "If true, the user was discovered by the security scan."},
-			{Name: "needs_employee_digest_reminder", Type: proto.ColumnType_BOOL, Description: "If true, user will get an email digest of their incomplete security tasks."},
-			{Name: "hr_user", Type: proto.ColumnType_JSON, Description: "Specifies the embedded HR information of the user."},
-			{Name: "role", Type: proto.ColumnType_JSON, Description: "Specifies the role information the user is member of."},
-			{Name: "task_status_info", Type: proto.ColumnType_JSON, Description: "Specifies the security task information of the user."},
-			{Name: "organization_name", Type: proto.ColumnType_STRING, Description: "The name of the organization."},
+			{Name: "display_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name.Display"), Description: "The display name of the user."},
+			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("ID"), Description: "A unique identifier of the user."},
+			{Name: "email", Type: proto.ColumnType_STRING, Transform: transform.FromField("EmailAddress"), Description: "The email of the user."},
+			{Name: "employment_status", Type: proto.ColumnType_STRING, Transform: transform.FromField("Employment.Status"), Description: "The current employment status of the user."},
+			{Name: "job_title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Employment.JobTitle"), Description: "The job title of the user."},
+			{Name: "task_status", Type: proto.ColumnType_STRING, Transform: transform.FromField("TasksSummary.Status"), Description: "The security task status of the user."},
+			{Name: "start_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Employment.StartDate"), Description: "The employment start date of the user."},
+			{Name: "end_date", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Employment.EndDate"), Description: "The employment end date of the user."},
+			{Name: "family_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name.Last"), Description: "The family name of the user."},
+			{Name: "given_name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name.First"), Description: "The given name of the user."},
+			{Name: "is_active", Type: proto.ColumnType_BOOL, Transform: transform.From(getIsActiveStatus), Description: "If true, the user is active."},
+			{Name: "group_ids", Type: proto.ColumnType_JSON, Description: "List of group IDs the user belongs to."},
+			{Name: "employment", Type: proto.ColumnType_JSON, Description: "Employment information including job title and dates."},
+			{Name: "name", Type: proto.ColumnType_JSON, Description: "Name information including display, first, and last name."},
+			{Name: "sources", Type: proto.ColumnType_JSON, Description: "Information about data sources for this user."},
+			{Name: "tasks_summary", Type: proto.ColumnType_JSON, Description: "Summary of security task completion status."},
 		},
 	}
 }
@@ -47,63 +49,102 @@ func tableVantaUser(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVantaUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	// Create client
-	conn, err := getVantaAppClient(ctx, d)
+	// Create REST client
+	client, err := getClient(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("vanta_user.listVantaUsers", "connection_error", err)
 		return nil, err
 	}
 
-	options := &api.ListUsersRequestConfiguration{}
-
-	// Default set to 100.
-	// This is the maximum number of items can be requested
-	pageLimit := 100
-
-	// Adjust page limit, if less than default value
-	limit := d.QueryContext.Limit
-	if limit != nil && int(*limit) < pageLimit {
-		pageLimit = int(*limit)
-	}
-	options.Limit = pageLimit
-
-	// Additional filters
-	filters := &api.UserFilters{}
-	if d.EqualsQualString("employment_status") != "" {
-		filters.EmploymentStatusFilter = d.EqualsQualString("employment_status")
+	maxLimit := int32(100)
+	if d.QueryContext.Limit != nil {
+		limit := int32(*d.QueryContext.Limit)
+		if limit < maxLimit {
+			maxLimit = limit
+		}
 	}
 
-	if d.EqualsQualString("task_status") != "" {
-		filters.TaskStatusFilters = []string{d.EqualsQualString("task_status")}
+	// Check for employment status filter
+	// employmentStatusFilter := d.EqualsQualString("employment_status")
+
+	options := &model.ListPeopleOptions{
+		Limit:  int(maxLimit),
+		Cursor: "",
 	}
-	options.Filters = filters
 
 	for {
-		query, err := api.ListUsers(context.Background(), conn, options)
+		result, err := client.ListPeople(ctx, options)
 		if err != nil {
-			plugin.Logger(ctx).Error("vanta_user.listVantaUsers", "query_error", err)
+			plugin.Logger(ctx).Error("vanta_user.listVantaUsers", "api_error", err)
 			return nil, err
 		}
 
-		for _, e := range query.Organization.UserList.Edges {
-			user := e.User
-			user.OrganizationName = query.Organization.Name
-			d.StreamListItem(ctx, user)
+		for _, person := range result.Results.Data {
+			// Stream the raw Person object
+			d.StreamListItem(ctx, person)
 
-			// Context can be cancelled due to manual cancellation or the limit has been hit
+			// Check if we should stop (limit reached or context cancelled)
 			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
 
-		// Return if all resources are processed
-		if !query.Organization.UserList.PageInfo.HasNextPage {
+		// Check if there are more pages
+		if !result.Results.PageInfo.HasNextPage {
 			break
 		}
 
-		// Else set the next page cursor
-		options.EndCursor = query.Organization.UserList.PageInfo.EndCursor
+		// Set cursor for next page
+		options.Cursor = result.Results.PageInfo.EndCursor
 	}
 
 	return nil, nil
+}
+
+//// GET FUNCTION
+
+func getVantaUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	id := d.EqualsQualString("id")
+	if id == "" {
+		return nil, nil
+	}
+
+	// Create REST client
+	client, err := getClient(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("vanta_user.getVantaUser", "connection_error", err)
+		return nil, err
+	}
+
+	person, err := client.GetPersonByID(ctx, id)
+	if err != nil {
+		plugin.Logger(ctx).Error("vanta_user.getVantaUser", "api_error", err)
+		return nil, err
+	}
+
+	if person == nil {
+		return nil, nil
+	}
+
+	// Return the raw Person object
+	return person, nil
+}
+
+//// HELPER FUNCTIONS
+
+// getIsActiveStatus determines if a user is active based on employment status
+func getIsActiveStatus(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	item := d.HydrateItem
+
+	person, ok := item.(*model.Person)
+	if !ok {
+		plugin.Logger(ctx).Error("getIsActiveStatus", "casting_error", "HydrateItem is not *model.Person")
+		return false, nil
+	}
+
+	if person.Employment != nil && person.Employment.Status != nil {
+		return *person.Employment.Status == model.EmploymentStatusCurrent, nil
+	}
+
+	return false, nil
 }

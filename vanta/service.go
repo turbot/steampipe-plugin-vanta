@@ -3,34 +3,44 @@ package vanta
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-vanta/api"
+	"github.com/turbot/steampipe-plugin-vanta/rest_api"
 )
 
 // getClient:: returns vanta client after authentication
-func getClient(ctx context.Context, d *plugin.QueryData) (*api.Client, error) {
+func getClient(ctx context.Context, d *plugin.QueryData) (rest_api.Vanta, error) {
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "vanta"
 	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		return cachedData.(*api.Client), nil
+		return cachedData.(rest_api.Vanta), nil
 	}
 
 	// Get the config
 	vantaConfig := GetConfig(d.Connection)
 
-	// Return if no credential specified
-	if vantaConfig.ApiToken == nil {
-		return nil, fmt.Errorf("api_token must be configured")
+	// Validate configuration
+	if err := validateConfig(vantaConfig); err != nil {
+		plugin.Logger(ctx).Error("vanta.getClient", "config_validation_error", err)
+		return nil, err
 	}
 
-	// Start with an empty Vanta config
-	config := api.ClientConfig{ApiToken: vantaConfig.ApiToken}
+	var options []rest_api.Option
+	options = append(options, rest_api.WithScopes(rest_api.ScopeAllRead))
 
-	// Create the client
-	client, err := api.CreateClient(ctx, config)
+	// If OAuth credentials are provided, use them
+	if vantaConfig.ClientID != nil && vantaConfig.ClientSecret != nil {
+		options = append(options, rest_api.WithOAuthCredentials(*vantaConfig.ClientID, *vantaConfig.ClientSecret))
+	} else if vantaConfig.AccessToken != nil {
+		// If access token is provided, use it
+		options = append(options, rest_api.WithToken(*vantaConfig.AccessToken))
+	}
+
+	client, err := rest_api.New(ctx, options...)
 	if err != nil {
-		return nil, fmt.Errorf("error creating client: %s", err.Error())
+		plugin.Logger(ctx).Error("vanta.CreateRestClient", "error", err)
+		return nil, err
 	}
 
 	// Save to cache
@@ -39,41 +49,60 @@ func getClient(ctx context.Context, d *plugin.QueryData) (*api.Client, error) {
 	return client, nil
 }
 
-// getVantaAppClient:: returns vanta client using an endpoint https://app.vanta.com/graphql
-//
-// Vanta has 2 separate endpoint to access the resources
-// The public endpoint - https://app.vanta.com/graphql; and the other is
-// https://app.vanta.com/graphql, which is being used in the console.
-//
-// The public one required the users' personal access token to authenticate the request; whereas
-// the endpoint https://app.vanta.com/graphql requires a session id which is created when the user logged in to the console
-// and valid until the session is expired.
-func getVantaAppClient(ctx context.Context, d *plugin.QueryData) (*api.Client, error) {
-	// Load connection from cache, which preserves throttling protection etc
-	cacheKey := "vanta-app"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		return cachedData.(*api.Client), nil
+// validateConfig validates the Vanta configuration and returns appropriate errors
+func validateConfig(config vantaConfig) error {
+	// Check if OAuth credentials are provided
+	hasOAuthCredentials := config.ClientID != nil && config.ClientSecret != nil
+	hasPartialOAuthCredentials := (config.ClientID != nil && config.ClientSecret == nil) || (config.ClientID == nil && config.ClientSecret != nil)
+	hasAccessToken := config.AccessToken != nil
+
+	// Validate that OAuth credentials are complete if provided
+	if hasPartialOAuthCredentials {
+		if config.ClientID != nil && config.ClientSecret == nil {
+			return fmt.Errorf("invalid configuration: client_secret is required when client_id is provided")
+		}
+		if config.ClientID == nil && config.ClientSecret != nil {
+			return fmt.Errorf("invalid configuration: client_id is required when client_secret is provided")
+		}
 	}
 
-	// Get the config
-	vantaConfig := GetConfig(d.Connection)
-
-	// Return if no credential specified
-	if vantaConfig.SessionId == nil {
-		return nil, fmt.Errorf("session_id must be configured")
+	// Validate that at least one authentication method is provided
+	if !hasOAuthCredentials && !hasAccessToken {
+		return fmt.Errorf("authentication required: provide either OAuth credentials (client_id and client_secret) or access_token in connection config")
 	}
 
-	// Start with an empty Vanta config
-	config := api.ClientConfig{SessionId: vantaConfig.SessionId}
-
-	// Create the client
-	client, err := api.CreateAppClient(ctx, config)
-	if err != nil {
-		return nil, fmt.Errorf("error creating client: %s", err.Error())
+	// Validate credential formats
+	if hasOAuthCredentials {
+		if err := validateCredentialFormat("client_id", *config.ClientID, "vci_"); err != nil {
+			return err
+		}
+		if err := validateCredentialFormat("client_secret", *config.ClientSecret, "vcs_"); err != nil {
+			return err
+		}
 	}
 
-	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, client)
+	if hasAccessToken {
+		if err := validateCredentialFormat("access_token", *config.AccessToken, "vat_"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
-	return client, nil
+// validateCredentialFormat validates that credentials follow the expected format
+func validateCredentialFormat(credType, credential, expectedPrefix string) error {
+	if credential == "" {
+		return fmt.Errorf("invalid configuration: %s cannot be empty", credType)
+	}
+
+	if !strings.HasPrefix(credential, expectedPrefix) {
+		return fmt.Errorf("invalid configuration: %s should start with '%s'", credType, expectedPrefix)
+	}
+
+	// Basic length validation (Vanta credentials are typically longer than just the prefix)
+	if len(credential) <= len(expectedPrefix)+5 {
+		return fmt.Errorf("invalid configuration: %s appears to be too short or invalid", credType)
+	}
+
+	return nil
 }

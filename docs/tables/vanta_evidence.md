@@ -1,150 +1,269 @@
 ---
 title: "Steampipe Table: vanta_evidence - Query Vanta Evidence using SQL"
-description: "Allows users to query Vanta Evidence, specifically the metadata and details of the evidence collected by Vanta for security and compliance monitoring."
+description: "Allows users to query Vanta Evidence, specifically the metadata and details of the evidence collected by Vanta for security and compliance monitoring during audits."
 ---
 
 # Table: vanta_evidence - Query Vanta Evidence using SQL
 
-Vanta is a security and compliance platform that automates the collection of evidence for various security standards and regulations. It provides a centralized way to monitor and manage security controls across your infrastructure, applications, and services. Vanta Evidence is a key component of this platform, capturing and storing the necessary data to demonstrate compliance with these standards.
+Vanta is a security and compliance platform that automates the collection of evidence for various security standards and regulations. The `vanta_evidence` table provides access to audit evidence data, allowing you to explore evidence collected during specific audits.
 
 ## Table Usage Guide
 
-The `vanta_evidence` table offers insights into the evidence collected by Vanta for security and compliance monitoring. As a Security Analyst, you can use this table to explore specific details about each piece of evidence, including its metadata, associated controls, and status. By querying this table, you can effectively track and verify your organization's compliance status and identify potential security issues.
+The `vanta_evidence` table offers insights into evidence collected during Vanta audits. As a Security Analyst, you can use this table to explore specific details about each piece of evidence, including its status, type, associated controls, and metadata. By querying this table, you can effectively track audit progress and verify evidence collection status.
 
 **Important Notes**
-- To query the table you must set `api_token` argument in the config file (`~/.steampipe/config/vanta.spc`).
+
+- You must provide the `audit_id` in the query parameter in order to query this table.
+- The access token must have the scope `auditor-api.audit:read`.
 
 ## Examples
 
 ### Basic info
-Explore the various categories of evidence requests in the Vanta system, identifying instances where access to certain information might be restricted. This can help in understanding the nature of information requests and ensuring compliance with access control policies.
+
+Explore the various types of evidence collected during an audit, including their status and creation details.
 
 ```sql+postgres
 select
-  title,
-  evidence_request_id,
-  category,
-  description,
-  restricted
-from
-  vanta_evidence;
-```
-
-```sql+sqlite
-select
-  title,
-  evidence_request_id,
-  category,
-  description,
-  restricted
-from
-  vanta_evidence;
-```
-
-### List evidences with restricted document access
-Explore which evidences have restricted document access to ensure compliance and maintain the integrity of sensitive information. This can be beneficial in situations where access needs to be limited due to confidentiality or security reasons.
-
-```sql+postgres
-select
-  title,
-  evidence_request_id,
-  category,
+  id,
+  name,
+  evidence_type,
+  status,
+  creation_date,
   description
 from
   vanta_evidence
 where
-  restricted;
+  audit_id = 'your_audit_id';
 ```
 
 ```sql+sqlite
 select
-  title,
-  evidence_request_id,
-  category,
+  id,
+  name,
+  evidence_type,
+  status,
+  creation_date,
   description
 from
   vanta_evidence
 where
-  restricted = 1;
+  audit_id = 'your_audit_id';
 ```
 
-### List non-relevant evidences
-Uncover the details of dismissed evidences in your Vanta security compliance data. This query is particularly useful in identifying and reviewing non-relevant evidences that have been marked as dismissed.
+### List evidence by status
+
+Get all evidence that is ready for audit review.
 
 ```sql+postgres
 select
-  title,
-  evidence_request_id,
-  category,
-  dismissed_status
+  id,
+  name,
+  evidence_type,
+  status,
+  status_updated_date,
+  related_control_names
 from
   vanta_evidence
 where
-  dismissed_status -> 'isDismissed' = 'true';
+  audit_id = 'your_audit_id'
+  and status = 'Ready for audit';
 ```
 
 ```sql+sqlite
 select
-  title,
-  evidence_request_id,
-  category,
-  dismissed_status
+  id,
+  name,
+  evidence_type,
+  status,
+  status_updated_date,
+  related_control_names
 from
   vanta_evidence
 where
-  json_extract(dismissed_status, '$.isDismissed') = 'true';
+  audit_id = 'your_audit_id'
+  and status = 'Ready for audit';
 ```
 
-### List evidences up for renewal within 30 days
-Explore which pieces of evidence are due for renewal within the next month. This is useful for staying on top of compliance requirements and ensuring that all evidence is updated in a timely manner.
+### List evidence by type
+
+Get all test-type evidence and their test results.
 
 ```sql+postgres
 select
-  title,
-  category,
-  renewal_metadata ->> 'nextDate' as update_by
+  id,
+  name,
+  evidence_type,
+  test_status,
+  status,
+  creation_date
 from
   vanta_evidence
 where
-  renewal_metadata ->> 'nextDate' != ''
-  and current_timestamp < (renewal_metadata ->> 'nextDate')::timestamp
-  and extract (day from ((renewal_metadata ->> 'nextDate')::timestamp - current_timestamp)) < 30
-  and dismissed_status is null;
+  audit_id = 'your_audit_id'
+  and evidence_type = 'Test';
 ```
 
 ```sql+sqlite
 select
-  title,
-  category,
-  json_extract(renewal_metadata, '$.nextDate') as update_by
+  id,
+  name,
+  evidence_type,
+  test_status,
+  status,
+  creation_date
 from
   vanta_evidence
 where
-  json_extract(renewal_metadata, '$.nextDate') != ''
-  and strftime('%s','now') < strftime('%s', json_extract(renewal_metadata, '$.nextDate'))
-  and julianday(json_extract(renewal_metadata, '$.nextDate')) - julianday('now') < 30
-  and dismissed_status is null;
+  audit_id = 'your_audit_id'
+  and evidence_type = 'Test';
 ```
 
-### Get the count of evidence by category
-Explore which categories have the most evidence. This can be useful in identifying areas that may require additional scrutiny or attention.
+### List flagged evidence
+
+Identify evidence that has been flagged for review.
 
 ```sql+postgres
 select
-  category,
-  count(title)
+  id,
+  name,
+  evidence_type,
+  status,
+  status_updated_date,
+  description,
+  related_control_names
 from
   vanta_evidence
+where
+  audit_id = 'your_audit_id'
+  and status = 'Flagged';
+```
+
+```sql+sqlite
+select
+  id,
+  name,
+  evidence_type,
+  status,
+  status_updated_date,
+  description,
+  related_control_names
+from
+  vanta_evidence
+where
+  audit_id = 'your_audit_id'
+  and status = 'Flagged';
+```
+
+### Count evidence by status
+
+Get a summary of evidence status distribution for an audit.
+
+```sql+postgres
+select
+  status,
+  count(*) as evidence_count
+from
+  vanta_evidence
+where
+  audit_id = 'your_audit_id'
 group by
-  category;
+  status
+order by
+  evidence_count desc;
 ```
 
 ```sql+sqlite
 select
-  category,
-  count(title)
+  status,
+  count(*) as evidence_count
 from
   vanta_evidence
+where
+  audit_id = 'your_audit_id'
 group by
-  category;
+  status
+order by
+  evidence_count desc;
+```
+
+### List recently created evidence
+
+Get evidence created in the last 30 days.
+
+```sql+postgres
+select
+  id,
+  name,
+  evidence_type,
+  status,
+  creation_date,
+  related_control_names
+from
+  vanta_evidence
+where
+  audit_id = 'your_audit_id'
+  and creation_date >= now() - interval '30 days'
+order by
+  creation_date desc;
+```
+
+```sql+sqlite
+select
+  id,
+  name,
+  evidence_type,
+  status,
+  creation_date,
+  related_control_names
+from
+  vanta_evidence
+where
+  audit_id = 'your_audit_id'
+  and creation_date >= datetime('now', '-30 days')
+order by
+  creation_date desc;
+```
+
+### Get specific evidence details
+
+Retrieve detailed information about a specific piece of evidence.
+
+```sql+postgres
+select
+  id,
+  external_id,
+  name,
+  evidence_type,
+  status,
+  test_status,
+  creation_date,
+  status_updated_date,
+  deletion_date,
+  description,
+  related_controls
+from
+  vanta_evidence
+where
+  audit_id = 'your_audit_id'
+  and id = 'evidence_id';
+```
+
+```sql+sqlite
+select
+  id,
+  external_id,
+  name,
+  evidence_type,
+  status,
+  test_status,
+  creation_date,
+  status_updated_date,
+  deletion_date,
+  description,
+  related_controls
+from
+  vanta_evidence
+where
+  audit_id = 'your_audit_id'
+  and id = 'evidence_id';
 ```
