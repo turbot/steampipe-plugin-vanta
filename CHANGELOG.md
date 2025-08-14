@@ -1,3 +1,9 @@
+## v2.0.3 [2025-08-14]
+
+_Bug fixes_
+
+- Fixed the `Steampipe Anywhere` workflow builds to correctly handle major plugin version releases.
+
 ## v2.0.2 [2025-08-14]
 
 _Bug fixes_
