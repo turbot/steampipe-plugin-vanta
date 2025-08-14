@@ -1,3 +1,9 @@
+## v2.0.2 [2025-08-14]
+
+_Bug fixes_
+
+- Fixed the `Steampipe Anywhere` workflow to correctly handle major plugin version releases. ([#81](https://github.com/turbot/steampipe-workflows/pull/81))
+
 ## v2.0.1 [2025-08-14]
 
 _Bug fixes_
