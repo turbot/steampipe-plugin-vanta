@@ -1,3 +1,91 @@
+## v2.0.0 [2025-08-14]
+
+_Breaking changes_
+
+### Configuration Changes
+- The plugin configuration format has changed to support the REST API.
+- You must now configure either **OAuth client credentials** or an **access token** for authentication. Please refer the [Configuration](https://hub.steampipe.io/plugins/turbot/vanta#configuration) section for additional information.
+
+### API Migration
+- Migrated from Vanta's deprecated **GraphQL** API to the new **REST** API.
+- Queries, dashboards, and benchmarks that reference removed columns (listed below) will fail until updated.
+
+### Removed Columns
+
+**`vanta_computer`**
+- `agent_version`
+- `hostname`
+- `host_identifier`
+- `last_ping`
+- `num_browser_extensions`
+- `endpoint_applications`
+- `installed_av_programs`
+- `installed_password_managers`
+- `unsupported_reasons`
+- `organization_name`
+
+**`vanta_evidence`**
+- `title`
+- `evidence_request_id`
+- `category`
+- `uid`
+- `app_upload_enabled`
+- `restricted`
+- `dismissed_status`
+- `renewal_metadata`
+- `organization_name`
+
+**`vanta_group`**
+- `checklist`
+- `embedded_idp_group`
+- `organization_name`
+
+**`vanta_integration`**
+- `description`
+- `application_url`
+- `installation_url`
+- `logo_slug_id`
+- `credentials`
+- `integration_categories`
+- `service_categories`
+- `organization_name`
+
+**`vanta_monitor`**
+- `controls`
+- `organization_name`
+
+**`vanta_policy`**
+- `policy_type`
+- `created_at`
+- `updated_at`
+- `employee_acceptance_test_id`
+- `num_users`
+- `num_users_accepted`
+- `source`
+- `acceptance_controls`
+- `approver`
+- `standards`
+- `uploaded_doc`
+- `uploader`
+- `organization_name`
+
+**`vanta_user`**
+- `is_from_scan`
+- `needs_employee_digest_reminder`
+- `is_not_human`
+
+**`vanta_vendor`**
+- `vendor_risk_locked`
+- `owner`
+- `risk_profile`
+- `organization_name`
+
+### Migration Notes
+- **Reason for change:** Vanta has ended GraphQL API support; the REST API is now the only supported interface.
+- **Action required:**
+  - Update SQL queries to remove or replace references to removed columns.
+  - Review table documentation for updated field availability.
+
 ## v1.1.0 [2025-04-18]
 
 _Breaking changes_
