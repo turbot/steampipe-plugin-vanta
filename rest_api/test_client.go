@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
+	"github.com/turbot/steampipe-plugin-vanta/v2/rest_api/model"
 )
 
 // ListTests retrieves a paginated list of comprehensive tests from Vanta

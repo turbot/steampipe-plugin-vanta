@@ -1,4 +1,4 @@
-module github.com/turbot/steampipe-plugin-vanta
+module github.com/turbot/steampipe-plugin-vanta/v2
 
 go 1.24
 

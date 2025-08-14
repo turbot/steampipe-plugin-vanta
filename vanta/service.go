@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-vanta/rest_api"
+	"github.com/turbot/steampipe-plugin-vanta/v2/rest_api"
 )
 
 // getClient:: returns vanta client after authentication

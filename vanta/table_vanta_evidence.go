@@ -7,7 +7,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-	"github.com/turbot/steampipe-plugin-vanta/rest_api/model"
+	"github.com/turbot/steampipe-plugin-vanta/v2/rest_api/model"
 )
 
 //// TABLE DEFINITION
