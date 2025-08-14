@@ -1,3 +1,9 @@
+## v2.0.1 [2025-08-14]
+
+_Bug fixes_
+
+- Updated module path to v2 and adjusted import statements for consistency.
+
 ## v2.0.0 [2025-08-14]
 
 _Breaking changes_
