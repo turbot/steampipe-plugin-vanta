@@ -4,7 +4,7 @@ _Breaking changes_
 
 ### Configuration Changes
 - The plugin configuration format has changed to support the REST API.
-- You must now configure either **OAuth client credentials** or an **access token** for authentication. Please refer the [Configuration](https://hub.steampipe.io/plugins/turbot/vanta#configuration) for additional information.
+- You must now configure either **OAuth client credentials** or an **access token** for authentication. Please refer the [Configuration](https://hub.steampipe.io/plugins/turbot/vanta#configuration) section for additional information.
 
 ### API Migration
 - Migrated from Vanta's deprecated **GraphQL** API to the new **REST** API.
