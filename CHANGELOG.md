@@ -1,3 +1,9 @@
+## v2.0.4 [2025-08-18]
+
+_Bug fixes_
+
+- Fixed the `version` flag in the export tool.
+
 ## v2.0.3 [2025-08-14]
 
 _Bug fixes_
