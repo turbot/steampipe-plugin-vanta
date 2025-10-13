@@ -1,3 +1,10 @@
+## v2.1.0 [2025-10-13]
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.24`. ([#49](https://github.com/turbot/steampipe-plugin-vanta/pull/49))
+- Recompiled plugin with [steampipe-plugin-sdk v5.13.1](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5131-2025-09-25) that addresses critical and high vulnerabilities in dependent packages. ([#52](https://github.com/turbot/steampipe-plugin-vanta/pull/52))
+
 ## v2.0.4 [2025-08-18]
 
 _Bug fixes_
