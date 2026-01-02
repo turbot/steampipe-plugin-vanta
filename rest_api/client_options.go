@@ -43,6 +43,10 @@ type Vanta interface {
 	// Evidence API methods
 	ListEvidence(ctx context.Context, auditID string, options *model.ListEvidenceOptions) (*model.ListEvidenceOutput, error)
 
+	// Vulnerability API methods
+	ListVulnerabilities(ctx context.Context, options *model.ListVulnerabilitiesOptions) (*model.ListVulnerabilitiesOutput, error)
+	GetVulnerabilityByID(ctx context.Context, id string) (*model.Vulnerability, error)
+
 	SetHTTPClient(client *http.Client)
 }
 
@@ -354,4 +358,22 @@ func (v *vanta) ListEvidence(ctx context.Context, auditID string, options *model
 
 func (v *vanta) SetHTTPClient(client *http.Client) {
 	v.httpClient = client
+}
+
+func (v *vanta) ListVulnerabilities(ctx context.Context, options *model.ListVulnerabilitiesOptions) (*model.ListVulnerabilitiesOutput, error) {
+	client := &RestClient{
+		baseURL:    v.baseURL,
+		httpClient: v.httpClient,
+		tokenStore: v.tokenStore,
+	}
+	return client.ListVulnerabilities(ctx, options)
+}
+
+func (v *vanta) GetVulnerabilityByID(ctx context.Context, id string) (*model.Vulnerability, error) {
+	client := &RestClient{
+		baseURL:    v.baseURL,
+		httpClient: v.httpClient,
+		tokenStore: v.tokenStore,
+	}
+	return client.GetVulnerabilityByID(ctx, id)
 }
