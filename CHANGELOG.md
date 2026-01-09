@@ -1,3 +1,10 @@
+## v2.2.0 [2026-01-09]
+
+_What's new?_
+
+- New tables added
+  - [vanta_vulnerability](https://hub.steampipe.io/plugins/turbot/vanta/tables/vanta_vulnerability)
+
 ## v2.1.0 [2025-10-13]
 
 _Dependencies_
