@@ -1,3 +1,9 @@
+## v2.2.1 [2026-01-10]
+
+_Dependencies_
+
+- Updated `Steampipe Anywhere` workflow builds to use `macos-14` runner.
+
 ## v2.2.0 [2026-01-09]
 
 _What's new?_
