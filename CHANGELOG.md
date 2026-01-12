@@ -9,7 +9,7 @@ _Dependencies_
 _What's new?_
 
 - New tables added
-  - [vanta_vulnerability](https://hub.steampipe.io/plugins/turbot/vanta/tables/vanta_vulnerability)
+  - [vanta_vulnerability](https://hub.steampipe.io/plugins/turbot/vanta/tables/vanta_vulnerability) ([#55](https://github.com/turbot/steampipe-plugin-vanta/pull/55))
 
 ## v2.1.0 [2025-10-13]
 
