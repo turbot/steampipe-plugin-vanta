@@ -4,15 +4,34 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-vanta/v2/rest_api"
 )
 
+// clientMutex protects against race conditions when creating the Vanta client.
+// This is necessary because when Steampipe executes queries with multiple qual
+// values (e.g., severity IN ('CRITICAL', 'HIGH')), it may call the list function
+// in parallel. Without this mutex, multiple goroutines could simultaneously
+// attempt to create clients and request OAuth tokens, which can cause token
+// invalidation issues with the Vanta API.
+var clientMutex sync.Mutex
+
 // getClient:: returns vanta client after authentication
 func getClient(ctx context.Context, d *plugin.QueryData) (rest_api.Vanta, error) {
-	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "vanta"
+
+	// First check: non-blocking read from cache
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+		return cachedData.(rest_api.Vanta), nil
+	}
+
+	// Acquire lock for client creation
+	clientMutex.Lock()
+	defer clientMutex.Unlock()
+
+	// Second check: another goroutine may have created the client while we waited
 	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return cachedData.(rest_api.Vanta), nil
 	}
