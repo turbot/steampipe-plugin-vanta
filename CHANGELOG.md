@@ -1,3 +1,9 @@
+## v2.2.2 [2026-04-03]
+
+_Bug fixes_
+
+- Fixed Darwin AMD64 Steampipe Anywhere builds producing incorrect architecture binaries due to using ARM64 runner.
+
 ## v2.2.1 [2026-01-10]
 
 _Dependencies_
