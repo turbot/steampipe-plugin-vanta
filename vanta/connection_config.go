@@ -1,7 +1,7 @@
 package vanta
 
 import (
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 type vantaConfig struct {
@@ -21,9 +21,9 @@ func ConfigInstance() interface{} {
 
 // GetConfig :: retrieve and cast connection config from query data
 func GetConfig(connection *plugin.Connection) vantaConfig {
-	if connection == nil || connection.Config == nil {
+	if connection == nil || connection.GetConfig() == nil {
 		return vantaConfig{}
 	}
-	config, _ := connection.Config.(vantaConfig)
+	config, _ := connection.GetConfig().(vantaConfig)
 	return config
 }

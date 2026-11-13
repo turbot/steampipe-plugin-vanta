@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 	"github.com/turbot/steampipe-plugin-vanta/v2/rest_api"
 )
 
@@ -13,7 +13,7 @@ import (
 func getClient(ctx context.Context, d *plugin.QueryData) (rest_api.Vanta, error) {
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "vanta"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(rest_api.Vanta), nil
 	}
 
@@ -44,7 +44,7 @@ func getClient(ctx context.Context, d *plugin.QueryData) (rest_api.Vanta, error)
 	}
 
 	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, client)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, client)
 
 	return client, nil
 }

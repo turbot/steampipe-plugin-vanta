@@ -168,7 +168,7 @@ func (v *vanta) refreshToken(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to execute http request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
