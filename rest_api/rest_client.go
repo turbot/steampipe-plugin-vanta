@@ -70,7 +70,7 @@ func (c *RestClient) makeRequest(ctx context.Context, method, path string, query
 
 // readResponseBody reads and validates HTTP response
 func (c *RestClient) readResponseBody(resp *http.Response) ([]byte, error) {
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {

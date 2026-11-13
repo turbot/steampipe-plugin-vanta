@@ -3,7 +3,7 @@ package vanta
 import (
 	"slices"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 // function which returns an ErrorPredicate for OCI API calls
